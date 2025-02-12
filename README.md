@@ -93,13 +93,9 @@ Every cell in the human body contains the same DNA, but different genes are **ex
   [GitHub](https://github.com/khmorad)  
   [LinkedIn](https://linkedin.com/in/kmoradpour)  
 
-- **[New Team Member 1]**  
-  [GitHub](#)  
-  [LinkedIn](#)  
-
-- **[New Team Member 2]**  
-  [GitHub](#)  
-  [LinkedIn](#)  
+- **Ashkan Ashkan Nikfarjam**  
+  [GitHub](https://github.com/ANikfarjam)  
+  [LinkedIn](#) <--need to include your link
 
 ## References
 - [NCBI GEO Database](https://www.ncbi.nlm.nih.gov/geo/)
