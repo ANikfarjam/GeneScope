@@ -1,22 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { login } from "../auth";
+import { signUp } from "../auth";
 import Link from "next/link";
-import "../styles/login.css"; // Import CSS for styling
+import "../styles/register.css"; // Import CSS for styling
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await login(email, password);
+    const response = await signUp(email, password);
     if (response.error) {
       setError(response.error);
     } else {
-      alert("Logged in successfully!");
+      alert("Account created successfully!");
     }
   };
 
@@ -25,9 +25,9 @@ export default function LoginPage() {
       <div className="top"></div>
       <div className="bottom"></div>
       <div className="center">
-        <h2>Please Sign In</h2>
+        <h2>Create an Account</h2>
         {error && <p className="text-red-500">{error}</p>}
-        <form onSubmit={handleLogin} className="w-full">
+        <form onSubmit={handleRegister} className="w-full">
           <input
             type="email"
             placeholder="Email"
@@ -42,14 +42,14 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button type="submit" className="login-btn">
-            Login
+          <button type="submit" className="register-btn">
+            Register
           </button>
         </form>
         <p className="mt-4 text-gray-600">
-          Don't have an account?{" "}
-          <Link href="/register" className="text-blue-600 hover:underline">
-            Register
+          Already have an account?{" "}
+          <Link href="/login" className="text-blue-600 hover:underline">
+            Login
           </Link>
         </p>
       </div>
