@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/router";
 import { login } from "../auth";
 import Link from "next/link";
 import "../styles/login.css"; // Import CSS for styling
@@ -9,14 +10,16 @@ export default function LoginPage() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-
+  const router = useRouter();
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const response = await login(email, password);
     if (response.error) {
       setError(response.error);
     } else {
-      alert("Logged in successfully!");
+      console.log("Logged in successfully!");
+      //for now we redirect to home page
+      router.push("/");
     }
   };
 

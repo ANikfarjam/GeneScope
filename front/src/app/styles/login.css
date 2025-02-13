@@ -41,8 +41,8 @@ body {
   &:before, &:after {
     content: '';
     display: block;
-    position: absolute;
-    width: 300vmax;
+    position: fixed;
+    width: 400vmax;
     height: 200vmax;
     top: 50%;
     left: 50%;
