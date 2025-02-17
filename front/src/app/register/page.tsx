@@ -9,10 +9,10 @@ export default function RegisterPage() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-
+  const [username, setUsername] = useState<string>("");
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await signUp(email, password);
+    const response = await signUp(email, password, username);
     if (response.error) {
       setError(response.error);
     } else {
@@ -28,6 +28,13 @@ export default function RegisterPage() {
         <h2>Create an Account</h2>
         {error && <p className="text-red-500">{error}</p>}
         <form onSubmit={handleRegister} className="w-full">
+        <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
           <input
             type="email"
             placeholder="Email"
