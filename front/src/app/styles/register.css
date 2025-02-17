@@ -41,8 +41,8 @@ body {
   &:before, &:after {
     content: '';
     display: block;
-    position: absolute;
-    width: 200vmax;
+    position: fixed;
+    width: 400vmax;
     height: 200vmax;
     top: 50%;
     left: 50%;
@@ -82,7 +82,7 @@ body {
   width: 400px;
   height: 400px;
   top: 50%;
-  left: 50%;
+  left: 60%;
   transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
@@ -103,6 +103,7 @@ body {
 }
 
 .center input {
+  color: #333;
   width: 100%;
   padding: 12px;
   margin: 8px 0;
@@ -111,7 +112,7 @@ body {
   font-family: inherit;
 }
 
-.register-btn {
+.login-btn {
   width: 100%;
   padding: 12px;
   margin-top: 10px;
@@ -124,6 +125,6 @@ body {
   transition: background 0.3s ease;
 }
 
-.register-btn:hover {
+.login-btn:hover {
   background: #555;
 }

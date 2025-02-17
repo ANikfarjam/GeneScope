@@ -49,12 +49,12 @@ export default function RegisterPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button type="submit" className="register-btn">
+          <button type="submit" className="login-btn">
             Register
           </button>
         </form>
         <p className="mt-4 text-gray-600">
-          Already have an account?{" "}
+          Existing account?{" "}
           <Link href="/login" className="text-blue-600 hover:underline">
             Login
           </Link>
