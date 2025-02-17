@@ -14,12 +14,18 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const response = await login(email, password);
+  
     if (response.error) {
       setError(response.error);
-    } else {
+    } else if (response.user) { 
       console.log("Logged in successfully!");
-      //for now we redirect to home page
-      router.push("/");
+      localStorage.setItem("user", JSON.stringify({
+        username: response.user.displayName ?? "Anonymous", 
+        email: response.user.email ?? "No email",
+      }));
+      router.push("/dashboard");
+    } else {
+      setError("Unexpected error: User data not found.");
     }
   };
 
