@@ -2,6 +2,8 @@
 
 import { Bar, Line, Pie } from "react-chartjs-2";
 import Sidebar from "../components/sideBar";
+import Chatbot from "../components/ChatBot";
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -107,6 +109,11 @@ export default function Dashboard() {
               />
             </div>
           </div>
+        </div>
+
+        {/* Chatbot Section */}
+        <div className="mt-10">
+          <Chatbot />
         </div>
       </div>
     </div>
