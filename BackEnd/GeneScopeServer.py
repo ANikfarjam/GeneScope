@@ -4,10 +4,7 @@ from routers.UserDataClassificationRoute import classification_blueprint
 from routers.GeneExpressionsranking import GEOAHP_bp
 app = Flask(__name__)
 # allow universal requests
-CORS(app, resources={
-    #r"/api/*": {"origins": "http://localhost:3000"},
-    r"/*": {"origins": "http://localhost:3000"}
-})
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 #register routes
 app.register_blueprint(classification_blueprint)
 app.register_blueprint(GEOAHP_bp)
