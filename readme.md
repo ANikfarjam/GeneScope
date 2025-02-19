@@ -1,4 +1,4 @@
-![AltText](cover.png)
+![AltText](/project_insites/cover.png)
 
 # <span style="color: green">Cancer Classification for varius breast cancer mutation using HMM</span>
 
@@ -7,7 +7,7 @@ The purpose of this project is to use Hidden Markov model for cancer classificat
 
 **Front End schema**
 
-![FrontEnd](FrontEndImplementation.png)
+![FrontEnd](/project_insites/FrontEndImplementation.png)
 
 ## <span style="color: green">Broader impact</span>
 
@@ -25,7 +25,7 @@ The purpose of this project is to use Hidden Markov model for cancer classificat
 
 Breast cancer is the most frequently diagnosed cancer in women and ranked as a worldwide leading fatal illness. Cancer develops primarily from the cells that line both milk ducts and lobules that perform milk production and transportation functions. The majority of breast cancer cases occur in female patients but it does develop in males. 
 
-![breastcancer](BreastCancer.png)
+![breastcancer](/project_insites/BreastCancer.png)
 
 Medical statistics indicate that women make up the majority of breast cancer patients in the United States where 310,720 new cases are predicted for 2024. Statistics show that breast cancer will affect 2,790 male patients during this period. Breast cancer affects men in 0.9% of total breast cancer cases while women stand at 99.1% of the total cases. The illness initially stays contained in breast tissue yet advances to penetrate neighboring tissues prior to reaching lymph nodes and distant parts of the body through bloodstream or lymphatic systems. The correct early discovery and group assignment of breast cancer remains essential because different breast cancer subtypes demand particular treatment methodologies which enhance survival outcomes.
 
@@ -52,7 +52,7 @@ This data is consist of RNA-Seq data for 9264 tumor samples and 741 normal sampl
 
 The gene espressions are using Illumina Sequencing steps:
 
-![Limmunia](Illumina-Sequencing-Steps-1644x2048.webp)
+![Limmunia](/project_insites/Illumina-Sequencing-Steps-1644x2048.webp)
 
 Steps/Process of Illumina Sequencing
 1. Nucleic Acid Extraction
