@@ -100,3 +100,39 @@ Instead of relying on human experts, this method uses statistical rankings to cr
 
 # <span style='color: green'> HMM </span>
 HMMs are designed following a supervised learning approach so that they are capable of realizing knowledge available from cancer training data. Cancer often develops through different stages. These stages resemble the state transition of HMMs. In addition, the modularity characteristic of HMMs allows them to be combined into larger ones where each HMM is individually trained for each cancer data class. Given a new sample, trained HMMs can predict whether it is from a cancer or normal cell.
+
+## rough Sprint Plan 
+
+| Week Ending | Task |
+|-------------|------|
+| **Feb 16, 2025** | Data selection and preprocessing |
+| **Feb 23, 2025** | Feature extraction and gene ranking implementation |
+| **Mar 2, 2025** | Initial HMM model training and evaluation |
+| **Mar 9, 2025** | Refine model performance and hyperparameter tuning |
+| **Mar 16, 2025** | Implement API endpoints for data retrieval |
+| **Mar 23, 2025** | Develop frontend visualization and user interface |
+| **Mar 30, 2025** | Integrate frontend with backend services |
+| **Apr 6, 2025** | Perform full model validation and testing |
+| **Apr 13, 2025** | Optimize API response times and finalize documentation |
+| **Apr 20, 2025** | Deploy project on cloud and prepare for final presentation |
+| **Apr 27, 2025** | Conduct final tests and improve UI/UX based on feedback |
+| **May 4, 2025** | Wrap up project and submit final version |
+
+## Team Members
+
+- **Yar Moradpour**  
+  [GitHub](https://github.com/khmorad)  
+  [LinkedIn](https://linkedin.com/in/kmoradpour)  
+
+- **Ashkan Ashkan Nikfarjam**  
+  [GitHub](https://github.com/ANikfarjam)  
+  [LinkedIn](#) <--need to include your link
+
+## References
+- [NCBI GEO Database](https://www.ncbi.nlm.nih.gov/geo/)
+- [Hidden Markov Models in Cancer Research](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4478970/)
+- [Breast Cancer Statistics 2024](https://www.cancer.org/)
+
+## Contact
+For questions or collaboration opportunities, reach out via:
+- **Email**: khakho.morad@gmail.com
