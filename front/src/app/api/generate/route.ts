@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ result: response.choices[0].message?.content });
   } catch (error) {
-    console.error("OpenAI API Error:", error);
+    console.error("OpenAI API Error Please inser a key:", error);
     return NextResponse.json({ error: "Failed to fetch response" }, { status: 500 });
   }
 }
