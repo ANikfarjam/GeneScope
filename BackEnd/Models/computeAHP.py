@@ -1,14 +1,15 @@
 from rich.progress import Progress
-import BackEnd.Models.ahpFunctions as ahpFunctions
+import ahpFunctions as ahpFunctions
 import pandas as pd
 import numpy as np
 
 # Load datasets
-mutated_df = pd.read_csv("../../data/mutatedDataSet.CSV", index_col=0)  # Cancer data
-benign_df = pd.read_csv("../../data/normalDataset.CSV", index_col=0)  # Healthy data
+mutated_df = pd.read_csv("../../data/DCIS_IDC_Normal.csv", index_col=0)  # Cancer data
+benign_df = pd.read_csv("../../data/DCIS_IDC_Malignant.csv", index_col=0)  # Healthy data
 mutated_df.fillna(0, inplace=True)
 benign_df.fillna(0, inplace=True)
 num_samples = min(mutated_df.shape[1], benign_df.shape[1])
+
 
 # Use progress bar to track computations
 results = {}
@@ -38,11 +39,12 @@ with Progress() as progress:
     results["AHP_Score"] = scores
     progress.update(task, advance=1)
 
-    results["Eigen_Values"]= eigenvalues
-    progress.update(task, advance=1)
+    # results["Eigen_Values"]= eigenvalues
+    # progress.update(task, advance=1)
 
 # Create DataFrame with results
 results_df = pd.DataFrame({"Gene": mutated_df.index.tolist(), **results})
 
 print(results_df.head())
 results_df.to_csv("ahp.csv", index=False)
+np.save("eigen_vectors.npy", eigenvalues)
