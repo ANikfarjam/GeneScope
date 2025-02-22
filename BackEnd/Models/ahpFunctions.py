@@ -37,26 +37,25 @@ def compute_snr(cancer_samples, normal_samples):
 
 def construct_pairwise_matrix(scores):
     print("constructing pariwize Metrix!")
+
     num_genes = len(scores)
     matrix = np.ones((num_genes, num_genes))
 
-    max_distance = np.nanmax(np.abs(scores[:, None] - scores[None, :])) + 1e-10
+    # Compute pairwise absolute differences using broadcasting
+    score_diffs = np.abs(scores[:, None] - scores[None, :])
 
-    for i in tqdm.tqdm(range(num_genes), desc="Constructing Pairwize Matrix:", total=num_genes):
-        # print("gene", i)
-        for j in range(num_genes):
-            diff = np.abs(scores[i] - scores[j])
-            # Normalize difference using a softmax-like function to avoid extreme values
-            normalized_diff = diff / (max_distance + 1e-10)
-            # Scale within [1,10] using an exponential function, but limit extreme values
-            scaled_diff = np.exp(np.clip(normalized_diff * np.log(10), 0, 10))
+    # Normalize the differences
+    max_distance = np.nanmax(score_diffs) + 1e-10
+    normalized_diff = score_diffs / (max_distance + 1e-10)
 
-            if scores[i] >= scores[j]:
-                matrix[i, j] = scaled_diff
-            else:
-                matrix[i, j] = 1 / scaled_diff
+    # Compute scaling factor in a numerically stable way
+    scaled_diff = np.exp(np.clip(normalized_diff * np.log(10), 0, 10))
+
+    # Construct the pairwise comparison matrix efficiently
+    matrix = np.where(scores[:, None] >= scores[None, :], scaled_diff, 1 / scaled_diff)
 
     return np.nan_to_num(matrix, nan=1.0)
+
 
 
 def compute_priority_vector(matrix):
