@@ -7,6 +7,7 @@ import { FiSend, FiPlus, FiMoreHorizontal } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Bar, Line, Pie } from "react-chartjs-2";
+
 import {
   Chart as ChartJS,
   CategoryScale,
