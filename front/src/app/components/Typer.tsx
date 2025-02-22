@@ -14,8 +14,8 @@ const Typer = ({ text }: TyperProps) => {
   useEffect(() => {
     let index = 0;
     const interval = setInterval(() => {
-      if (index < text.length) {
-        setDisplayText((prev) => prev + text[index]);
+      if (index <= text.length) {
+        setDisplayText(text.slice(0, index));
         index++;
       } else {
         clearInterval(interval);
@@ -25,7 +25,11 @@ const Typer = ({ text }: TyperProps) => {
     return () => clearInterval(interval);
   }, [text]);
 
-  return <ReactMarkdown className="prose max-w-none" remarkPlugins={[remarkGfm]}>{displayText}</ReactMarkdown>;
+  return (
+    <ReactMarkdown className="prose max-w-none" remarkPlugins={[remarkGfm]}>
+      {displayText}
+    </ReactMarkdown>
+  );
 };
 
 export default Typer;

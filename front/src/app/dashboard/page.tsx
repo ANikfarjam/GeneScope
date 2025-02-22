@@ -18,7 +18,6 @@ import {
 } from "chart.js";
 import { useState } from "react";
 
-// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -32,8 +31,7 @@ ChartJS.register(
 );
 
 export default function Dashboard() {
-  // Sample data state
-  const [chartData, setChartData] = useState({
+  const [chartData] = useState({
     labels: ["January", "February", "March", "April", "May"],
     datasets: [
       {
@@ -46,18 +44,18 @@ export default function Dashboard() {
     ],
   });
 
-  // Chart options
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: true,
-      },
-      title: {
-        display: true,
-      },
-    },
-  };
+  //// Chart options
+  //const options = {
+  //  responsive: true,
+  //  plugins: {
+  //    legend: {
+  //      display: true,
+  //    },
+  //    title: {
+  //      display: true,
+  //    },
+  //  },
+  //};
 
   return (
     <div className="flex">
