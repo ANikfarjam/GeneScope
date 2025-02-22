@@ -54,20 +54,21 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-2xl p-6 w-full npm  h-[500px] max-w-[1050px] mx-auto text-black flex flex-col">
+    <div className="bg-white shadow-lg rounded-2xl p-6 w-full h-[500px] max-w-[1050px] mx-auto text-black flex flex-col">
       <h2 className="text-2xl font-bold text-gray-800 text-center mb-4">Chatbot</h2>
 
       {/* Chat Messages Container */}
       <div className="flex-1 overflow-y-auto border rounded-lg p-4 bg-gray-100 space-y-3 shadow-inner">
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-            <p
+            {/* Fix: Replace <p> with <div> to prevent hydration error */}
+            <div
               className={`px-4 py-2 rounded-xl text-sm max-w-[80%] ${
                 msg.role === "user" ? "bg-blue-500 text-white" : "bg-gray-300 text-black"
               }`}
             >
-              {msg.role === "assistant" ? <Typer text={msg.content} /> : msg.content}
-            </p>
+              {msg.role === "assistant" ? <span><Typer text={msg.content} /></span> : msg.content}
+            </div>
           </div>
         ))}
         {loading && (
@@ -77,13 +78,13 @@ export default function Chatbot() {
         )}
       </div>
 
-      <div className="mt-4 flex items-center bg-white border border-gray-300 rounded-full p-2 shadow-md  mx-auto">
+      <div className="mt-4 flex items-center bg-white border border-gray-300 rounded-full p-2 shadow-md mx-auto">
         <button className="p-2 text-gray-500 hover:text-gray-700 transition">
           <FiPlus size={20} />
         </button>
         <input
           type="text"
-          className="flex-1 p-2 bg-transparent border-none  focus:outline-none text-gray-800 placeholder-gray-400"
+          className="flex-1 p-2 bg-transparent border-none focus:outline-none text-gray-800 placeholder-gray-400"
           placeholder="Type your message..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
