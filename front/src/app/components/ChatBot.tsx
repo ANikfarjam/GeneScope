@@ -132,8 +132,8 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-2xl p-6 w-full h-[500px] max-w-[1050px] mx-auto text-black flex flex-col">
-      <h2 className="text-2xl font-bold text-gray-800 text-center mb-4">Chatbot</h2>
+    <div className="p-6 w-full h-[500px] max-w-[1050px] mx-auto text-black flex flex-col bg-transparent shadow-none border-none">
+    <h2 className="text-2xl font-bold text-gray-800 text-center mb-4 hidden">Chatbot</h2>
 
       {/* Chat Messages Container */}
       <div className="flex-1 overflow-y-auto border rounded-lg p-4 bg-gray-100 space-y-3 shadow-inner">

@@ -27,15 +27,17 @@ const Navbar = () => {
           <Link href="/" className="text-2xl font-bold text-pink-600">
             Breast Cancer AI
           </Link>
-
           <div className="hidden md:flex space-x-6">
-
             <Link href="/about" className="text-gray-700 hover:text-pink-500">
               About
             </Link>
             <Link href="/visualization" className="text-gray-700 hover:text-pink-500">
-              Visualization
+              Objective
             </Link>
+            <Link href="/visualization" className="text-gray-700 hover:text-pink-500">
+              Major Finding
+            </Link>
+            
 
 
             {/* If user is logged in, show Welcome and Logout */}

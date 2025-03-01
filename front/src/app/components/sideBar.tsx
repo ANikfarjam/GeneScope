@@ -6,7 +6,8 @@ import { FiHome, FiBarChart, FiUser, FiMenu, FiX } from "react-icons/fi";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
-
+  // User History
+  // Explaination
   return (
     <div className={`h-screen bg-gray-900 text-white flex flex-col ${isOpen ? "w-64" : "w-16"} transition-all duration-300 fixed`}>
       {/* Toggle Button */}
