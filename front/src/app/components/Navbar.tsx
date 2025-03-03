@@ -25,7 +25,7 @@ const Navbar = () => {
       <div className="max-w-6xl mx-auto px-6">
         <div className="flex justify-between items-center py-4">
           <Link href="/" className="text-2xl font-bold text-pink-600">
-            Breast Cancer AI
+            GeneScope
           </Link>
           <div className="hidden md:flex space-x-6">
             <Link href="/about" className="text-gray-700 hover:text-pink-500">
