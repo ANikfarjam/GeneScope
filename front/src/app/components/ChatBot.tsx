@@ -132,7 +132,7 @@ export default function Chatbot() {
   };
 
   return (
-    <div className="p-6 w-full h-[500px] max-w-[1050px] mx-auto text-black flex flex-col bg-transparent shadow-none border-none">
+    <div className="p-6 w-full h-[800px] max-w-[1050px] mx-auto text-black flex flex-col bg-transparent shadow-none border-none">
     <h2 className="text-2xl font-bold text-gray-800 text-center mb-4 hidden">Chatbot</h2>
 
       {/* Chat Messages Container */}
