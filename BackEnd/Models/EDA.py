@@ -4,7 +4,7 @@ __generated_with = "0.11.7"
 app = marimo.App(width="medium")
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     import marimo as mo
     return (mo,)
@@ -374,18 +374,16 @@ def _(mo):
 
 
 @app.cell
-def _(cancerBRCA_type_df, get_samples_df, melignent_df, pd):
+def _(pd):
+    """
     df1 =get_samples_df('../../data/GSE62944_RAW/GSM1536837_06_01_15_TCGA_24.tumor_Rsubread_TPM.txt', cancerBRCA_type_df['Samples'].to_list())
     df2 =get_samples_df('../../data/GSE62944_RAW/GSM1536837_06_01_15_TCGA_24.tumor_Rsubread_TPM.txt', melignent_df['Samples'].to_list())
     cancer_dataSet = pd.concat([df1.T,df2.T],ignore_index=False)
     cancer_dataSet=cancer_dataSet.astype(float)
-    return cancer_dataSet, df1, df2
+    """
 
-
-@app.cell
-def _():
-    # cancer_dataSet.to_csv('../../data/ModelDataSets/cancerExpressions.csv')
-    return
+    cancer_dataSet = pd.read_csv('../../data/ModelDataSets/cancerExpressions.csv')
+    return (cancer_dataSet,)
 
 
 @app.cell
@@ -617,10 +615,139 @@ def _(mo):
 
 
 @app.cell
-def _(mo, pd):
+def _(pd):
     ahp_df= pd.read_csv('Mod_ahp_scores.csv')
-    mo.ui.table(ahp_df)
+    # mo.ui.table(ahp_df.sort_values(by='Scores', ascending=False))
     return (ahp_df,)
+
+
+@app.cell(hide_code=True)
+def _(ahp_df, mo):
+    import altair as alt
+
+    # Sort and take top 300 genes
+    ahp_top = ahp_df.sort_values(by='Scores', ascending=False).iloc[:300, :]
+
+    # Ensure "Gene" column is retained and treated as string
+    ahp_top_scaled = ahp_top.copy()
+    ahp_top_scaled.iloc[:, 1:] *= 1e6  # Apply scaling
+    ahp_top_scaled['Gene'] = ahp_top_scaled['Gene'].astype(str)
+
+    # Selection for interactive brushing
+    brush = alt.selection_interval(encodings=['x', 'y'])
+
+    # Scatter Plot (Interactive)
+    scatter = alt.Chart(ahp_top_scaled).mark_circle(size=60).encode(
+        x='Scores:Q',
+        y='t_test:Q',
+        tooltip=['Gene:N', 'Scores:Q', 't_test:Q', 'entropy:Q', 'roc_auc:Q', 'snr:Q'],
+        color=alt.condition(brush, alt.value('steelblue'), alt.value('lightgray'))
+    ).add_params(brush).properties(
+        width=700,
+        height=400,
+        title="Gene Scores vs. t-test"
+    )
+
+    # Get top 10 genes for default view
+    top_10_genes = ahp_top_scaled.nlargest(10, 'Scores')
+
+    # Bar Chart (t_test & entropy)
+    bar = alt.Chart(ahp_top_scaled).transform_fold(
+        ['t_test', 'entropy'], as_=['Metric', 'Value']
+    ).mark_bar().encode(
+        x=alt.X('Gene:N', title="Gene", sort='-y'),
+        y=alt.Y('Value:Q', title="Metric Value"),
+        color='Metric:N',
+        tooltip=['Gene:N', 'Metric:N', 'Value:Q']
+    ).transform_filter(
+        brush  # Filter dynamically based on selection
+    ).properties(
+        width=700,
+        height=200,
+        title="t_test and Entropy for Selected Genes"
+    )
+
+    # Table that dynamically updates on selection
+
+    def gene_table():
+        selected_genes = ahp_top_scaled.loc[ahp_top_scaled['Gene'].isin(top_10_genes['Gene'])]
+
+        if not brush.empty:
+            selected_genes = ahp_top_scaled  # Show selected genes when brush is used
+
+        return mo.ui.table(selected_genes)
+
+    table = gene_table()
+
+    # Combine all charts and table
+    interactive_chart = alt.vconcat(scatter, bar)
+    mo.vstack([interactive_chart, table])
+    return (
+        ahp_top,
+        ahp_top_scaled,
+        alt,
+        bar,
+        brush,
+        gene_table,
+        interactive_chart,
+        scatter,
+        table,
+        top_10_genes,
+    )
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""## <span style="color: green">PairWize MAtrix Visualization""")
+    return
+
+
+@app.cell
+def _():
+    import pickle
+    # from scipy.sparse import csr_matrix
+    # # Open the large Pickle file without fully loading it
+    # with open("pwm_pickl.pkl", "rb") as f:
+    #     while True:
+    #         try:
+    #             pwm_chunk = pickle.load(f)  # Load one pairwise matrix at a time
+    #             for key, sparse_matrix in pwm_chunk.items():
+    #                 print(f"Processing sparse matrix for: {key}")
+    #                 sparse_matrix = csr_matrix(sparse_matrix)  # Convert if necessary
+    #         except EOFError:
+    #             break  # Stop when end of file is reached
+    with open("pwm_pickl.pkl", "rb") as fs:
+        pwm = pickle.load(fs)
+        print(pwm.keys())
+        #'t_test', 'entropy', 'roc_auc', 'snr
+        t_test_matrix = pwm['t_test']
+        entropy_matrix = pwm['entropy']
+        roc_matrix = pwm['roc_auc']
+        snr_matrix = pwm['snr']
+    return (
+        entropy_matrix,
+        fs,
+        pickle,
+        pwm,
+        roc_matrix,
+        snr_matrix,
+        t_test_matrix,
+    )
+
+
+@app.cell
+def _(ahp_df, pd, t_test_matrix):
+    # Convert sparse matrix to dense format
+    dense_matrix = t_test_matrix.toarray()  # Convert sparse to dense numpy array
+
+
+    # Create a DataFrame with gene names as both index and columns
+    pairwise_df = pd.DataFrame(dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene)
+
+    # Replace NaN values (if any) with 0
+    pairwise_df.fillna(0, inplace=True)
+    pairwise_df.head()
+    return dense_matrix, pairwise_df
 
 
 @app.cell(hide_code=True)
@@ -650,37 +777,18 @@ def _(pd):
 
 
 @app.cell
-def _(cancer_dataSet, df, healthy_dataSet):
-    # healthyBRCAList = healthy_dataSet.index
-    # cancerBRCAList = cancer_dataSet.index
+def _(cancer_dataSet, df, healthy_dataSet, mo):
+    healthyBRCAList = healthy_dataSet.index
+    cancerBRCAList = cancer_dataSet.index
 
-    BRCA_CV = df[df['Samples'].isin(healthy_dataSet.index) | df['Samples'].isin(cancer_dataSet.index)]
-    BRCA_CV
-    return (BRCA_CV,)
+    BRCA_CV = df[df['Samples'].isin(healthyBRCAList) | df['Samples'].isin(cancerBRCAList)]
+    mo.ui.table(BRCA_CV)
+    return BRCA_CV, cancerBRCAList, healthyBRCAList
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""The table above show all the columns of this suplementory data file. After extracting the ones related to BRCA, lets delve in more to find out what type of analysis we can do on this.""")
-    return
-
-
-@app.cell
-def _(BRCA_CV, cancer_dataSet, healthy_dataSet):
-    exploratoryData = BRCA_CV.copy()
-    def label_samples(sample):
-        if sample in healthy_dataSet.index:
-            return 'No_BRCA'
-        if sample in cancer_dataSet.index:
-            return 'No_BRCA'
-    exploratoryData['Samples']=exploratoryData['Samples'].apply(label_samples)
-    exploratoryData
-    return exploratoryData, label_samples
-
-
-@app.cell
-def _(exploratoryData):
-    exploratoryData.Samples.value_counts()
     return
 
 
