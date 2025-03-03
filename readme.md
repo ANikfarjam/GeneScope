@@ -3,11 +3,14 @@
 # <span style="color: green">Cancer Classification for varius breast cancer mutation using HMM</span>
 
 ## Goal:
-The purpose of this project is to use Hidden Markov model for cancer classification using gene expression profiles. The model is designed to classify different types of cancer by modeling the gene expression of each tumor type with an HMM. This method focuses on selecting the most informative utlizing AHP methods such as t-test, entropy, receiver operating characteristic curve, Wilcoxon test and signal to noise ratio. 
+Breast cancer ranks as a widespread serious condition and develops primarily from the cells that line both milk ducts and lobules that perform milk production and transportation functions. During 2024, over  300,000 new cases were diagnosed among  women only in the U.S (NCBI). Thus correct diagnosis and treatment in early stages is very crucial for patients’ well being. In this project we are aiming study Breast Cancer related biomarkers and charactristics as well as developing a predictive model to analyze prognosis of breast cancer stages using gene expression data and as well as pacients profile (age, gender, race, health status and history). Gene scope futher more provides a comprehansive platform for research and testing their samples. 
 
-**Front End schema**
+# Background 
 
-![FrontEnd](/project_insites/FrontEndImplementation.png)
+ This cancer primarily develops from the cells that line both milk ducts and lobules that perform milk production and transportation functions. It mainly have invasive and non invasive stages. When th ecancerous 
+
+![breastcancer](BreastCancer.png)
+
 
 ## <span style="color: green">Broader impact</span>
 

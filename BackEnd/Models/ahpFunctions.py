@@ -3,6 +3,7 @@ import pandas as pd
 from scipy.stats import ttest_ind, rankdata, entropy
 from sklearn.metrics import roc_auc_score
 from scipy.linalg import eig
+from rich.progress import Progress
 import tqdm
 
 def compute_t_test(cancer_samples, normal_samples):
@@ -37,7 +38,7 @@ def compute_snr(cancer_samples, normal_samples):
 
 def construct_pairwise_matrix(scores):
     print("constructing pariwize Metrix!")
-
+    
     num_genes = len(scores)
     matrix = np.ones((num_genes, num_genes))
 
