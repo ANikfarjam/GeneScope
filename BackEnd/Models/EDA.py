@@ -622,13 +622,15 @@ def _(pd):
     return (ahp_df,)
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(ahp_df, mo):
     import altair as alt
+
     # Ensure Altair handles large datasets
     alt.data_transformers.enable("vegafusion")
-    # Sort and take top 300 genes
-    ahp_top = ahp_df.sort_values(by='Scores', ascending=False).iloc[:1000,:]
+
+    # Sort and take top 1000 genes
+    ahp_top = ahp_df.sort_values(by='Scores', ascending=False).iloc[:1000, :]
 
     # Ensure "Gene" column is retained and treated as string
     ahp_top_scaled = ahp_top.copy()
@@ -653,8 +655,7 @@ def _(ahp_df, mo):
     # Get top 10 genes for default view
     top_10_genes = ahp_top_scaled.nlargest(10, 'Scores')
 
-    plot_to_show = top_10_genes if not brush else ahp_top_scaled
-    # Bar Chart (t_test & entropy) with only top 10 genes before selection
+    # Bar Chart (t_test & entropy) with top 10 genes by default
     bar = (
         alt.Chart(ahp_top_scaled)
         .transform_fold(['t_test', 'entropy'], as_=['Metric', 'Value'])
@@ -666,28 +667,24 @@ def _(ahp_df, mo):
             tooltip=['Gene:N', 'Metric:N', 'Value:Q']
         )
         .transform_filter(
-            # Show any gene that the brush has selected (brush)
-            # OR any gene in the top 10 (FieldOneOfPredicate)
-            brush | alt.FieldOneOfPredicate(field='Gene', oneOf=top_10_genes['Gene'].tolist())
+            brush  # Apply selection filtering
+        )
+        .transform_filter(
+            alt.FieldOneOfPredicate(field='Gene', oneOf=top_10_genes['Gene'].tolist())  # Show top 10 genes when no selection
         )
         .properties(width=700, height=200, title="t_test & Entropy for Selected Genes")
     )
 
-    # Table that dynamically updates on selection
-
+    # Table - Show only top 10 genes, no direct brush filtering in Python
     def gene_table():
-        selected_genes = ahp_top_scaled.loc[ahp_top_scaled['Gene'].isin(top_10_genes['Gene'])]
-
-        if not brush.empty:
-            selected_genes = ahp_top_scaled  # Show selected genes when brush is used
-
-        return mo.ui.table(selected_genes)
+        return mo.ui.table(top_10_genes)
 
     table = gene_table()
 
     # Combine all charts and table
     interactive_chart = alt.vconcat(scatter, bar)
     mo.vstack([interactive_chart, table])
+
     return (
         ahp_top,
         ahp_top_scaled,
@@ -696,7 +693,6 @@ def _(ahp_df, mo):
         brush,
         gene_table,
         interactive_chart,
-        plot_to_show,
         scatter,
         table,
         top_10_genes,
