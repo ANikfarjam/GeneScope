@@ -388,6 +388,7 @@ def _(pd):
 
 @app.cell
 def _(cancer_dataSet, mo):
+    cancer_dataSet.rename(columns={'Unnamed: 0':'Samples'}, inplace=True)
     mo.ui.table(cancer_dataSet)
     return
 
@@ -621,12 +622,15 @@ def _(pd):
     return (ahp_df,)
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(ahp_df, mo):
     import altair as alt
 
-    # Sort and take top 300 genes
-    ahp_top = ahp_df.sort_values(by='Scores', ascending=False).iloc[:300, :]
+    # Ensure Altair handles large datasets
+    alt.data_transformers.enable("vegafusion")
+
+    # Sort and take top 1000 genes
+    ahp_top = ahp_df.sort_values(by='Scores', ascending=False).iloc[:1000, :]
 
     # Ensure "Gene" column is retained and treated as string
     ahp_top_scaled = ahp_top.copy()
@@ -651,37 +655,36 @@ def _(ahp_df, mo):
     # Get top 10 genes for default view
     top_10_genes = ahp_top_scaled.nlargest(10, 'Scores')
 
-    # Bar Chart (t_test & entropy)
-    bar = alt.Chart(ahp_top_scaled).transform_fold(
-        ['t_test', 'entropy'], as_=['Metric', 'Value']
-    ).mark_bar().encode(
-        x=alt.X('Gene:N', title="Gene", sort='-y'),
-        y=alt.Y('Value:Q', title="Metric Value"),
-        color='Metric:N',
-        tooltip=['Gene:N', 'Metric:N', 'Value:Q']
-    ).transform_filter(
-        brush  # Filter dynamically based on selection
-    ).properties(
-        width=700,
-        height=200,
-        title="t_test and Entropy for Selected Genes"
+    # Bar Chart (t_test & entropy) with top 10 genes by default
+    bar = (
+        alt.Chart(ahp_top_scaled)
+        .transform_fold(['t_test', 'entropy'], as_=['Metric', 'Value'])
+        .mark_bar()
+        .encode(
+            x=alt.X('Gene:N', sort='-y'),
+            y=alt.Y('Value:Q'),
+            color='Metric:N',
+            tooltip=['Gene:N', 'Metric:N', 'Value:Q']
+        )
+        .transform_filter(
+            brush  # Apply selection filtering
+        )
+        .transform_filter(
+            alt.FieldOneOfPredicate(field='Gene', oneOf=top_10_genes['Gene'].tolist())  # Show top 10 genes when no selection
+        )
+        .properties(width=700, height=200, title="t_test & Entropy for Selected Genes")
     )
 
-    # Table that dynamically updates on selection
-
+    # Table - Show only top 10 genes, no direct brush filtering in Python
     def gene_table():
-        selected_genes = ahp_top_scaled.loc[ahp_top_scaled['Gene'].isin(top_10_genes['Gene'])]
-
-        if not brush.empty:
-            selected_genes = ahp_top_scaled  # Show selected genes when brush is used
-
-        return mo.ui.table(selected_genes)
+        return mo.ui.table(top_10_genes)
 
     table = gene_table()
 
     # Combine all charts and table
     interactive_chart = alt.vconcat(scatter, bar)
     mo.vstack([interactive_chart, table])
+
     return (
         ahp_top,
         ahp_top_scaled,
@@ -736,18 +739,54 @@ def _():
 
 
 @app.cell
-def _(ahp_df, pd, t_test_matrix):
+def _(
+    ahp_df,
+    ahp_top,
+    entropy_matrix,
+    mo,
+    pd,
+    px,
+    roc_matrix,
+    snr_matrix,
+    t_test_matrix,
+):
     # Convert sparse matrix to dense format
-    dense_matrix = t_test_matrix.toarray()  # Convert sparse to dense numpy array
-
-
+    t_test_dense_matrix = t_test_matrix.toarray()  # Convert sparse to dense numpy array
+    entropy_dense_matrix = entropy_matrix.toarray()
+    roc_dense_matrix = roc_matrix.toarray()
+    snr_dense_matrix = snr_matrix.toarray()
+    # top genes 
+    top_genes = ahp_top.Gene.tolist()[:101]
     # Create a DataFrame with gene names as both index and columns
-    pairwise_df = pd.DataFrame(dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene)
+    t_test_pairwise_df = pd.DataFrame(t_test_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene).loc[top_genes, top_genes]
+    entropy_pairwise_df = pd.DataFrame(entropy_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene).loc[top_genes, top_genes]
+    roc_pairwise_df = pd.DataFrame(roc_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene).loc[top_genes, top_genes]
+    snr_pairwise_df = pd.DataFrame(snr_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene).loc[top_genes, top_genes]
 
     # Replace NaN values (if any) with 0
-    pairwise_df.fillna(0, inplace=True)
-    pairwise_df.head()
-    return dense_matrix, pairwise_df
+    def creat_heatmap(df):
+        fig = px.imshow(df)
+        return mo.ui.plotly(fig)
+    mo.ui.tabs(
+        {
+            "T_Test": mo.vstack([creat_heatmap(t_test_pairwise_df), mo.ui.table(t_test_pairwise_df)]),
+            "Entropy": mo.vstack([creat_heatmap(entropy_pairwise_df), mo.ui.table(entropy_pairwise_df)]),
+            "ROC": mo.vstack([creat_heatmap(roc_pairwise_df), mo.ui.table(roc_pairwise_df)]),
+            "SNR": mo.vstack([creat_heatmap(snr_pairwise_df), mo.ui.table(snr_pairwise_df)])
+        }
+    )
+    return (
+        creat_heatmap,
+        entropy_dense_matrix,
+        entropy_pairwise_df,
+        roc_dense_matrix,
+        roc_pairwise_df,
+        snr_dense_matrix,
+        snr_pairwise_df,
+        t_test_dense_matrix,
+        t_test_pairwise_df,
+        top_genes,
+    )
 
 
 @app.cell(hide_code=True)
@@ -765,31 +804,162 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(pd):
+def _(mo, pd):
     with open('../../data/SuplementoryFiles/GSE62944_01_27_15_TCGA_20_420_Clinical_Variables_7706_Samples.txt', 'r') as file:
-        exractedData=[line.split('\t') for line in file.readlines()]
-    df=pd.DataFrame(exractedData)
-    df = df.T
-    df.columns = df.iloc[0] 
-    df.rename(columns={'':'Samples'},inplace=True)
-    df
-    return df, exractedData, file
+        exractedData1=[line.split('\t') for line in file.readlines()]
+    with open('../../data/SuplementoryFiles/GSE62944_06_01_15_TCGA_24_548_Clinical_Variables_9264_Samples.txt', 'r') as file:
+        exractedData2=[line.split('\t') for line in file.readlines()]
+
+    # Convert to DataFrames
+    df1 = pd.DataFrame(exractedData1)
+    df2 = pd.DataFrame(exractedData2)
+
+    # Transpose the DataFrames
+    df1 = df1.T
+    df2 = df2.T
+
+    # Concatenate
+    concat_df = pd.concat([df1, df2])
+
+    # Rename columns using the first row
+    concat_df.columns = concat_df.iloc[0]
+    concat_df = concat_df.drop(0)  # Remove the first row
+
+    #remove nan colomns
+    concat_df = concat_df.loc[:, ~concat_df.columns.isna()]
+
+    # Rename index column
+    if '' in concat_df.columns:
+        concat_df.rename(columns={'': 'Samples'}, inplace=True)
+
+    # Display the DataFrame
+    mo.ui.table(concat_df)
+    return concat_df, df1, df2, exractedData1, exractedData2, file
 
 
-@app.cell
-def _(cancer_dataSet, df, healthy_dataSet, mo):
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""After Creating a data fram from the two <span style="color: brown">two clinical suplimentary files</span>, now we have to extract all the BRCA data from it and the following table displays all the brca related logistics. Now we can delve in furthure to create a dataset for stage prognosis and furthermore analyze patients demografic and see how they are corolated.""")
+    return
+
+
+@app.cell(hide_code=True)
+def _(cancer_dataSet, concat_df, healthy_dataSet, mo):
     healthyBRCAList = healthy_dataSet.index
-    cancerBRCAList = cancer_dataSet.index
+    cancerBRCAList = cancer_dataSet['Samples']
 
-    BRCA_CV = df[df['Samples'].isin(healthyBRCAList) | df['Samples'].isin(cancerBRCAList)]
+    BRCA_CV = concat_df[concat_df['Samples'].isin(healthyBRCAList) | concat_df['Samples'].isin(cancerBRCAList)].copy()
+    # BRCA_CV.drop(columns='index', inplace=True)
     mo.ui.table(BRCA_CV)
     return BRCA_CV, cancerBRCAList, healthyBRCAList
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md("""The table above show all the columns of this suplementory data file. After extracting the ones related to BRCA, lets delve in more to find out what type of analysis we can do on this.""")
+def _(BRCA_CV):
+    BRCA_CV['tumor_status'].value_counts()
     return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""as we can see not all tumor status for the samples are properly labled. thus we are going to relable them.""")
+    return
+
+
+@app.cell
+def _(BRCA_CV, cancerBRCAList, healthyBRCAList):
+    def label_sample(samples):
+        stats_list=[]
+        for smpl in samples:
+            if smpl in healthyBRCAList:
+                stats_list.append("Normal")
+            elif smpl in cancerBRCAList:
+                stats_list.append("Malignant")
+            else:
+                stats_list.append(None)
+        return stats_list
+    BRCA_CV["Status"] = label_sample(BRCA_CV['Samples'].tolist())
+
+    BRCA_CV["Status"]
+    return (label_sample,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        """
+        ###<span style="color:green">Medical Terminalogies for Cancer Staging</span>
+
+        **Cancer Staging:**
+
+        Stage refers to the extent of your cancer, such as how large the tumor is and if it has spread. 
+
+        **Systems That Describe Stage:**
+
+        There are many staging systems. Some, such as the TNM staging system, are used for many types of cancer. Others are specific to a particular type of cancer. Most staging systems include information about where the tumor is located in the body
+        the size of the tumor whether the cancer has spread to nearby lymph nodes
+        whether the cancer has spread to a different part of the body
+
+        **The TNM Staging System**
+
+        The TNM system is the most widely used cancer staging system. Most hospitals and medical centers use the TNM system as their main method for cancer reporting. You are likely to see your cancer described by this staging system in your pathology report unless there is a different staging system for your type of cancer. Examples of cancers with different staging systems include brain and spinal cord tumors and blood cancers. 
+
+        In the TNM system:
+
+        * The T refers to the size and extent of the main tumor. The main tumor is usually called the primary tumor.
+        * The N refers to the number of nearby lymph nodes that have cancer.
+        * The M refers to whether the cancer has metastasized. This means that the cancer has spread from the primary tumor to other parts of the body.
+        * When your cancer is described by the TNM system, there will be numbers after each letter that give more details about the cancer—for example, T1N0MX or T3N1M0. The following explains what the letters and numbers mean.
+
+        Primary tumor (T):
+
+        * TX: Main tumor cannot be measured.
+        * T0: Main tumor cannot be found.
+        * T1, T2, T3, T4: Refers to the size and/or extent of the main tumor. The higher the number after the T, the larger the tumor or the more it has grown into nearby tissues. * * T's may be further divided to provide more detail, such as T3a and T3b.
+
+        Regional lymph nodes (N):
+
+        * NX: Cancer in nearby lymph nodes cannot be measured.
+        * N0: There is no cancer in nearby lymph nodes.
+        * N1, N2, N3: Refers to the number and location of lymph nodes that contain cancer. The higher the number after the N, the more lymph nodes that contain cancer.
+
+        Distant metastasis (M)
+
+        * MX: Metastasis cannot be measured.
+        * M0: Cancer has not spread to other parts of the body.
+        * M1: Cancer has spread to other parts of the body.
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.image(src='BRCA_StageGrouping.png', caption='From AJCC cancer staging manual. 6th Edition. New York: Springer-Verlag, 2002 with permission.')
+    return
+
+
+@app.cell
+def _(BRCA_CV):
+    stage_col=[col for col in BRCA_CV.columns if str.find(col, 'ajcc')>=0]
+    # stage_col
+    patient_dmg=['Samples',
+                 'age_at_diagnosis',
+                 'gender', 
+                 'race', 
+                 'ethnicity', 
+                 'family_history_cancer_indicator',
+                 'family_history_cancer_type',
+                 'family_history_cancer_relationship',
+                 'history_other_malignancy',
+                 'history_neoadjuvant_treatment',
+                 'history_colon_polyps',
+                 'clinical_M',
+                 'clinical_N',
+                 'clinical_T',
+                 'pathologic_M'
+                ]
+    return patient_dmg, stage_col
 
 
 @app.cell(hide_code=True)
@@ -920,6 +1090,12 @@ def _(mo, pd):
         treatment_data_table,
         tumor_characteristics_table,
     )
+
+
+@app.cell
+def _(BRCA_CV, mo):
+    mo.ui.data_explorer(BRCA_CV)
+    return
 
 
 @app.cell(hide_code=True)
