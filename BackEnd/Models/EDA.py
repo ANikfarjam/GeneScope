@@ -1,7 +1,7 @@
 import marimo
 
 __generated_with = "0.11.7"
-app = marimo.App(width="medium")
+app = marimo.App(width="full")
 
 
 @app.cell(hide_code=True)
@@ -43,7 +43,8 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.image(src="TCGAcancerTypes.png",caption="The Camer Types available in TCGA database. This image is from the TCGA officcial website!")
+    mo.center(mo.image(src="TCGAcancerTypes.png",caption="The Camer Types available in TCGA database. This image is from the TCGA officcial website!", width=500,  height=400))
+
     return
 
 
@@ -156,7 +157,36 @@ def _():
 @app.cell
 def _(create_supl_df):
     cancerBRCA_type_df, data, cType_count= create_supl_df('../../data/SuplementoryFiles/TCGA_24_CancerType_Samples.txt', 'BRCA')
-    return cType_count, cancerBRCA_type_df, data
+
+    cancer_descriptions_list = [
+        "Breast Cancer - A malignant tumor that develops from breast cells.",
+        "Uterine Corpus Endometrial Carcinoma - A cancer originating in the lining of the uterus.",
+        "Kidney Renal Clear Cell Carcinoma - A common kidney cancer originating in renal tubules.",
+        "Lung Adenocarcinoma - A non-small cell lung cancer starting in mucus-secreting glands.",
+        "Lower-Grade Glioma - A slow-growing brain tumor arising from glial cells.",
+        "Thyroid Carcinoma - A cancer that develops in the thyroid gland.",
+        "Head and Neck Squamous Cell Carcinoma - A cancer originating in the mucosal linings of the head and neck.",
+        "Prostate Adenocarcinoma - A cancer that forms in the prostate gland.",
+        "Lung Squamous Cell Carcinoma - A type of lung cancer arising from squamous cells lining the airways.",
+        "Colon Adenocarcinoma - A common type of colorectal cancer originating in glandular cells.",
+        "Skin Cutaneous Melanoma - A dangerous type of skin cancer that develops from melanocytes.",
+        "Ovarian Serous Cystadenocarcinoma - A type of ovarian cancer developing in the epithelial cells of the ovary.",
+        "Stomach Adenocarcinoma - A malignant tumor forming in the stomach lining.",
+        "Bladder Urothelial Carcinoma - A cancer that arises from the bladder lining.",
+        "Liver Hepatocellular Carcinoma - The most common type of liver cancer, often linked to hepatitis or cirrhosis.",
+        "Cervical Squamous Cell Carcinoma and Endocervical Adenocarcinoma - A cancer arising from the cervix.",
+        "Kidney Renal Papillary Cell Carcinoma",
+        "Acute Myeloid Leukemia",
+        "Glioblastoma Multiforme - An aggressive brain tumor arising from glial cells.",
+        "Rectum Adenocarcinoma - A form of colorectal cancer affecting the rectum.",
+        "Adrenocortical Carcinoma - A rare cancer that originates in the adrenal cortex.",
+        "Kidney Chromophobe",
+        "Uterine Carcinosarcoma",
+        "Genomic Variation in Diffuse Large B Cell Lymphomas"
+    ]
+    cType_count=cType_count.to_frame()
+    cType_count['Description'] = cancer_descriptions_list
+    return cType_count, cancerBRCA_type_df, cancer_descriptions_list, data
 
 
 @app.cell(hide_code=True)
@@ -166,38 +196,8 @@ def _(mo):
 
 
 @app.cell
-def _(cType_count):
-    cType_count
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        """
-        and ther discription: 
-
-        | Cander Type | Description |
-        |-------------|-------------|
-        | "PRAD" | "Prostate Adenocarcinoma" |
-        | "LGG" | "Low-Grade Glioma" |
-        | "OV" | "Ovarian Serous Cystadenocarcinoma" |
-        | "BRCA"| "Breast Invasive Carcinoma" |
-        | "SKCM"| "Skin Cutaneous Melanoma" |
-        | "LUAD"| "Lung Adenocarcinoma" |
-        | "LUSC"| "Lung Squamous Cell Carcinoma" |
-        | "THCA"| "Thyroid Carcinoma" |
-        | "UCEC"| "Uterine Corpus Endometrial Carcinoma" |
-        | "KIRP"| "Kidney Renal Papillary Cell Carcinoma" |
-        | "HNSC"| "Head and Neck Squamous Cell Carcinoma" |
-        | "CESC"| "Cervical Squamous Cell Carcinoma and Endocervical Adenocarcinoma" |
-        | "COAD"| "Colon Adenocarcinoma" |
-        |  "ACC"| "Adrenocortical Carcinoma" |
-        | "KIRC"| "Kidney Renal Clear Cell Carcinoma" |
-        |  "GBM"| "Glioblastoma Multiforme" |
-        | "BLCA"| "Bladder Urothelial Carcinoma"|
-        """
-    )
+def _(cType_count, mo):
+    mo.ui.table(cType_count)
     return
 
 
@@ -395,7 +395,13 @@ def _(cancer_dataSet, mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md("""It seams like we have 2,200 samples and for the model training using 60,20,20 distribution. We are going to have [1321, 350, 350] sample distribution for test train and val dataset!""")
+    mo.md(
+        """
+        It seams like we have 2,200 samples and for the model training using 60,20,20 distribution. We are going to have [1321, 350, 350] sample distribution for test train and val dataset!
+
+        As we can see how the expression of the same top 300 genes in the same order deffer significantly.
+        """
+    )
     return
 
 
@@ -418,7 +424,7 @@ def _(cancer_dataSet, mo, pd, plot_df, px):
 
 
 @app.cell(hide_code=True)
-def _(pd, plot2_df, plot_df):
+def _(mo, pd, plot2_df, plot_df):
     plot_df.reset_index(drop=True,inplace=True)
     plot_df.rename(columns={'avg_expr_level':'normal_avg_expr_level'}, inplace=True)
     plot2_df.reset_index(drop=True,inplace=True)
@@ -426,7 +432,7 @@ def _(pd, plot2_df, plot_df):
     merged_df=pd.merge(plot_df, plot2_df, on='Genes')
     merged_df['Mean_Expression_absolute_diff']=abs(merged_df['normal_avg_expr_level'] - merged_df['malignant_avg_expr_level'])
     merged_df=merged_df.sort_values(by='Mean_Expression_absolute_diff', ascending=False)
-    merged_df.head(30)
+    mo.ui.table(merged_df)
     return (merged_df,)
 
 
@@ -626,77 +632,46 @@ def _(pd):
 def _(ahp_df, mo):
     import altair as alt
 
-    # Ensure Altair handles large datasets
-    alt.data_transformers.enable("vegafusion")
 
-    # Sort and take top 1000 genes
-    ahp_top = ahp_df.sort_values(by='Scores', ascending=False).iloc[:1000, :]
+    # Sort and take top 500 genes
+    ahp_top = ahp_df.sort_values(by='Scores', ascending=False).iloc[:500, :]
 
     # Ensure "Gene" column is retained and treated as string
     ahp_top_scaled = ahp_top.copy()
     ahp_top_scaled.iloc[:, 1:] *= 1e6  # Apply scaling
     ahp_top_scaled['Gene'] = ahp_top_scaled['Gene'].astype(str)
-
+    ahp_top_scaled['Scores'] = ahp_top_scaled['Scores'].astype(float)
     # Selection for interactive brushing
     brush = alt.selection_interval(encodings=['x', 'y'])
-
     # Scatter Plot (Interactive)
-    scatter = alt.Chart(ahp_top_scaled).mark_circle(size=60).encode(
-        x='Scores:Q',
-        y='t_test:Q',
-        tooltip=['Gene:N', 'Scores:Q', 't_test:Q', 'entropy:Q', 'roc_auc:Q', 'snr:Q'],
-        color=alt.condition(brush, alt.value('steelblue'), alt.value('lightgray'))
-    ).add_params(brush).properties(
-        width=700,
-        height=400,
-        title="Gene Scores vs. t-test"
+    chart = mo.ui.altair_chart(
+        alt.Chart(ahp_top_scaled).mark_circle().encode(
+            x='Scores:Q',
+            y='t_test:Q',
+            color='entropy:Q',
+            tooltip=['Gene:N', 'Scores:Q', 't_test:Q', 'entropy:Q', 'roc_auc:Q', 'snr:Q']
+        ).add_params(brush)
     )
+    return ahp_top, ahp_top_scaled, alt, brush, chart
 
-    # Get top 10 genes for default view
-    top_10_genes = ahp_top_scaled.nlargest(10, 'Scores')
 
-    # Bar Chart (t_test & entropy) with top 10 genes by default
-    bar = (
-        alt.Chart(ahp_top_scaled)
-        .transform_fold(['t_test', 'entropy'], as_=['Metric', 'Value'])
-        .mark_bar()
-        .encode(
-            x=alt.X('Gene:N', sort='-y'),
-            y=alt.Y('Value:Q'),
-            color='Metric:N',
-            tooltip=['Gene:N', 'Metric:N', 'Value:Q']
-        )
-        .transform_filter(
-            brush  # Apply selection filtering
-        )
-        .transform_filter(
-            alt.FieldOneOfPredicate(field='Gene', oneOf=top_10_genes['Gene'].tolist())  # Show top 10 genes when no selection
-        )
-        .properties(width=700, height=200, title="t_test & Entropy for Selected Genes")
-    )
+@app.cell
+def _(chart, mo):
+    # Display chart and dynamically updating table
+    mo.vstack([chart, mo.ui.table(chart.value)])
+    return
 
-    # Table - Show only top 10 genes, no direct brush filtering in Python
-    def gene_table():
-        return mo.ui.table(top_10_genes)
 
-    table = gene_table()
+@app.cell
+def _(chart):
+    type(chart.value)
+    return
 
-    # Combine all charts and table
-    interactive_chart = alt.vconcat(scatter, bar)
-    mo.vstack([interactive_chart, table])
 
-    return (
-        ahp_top,
-        ahp_top_scaled,
-        alt,
-        bar,
-        brush,
-        gene_table,
-        interactive_chart,
-        scatter,
-        table,
-        top_10_genes,
-    )
+@app.cell
+def _(ahp_top):
+    ahp_top
+    return
 
 
 @app.cell(hide_code=True)
@@ -738,7 +713,7 @@ def _():
     )
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(
     ahp_df,
     ahp_top,
@@ -756,12 +731,12 @@ def _(
     roc_dense_matrix = roc_matrix.toarray()
     snr_dense_matrix = snr_matrix.toarray()
     # top genes 
-    top_genes = ahp_top.Gene.tolist()[:101]
+    top_genes = ahp_top.Gene.tolist()[:50]
     # Create a DataFrame with gene names as both index and columns
-    t_test_pairwise_df = pd.DataFrame(t_test_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene).loc[top_genes, top_genes]
-    entropy_pairwise_df = pd.DataFrame(entropy_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene).loc[top_genes, top_genes]
-    roc_pairwise_df = pd.DataFrame(roc_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene).loc[top_genes, top_genes]
-    snr_pairwise_df = pd.DataFrame(snr_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene).loc[top_genes, top_genes]
+    t_test_pairwise_df = pd.DataFrame(t_test_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene).loc[top_genes,top_genes]
+    entropy_pairwise_df = pd.DataFrame(entropy_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene).loc[top_genes,top_genes]
+    roc_pairwise_df = pd.DataFrame(roc_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene).loc[top_genes,top_genes]
+    snr_pairwise_df = pd.DataFrame(snr_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene).loc[top_genes,top_genes]
 
     # Replace NaN values (if any) with 0
     def creat_heatmap(df):
@@ -854,112 +829,16 @@ def _(cancer_dataSet, concat_df, healthy_dataSet, mo):
     return BRCA_CV, cancerBRCAList, healthyBRCAList
 
 
-@app.cell(hide_code=True)
-def _(BRCA_CV):
-    BRCA_CV['tumor_status'].value_counts()
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""as we can see not all tumor status for the samples are properly labled. thus we are going to relable them.""")
-    return
-
-
 @app.cell
-def _(BRCA_CV, cancerBRCAList, healthyBRCAList):
-    def label_sample(samples):
-        stats_list=[]
-        for smpl in samples:
-            if smpl in healthyBRCAList:
-                stats_list.append("Normal")
-            elif smpl in cancerBRCAList:
-                stats_list.append("Malignant")
-            else:
-                stats_list.append(None)
-        return stats_list
-    BRCA_CV["Status"] = label_sample(BRCA_CV['Samples'].tolist())
-
-    BRCA_CV["Status"]
-    return (label_sample,)
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        """
-        ###<span style="color:green">Medical Terminalogies for Cancer Staging</span>
-
-        **Cancer Staging:**
-
-        Stage refers to the extent of your cancer, such as how large the tumor is and if it has spread. 
-
-        **Systems That Describe Stage:**
-
-        There are many staging systems. Some, such as the TNM staging system, are used for many types of cancer. Others are specific to a particular type of cancer. Most staging systems include information about where the tumor is located in the body
-        the size of the tumor whether the cancer has spread to nearby lymph nodes
-        whether the cancer has spread to a different part of the body
-
-        **The TNM Staging System**
-
-        The TNM system is the most widely used cancer staging system. Most hospitals and medical centers use the TNM system as their main method for cancer reporting. You are likely to see your cancer described by this staging system in your pathology report unless there is a different staging system for your type of cancer. Examples of cancers with different staging systems include brain and spinal cord tumors and blood cancers. 
-
-        In the TNM system:
-
-        * The T refers to the size and extent of the main tumor. The main tumor is usually called the primary tumor.
-        * The N refers to the number of nearby lymph nodes that have cancer.
-        * The M refers to whether the cancer has metastasized. This means that the cancer has spread from the primary tumor to other parts of the body.
-        * When your cancer is described by the TNM system, there will be numbers after each letter that give more details about the cancer—for example, T1N0MX or T3N1M0. The following explains what the letters and numbers mean.
-
-        Primary tumor (T):
-
-        * TX: Main tumor cannot be measured.
-        * T0: Main tumor cannot be found.
-        * T1, T2, T3, T4: Refers to the size and/or extent of the main tumor. The higher the number after the T, the larger the tumor or the more it has grown into nearby tissues. * * T's may be further divided to provide more detail, such as T3a and T3b.
-
-        Regional lymph nodes (N):
-
-        * NX: Cancer in nearby lymph nodes cannot be measured.
-        * N0: There is no cancer in nearby lymph nodes.
-        * N1, N2, N3: Refers to the number and location of lymph nodes that contain cancer. The higher the number after the N, the more lymph nodes that contain cancer.
-
-        Distant metastasis (M)
-
-        * MX: Metastasis cannot be measured.
-        * M0: Cancer has not spread to other parts of the body.
-        * M1: Cancer has spread to other parts of the body.
-        """
-    )
+def _():
+    #BRCA_CV.to_csv('clinicalDF.csv', index=False)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.image(src='BRCA_StageGrouping.png', caption='From AJCC cancer staging manual. 6th Edition. New York: Springer-Verlag, 2002 with permission.')
+    mo.md(r"""Just over look of of the columns of this dataset we can see that the data can be used for the following analysis:""")
     return
-
-
-@app.cell
-def _(BRCA_CV):
-    stage_col=[col for col in BRCA_CV.columns if str.find(col, 'ajcc')>=0]
-    # stage_col
-    patient_dmg=['Samples',
-                 'age_at_diagnosis',
-                 'gender', 
-                 'race', 
-                 'ethnicity', 
-                 'family_history_cancer_indicator',
-                 'family_history_cancer_type',
-                 'family_history_cancer_relationship',
-                 'history_other_malignancy',
-                 'history_neoadjuvant_treatment',
-                 'history_colon_polyps',
-                 'clinical_M',
-                 'clinical_N',
-                 'clinical_T',
-                 'pathologic_M'
-                ]
-    return patient_dmg, stage_col
 
 
 @app.cell(hide_code=True)
@@ -1092,9 +971,220 @@ def _(mo, pd):
     )
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""##<span style="color: brown">Data Clening and Analysis and Labling</span>""")
+    return
+
+
 @app.cell
-def _(BRCA_CV, mo):
-    mo.ui.data_explorer(BRCA_CV)
+def _(BRCA_CV):
+    import numpy as np
+    # value_dic={}
+    # for col in BRCA_CV.columns:
+    #     value_dic[col] = BRCA_CV[col].value_counts()
+    # value_dic
+    new_brca_df = BRCA_CV.copy()
+    new_brca_df.replace("NA", np.nan, inplace=True)
+    new_brca_df.info(verbose=True, show_counts=True)
+    return new_brca_df, np
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        """
+        As we can see lot of unprovided values for these clinical varuables and also there is no logical way to replace these NaN values usin inputation or using mean beacuse its either string or each of these values in biology are not inputable because the symantical meaning it has. 
+
+        For Cleaning up we are going to drop columns [189:]. How ever these three columns are going to leh us alot to label our gene expressions for staging and prepare the data for our deep learning model. 
+
+         | Column | Variable | non Null count | Dtype |
+         |--------|----------|----------------|-------|
+         | 64 | clinical_M | 994 non-null | object |
+         | 65 | clinical_N | 994 non-null | object |
+         | 66 | clinical_T | 994 non-null | object |
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        """
+        ###<span style="color:green">Medical Terminalogies for Cancer Staging</span>
+
+        **Cancer Staging:**
+
+        Stage refers to the extent of your cancer, such as how large the tumor is and if it has spread. 
+
+        **Systems That Describe Stage:**
+
+        There are many staging systems. Some, such as the TNM staging system, are used for many types of cancer. Others are specific to a particular type of cancer. Most staging systems include information about where the tumor is located in the body
+        the size of the tumor whether the cancer has spread to nearby lymph nodes
+        whether the cancer has spread to a different part of the body
+
+        **The TNM Staging System**
+
+        The TNM system is the most widely used cancer staging system. Most hospitals and medical centers use the TNM system as their main method for cancer reporting. You are likely to see your cancer described by this staging system in your pathology report unless there is a different staging system for your type of cancer. Examples of cancers with different staging systems include brain and spinal cord tumors and blood cancers. 
+
+        In the TNM system:
+
+        * The T refers to the size and extent of the main tumor. The main tumor is usually called the primary tumor.
+        * The N refers to the number of nearby lymph nodes that have cancer.
+        * The M refers to whether the cancer has metastasized. This means that the cancer has spread from the primary tumor to other parts of the body.
+        * When your cancer is described by the TNM system, there will be numbers after each letter that give more details about the cancer—for example, T1N0MX or T3N1M0. The following explains what the letters and numbers mean.
+
+        Primary tumor (T):
+
+        * TX: Main tumor cannot be measured.
+        * T0: Main tumor cannot be found.
+        * T1, T2, T3, T4: Refers to the size and/or extent of the main tumor. The higher the number after the T, the larger the tumor or the more it has grown into nearby tissues. * * T's may be further divided to provide more detail, such as T3a and T3b.
+
+        Regional lymph nodes (N):
+
+        * NX: Cancer in nearby lymph nodes cannot be measured.
+        * N0: There is no cancer in nearby lymph nodes.
+        * N1, N2, N3: Refers to the number and location of lymph nodes that contain cancer. The higher the number after the N, the more lymph nodes that contain cancer.
+
+        Distant metastasis (M)
+
+        * MX: Metastasis cannot be measured.
+        * M0: Cancer has not spread to other parts of the body.
+        * M1: Cancer has spread to other parts of the body.
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.image(src='BRCA_StageGrouping.png', caption='From AJCC cancer staging manual. 6th Edition. New York: Springer-Verlag, 2002 with permission.')
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""###<span style="color: green">Labaling Data:</span>""")
+    return
+
+
+@app.cell(hide_code=True)
+def _(melignent_df, mo, new_brca_df):
+    #drop the Nan colons
+    droped_Df = new_brca_df.copy()
+    droped_Df = droped_Df.iloc[:,:189]
+
+    droped_Df = droped_Df[droped_Df['Samples'].isin(melignent_df['Samples'])]
+    mo.ui.table(droped_Df)
+    return (droped_Df,)
+
+
+@app.cell
+def _(droped_Df):
+    droped_Df.fillna("Not Available", inplace=True)
+    droped_Df.info(verbose=True, show_counts=True)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""Now we cleaned up the data frame, its time to lable the samples based on <span style="color:green">M, T, N</span> markers related to breast cancer that we mentioned earlier.""")
+    return
+
+
+@app.cell
+def _(droped_Df):
+    droped_Df.value_counts()
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ###<span style="color: green">Using a secondary Clinical Variable dataset Directy extracted from TCGA</span>
+        It seams like the suplementary files for clinical variables is not structed verywell. How ever using R pakage we extracted a better clinical values from TCGA dataset that could be used the same gene expression the NCBI GEO dataset so instead we are going to use this instead.
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        <span style="color: brown">Collection Mthode:</span>
+        ### Extracting Breast Cancer Data from TCGA Using R
+
+        In order to find an apropriate dataset for our models We utilized `TCGAbiolinks`, an R package designed to query and download cancer genomics data from Genomic Data Commons (GDC). This package enables researchers to access large-scale RNA sequencing (RNA-seq) gene expression data and clinical metadata for breast cancer patients.The Cancer Genome Atlas (TCGA) exists as a pioneering project developed jointly between National Cancer Institute (NCI) and National Human Genome Research Institute (NHGRI). This extensive cancer genomics database represents one of the biggest collections that many researchers can access publicly with containing in-depth information up to 33 different cancer types.  The main objective of TCGA centers on pushing cancer research forward by revealing extensive details regarding genomic modifications and expression patterns with their role in forming and advancing cancer. The dataset includes multiple types of molecular data such as DNA sequencing, RNA sequencing, epigenetic modifications, and clinical metadata, making it a valuable resource prinding a more accurate prognonsis.
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    r_script = f"""
+    ## Implementation using R
+
+    library(TCGAbiolinks)
+    library(SummarizedExperiment)
+    library(dplyr)
+    # query for fetching RNA-seq data
+    query = GDCquery(project = "TCGA-BRCA",
+                      data.category = "Transcriptome Profiling",
+                      data.type = "Gene Expression Quantification",
+                      workflow.type = "STAR - Counts")
+
+    # now downloading the data using the constructed query
+    GDCdownload(query)
+
+    # Prepare the data into an R object
+    data = GDCprepare(query)
+    #retreiving both clinical and gene expression data from the 
+    expression_data = assay(data)  
+    clinical_data = colData(data)  
+    str(clinical_data)
+    write.csv(expression_data, file = "brca_expression_data.csv")
+
+    clinical_df <- as.data.frame(clinical_data)
+    list_cols <- sapply(clinical_df, is.list)
+    clinical_df[list_cols] <- lapply(clinical_df[list_cols], function(x) sapply(x, toString))
+    write.csv(clinical_df, file = "brca_clinical_data.csv", row.names = FALSE)
+    """
+    mo.ui.code_editor(r_script)
+    return (r_script,)
+
+
+@app.cell
+def _(mo, pd):
+    import io
+    # Load dataset
+    other_sup_file = pd.read_csv("head1.csv")
+
+    # Capture DataFrame info as a string
+    info_buffer = io.StringIO()
+    other_sup_file.info(verbose=True, show_counts=True, buf=info_buffer)
+    info_text = info_buffer.getvalue()
+
+    # Create Marimo UI tabs
+    mo.ui.tabs({
+        "DataSet": mo.ui.table(other_sup_file),
+        "Info": mo.ui.code_editor(f"`\n{info_text}\n`")  # Display info in a nicely formatted code block
+    })
+    return info_buffer, info_text, io, other_sup_file
+
+
+@app.cell
+def _(other_sup_file):
+    other_sup_file['ajcc_pathologic_stage'].value_counts()
+    return
+
+
+@app.cell
+def _(mo, other_sup_file):
+    mo.ui.data_explorer(other_sup_file)
     return
 
 

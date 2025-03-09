@@ -4,3 +4,4 @@ data/
 *.soft
 *.npy
 *.pkl
+/BackEnd/Models/media/videos
