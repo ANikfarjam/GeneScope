@@ -31,6 +31,7 @@ def compute_snr(cancer_samples, normal_samples):
     std_sum = np.std(cancer_samples, axis=1) + np.std(normal_samples, axis=1) + 1e-10
     return mean_diff / std_sum
 
+
 ### === DYNAMIC PAIRWISE MATRIX COMPUTATION === ###
 
 def compute_pair(i, j, scores, max_diff):

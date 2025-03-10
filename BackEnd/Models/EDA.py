@@ -44,7 +44,6 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.center(mo.image(src="TCGAcancerTypes.png",caption="The Camer Types available in TCGA database. This image is from the TCGA officcial website!", width=500,  height=400))
-
     return
 
 
@@ -819,14 +818,14 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(cancer_dataSet, concat_df, healthy_dataSet, mo):
-    healthyBRCAList = healthy_dataSet.index
+def _(cancer_dataSet, concat_df, mo):
+    # healthyBRCAList = healthy_dataSet.index
     cancerBRCAList = cancer_dataSet['Samples']
 
-    BRCA_CV = concat_df[concat_df['Samples'].isin(healthyBRCAList) | concat_df['Samples'].isin(cancerBRCAList)].copy()
+    BRCA_CV = concat_df[concat_df['Samples'].isin(cancerBRCAList)].copy()
     # BRCA_CV.drop(columns='index', inplace=True)
     mo.ui.table(BRCA_CV)
-    return BRCA_CV, cancerBRCAList, healthyBRCAList
+    return BRCA_CV, cancerBRCAList
 
 
 @app.cell
@@ -1117,7 +1116,7 @@ def _(mo):
         <span style="color: brown">Collection Mthode:</span>
         ### Extracting Breast Cancer Data from TCGA Using R
 
-        In order to find an apropriate dataset for our models We utilized `TCGAbiolinks`, an R package designed to query and download cancer genomics data from Genomic Data Commons (GDC). This package enables researchers to access large-scale RNA sequencing (RNA-seq) gene expression data and clinical metadata for breast cancer patients.The Cancer Genome Atlas (TCGA) exists as a pioneering project developed jointly between National Cancer Institute (NCI) and National Human Genome Research Institute (NHGRI). This extensive cancer genomics database represents one of the biggest collections that many researchers can access publicly with containing in-depth information up to 33 different cancer types.  The main objective of TCGA centers on pushing cancer research forward by revealing extensive details regarding genomic modifications and expression patterns with their role in forming and advancing cancer. The dataset includes multiple types of molecular data such as DNA sequencing, RNA sequencing, epigenetic modifications, and clinical metadata, making it a valuable resource prinding a more accurate prognonsis.
+        In order to find an apropriate dataset for our models We utilized TCGAbiol∈ksTCGAbiolinks, an R package designed to query and download cancer genomics data from Genomic Data Commons (GDC). This package enables researchers to access large-scale RNA sequencing (RNA-seq) gene expression data and clinical metadata for breast cancer patients.The Cancer Genome Atlas (TCGA) exists as a pioneering project developed jointly between National Cancer Institute (NCI) and National Human Genome Research Institute (NHGRI). This extensive cancer genomics database represents one of the biggest collections that many researchers can access publicly with containing in-depth information up to 33 different cancer types.  The main objective of TCGA centers on pushing cancer research forward by revealing extensive details regarding genomic modifications and expression patterns with their role in forming and advancing cancer. The dataset includes multiple types of molecular data such as DNA sequencing, RNA sequencing, epigenetic modifications, and clinical metadata, making it a valuable resource prinding a more accurate prognonsis.
         """
     )
     return
@@ -1157,7 +1156,13 @@ def _(mo):
     return (r_script,)
 
 
-@app.cell
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""The following Tabs display the extracted Data as well as decription of all the columns their values type and count of their missing vlues.""")
+    return
+
+
+@app.cell(hide_code=True)
 def _(mo, pd):
     import io
     # Load dataset
@@ -1177,15 +1182,84 @@ def _(mo, pd):
 
 
 @app.cell
+def _(mo):
+    mo.md(
+        """
+        ### <span style="color: green">DataSet Clean up Proccess</span>
+
+        There are many columns that contains zero non_Null values. To prevent pandas dropping other columns or rows mistakenly I drop the columns that had more than threshold of %80 Nan values. and drop the rows of staging related columns respectively. The following data set is the cleaned up version of our dataset.
+        """
+    )
+    return
+
+
+@app.cell
+def _(other_sup_file):
+    # cleaning up
+    ### Step 1: Drop Columns with Too Many Missing Values 
+    threshold = 0.8  # If more than 80% values are missing, drop the column
+
+
+    other_sup_file.dropna(thresh=int(threshold * len(other_sup_file)), axis=1, inplace=True)
+    return (threshold,)
+
+
+@app.cell(hide_code=True)
+def _(io, mo, other_sup_file):
+    other_sup_file.dropna(inplace=True)
+    buffer = io.StringIO()
+    other_sup_file.info(verbose=True, show_counts=True, buf=buffer)
+    moded_info = buffer.getvalue()  # Store the captured output as a string
+
+    # Display tabs correctly
+    mo.ui.tabs({
+        "Cleaned Table": mo.ui.table(other_sup_file),
+        "Info": mo.ui.code_editor(f"`\n{moded_info}\n`")  # Properly formatted info
+    })
+    return buffer, moded_info
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""Now we can count the numer of samples available for each staging""")
+    return
+
+
+@app.cell(hide_code=True)
 def _(other_sup_file):
     other_sup_file['ajcc_pathologic_stage'].value_counts()
     return
 
 
-@app.cell
-def _(mo, other_sup_file):
-    mo.ui.data_explorer(other_sup_file)
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        """
+        Since the number of sample for some stages are not suffitient enough to have datset fo reach individual Type <span style="color: brown">Stage II A, B, ...</span>, we are going to combine each stage. Thus our new stages would be:
+
+        | Stages |||
+        |--------|--------|--------|
+        | Stage I | Stage II | Stage III |
+
+        """
+    )
     return
+
+
+@app.cell(hide_code=True)
+def _(other_sup_file):
+    from sklearn.preprocessing import LabelEncoder
+    le = LabelEncoder()
+    # Copy relevant columns from the dataset
+    corr_data = other_sup_file.iloc[:, 11:].copy().fillna(0)
+    # # One-Hot Encode categorical variables (Fixing the error)
+    for _clm in corr_data.columns:
+        corr_data[_clm] = le.fit_transform(corr_data[_clm])
+
+    # corr_data = corr_data.to_frame()
+    corr_target = corr_data.corrwith(corr_data['ajcc_pathologic_stage'])
+
+    return LabelEncoder, corr_data, corr_target, le
 
 
 @app.cell(hide_code=True)
@@ -1197,6 +1271,31 @@ def _(mo):
         I would like to see the correlation between the cancerous and non cancerous genes and patiens demographic
         """
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(corr_target, mo, px):
+    corr_mtrx = corr_target.fillna(0).copy().to_frame().rename(columns={0:'Correlation'})
+    print(corr_mtrx.shape)
+    mo.vstack([
+        mo.ui.plotly(
+            px.bar(corr_mtrx, x = corr_mtrx.index, y=corr_mtrx['Correlation'])    
+        ),
+        mo.ui.table(corr_mtrx.sort_values(by='Correlation'))
+    ])
+    return (corr_mtrx,)
+
+
+@app.cell
+def _(corr_target):
+    type(corr_target)
+    return
+
+
+@app.cell
+def _(mo, other_sup_file):
+    mo.ui.data_explorer(other_sup_file)
     return
 
 
