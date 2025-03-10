@@ -9,7 +9,7 @@ Breast cancer ranks as a widespread serious condition and develops primarily fro
 
  This cancer primarily develops from the cells that line both milk ducts and lobules that perform milk production and transportation functions. It mainly have invasive and non invasive stages. When th ecancerous 
 
-![breastcancer](BreastCancer.png)
+![breastcancer](/project_insites/BreastCancer.png)
 
 
 ## <span style="color: green">Broader impact</span>

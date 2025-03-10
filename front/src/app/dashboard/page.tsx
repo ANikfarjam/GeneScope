@@ -1,6 +1,5 @@
 "use client";
 
-import { Bar, Line, Pie } from "react-chartjs-2";
 import Sidebar from "../components/sideBar";
 import Chatbot from "../components/ChatBot";
 
@@ -16,7 +15,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { useState } from "react";
+//import { useState } from "react";
 
 ChartJS.register(
   CategoryScale,
@@ -31,18 +30,18 @@ ChartJS.register(
 );
 
 export default function Dashboard() {
-  const [chartData] = useState({
-    labels: ["January", "February", "March", "April", "May"],
-    datasets: [
-      {
-        label: "Sales ($)",
-        data: [1200, 1900, 3000, 2500, 2800],
-        backgroundColor: ["rgba(255, 99, 132, 0.5)"],
-        borderColor: ["rgba(255, 99, 132, 1)"],
-        borderWidth: 1,
-      },
-    ],
-  });
+  //const [chartData] = useState({
+  //  labels: ["January", "February", "March", "April", "May"],
+  //  datasets: [
+  //    {
+  //      label: "Sales ($)",
+  //      data: [1200, 1900, 3000, 2500, 2800],
+  //      backgroundColor: ["rgba(255, 99, 132, 0.5)"],
+  //      borderColor: ["rgba(255, 99, 132, 1)"],
+  //      borderWidth: 1,
+  //    },
+  //  ],
+  //});
 
   //// Chart options
   //const options = {
