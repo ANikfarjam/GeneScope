@@ -8,7 +8,6 @@ const Navbar = () => {
   const [user, setUser] = useState<{ username: string; email: string } | null>(null);
 
   useEffect(() => {
-    // Retrieve user from localStorage
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -16,10 +15,14 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("user"); // Remove user from localStorage
-    setUser(null); // Update state
+    localStorage.removeItem("user"); 
+    setUser(null); 
   };
 
+
+//  <Link href="/about" className="text-gray-700 hover:text-pink-500">
+//    About
+//  </Link>
   return (
     <nav className="bg-white shadow-md fixed w-full z-50 top-0 left-0">
       <div className="max-w-6xl mx-auto px-6">
@@ -28,16 +31,14 @@ const Navbar = () => {
             GeneScope
           </Link>
           <div className="hidden md:flex space-x-6">
-            <Link href="/about" className="text-gray-700 hover:text-pink-500">
-              About
-            </Link>
-            <Link href="/visualization" className="text-gray-700 hover:text-pink-500">
+
+            <Link href="/analyticalmethod" className="text-gray-700 hover:text-pink-500">
               Analytical Methods
             </Link>
-            <Link href="/visualization" className="text-gray-700 hover:text-pink-500">
+            <Link href="/majorfindings" className="text-gray-700 hover:text-pink-500">
               Major Finding
             </Link>
-            <Link href="/visualization" className="text-gray-700 hover:text-pink-500">
+            <Link href="/projectobjective" className="text-gray-700 hover:text-pink-500">
             Project Objective
             </Link>
             
