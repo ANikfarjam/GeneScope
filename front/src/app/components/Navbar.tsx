@@ -32,10 +32,13 @@ const Navbar = () => {
               About
             </Link>
             <Link href="/visualization" className="text-gray-700 hover:text-pink-500">
-              Objective
+              Analytical Methods
             </Link>
             <Link href="/visualization" className="text-gray-700 hover:text-pink-500">
               Major Finding
+            </Link>
+            <Link href="/visualization" className="text-gray-700 hover:text-pink-500">
+            Project Objective
             </Link>
             
 
@@ -75,7 +78,13 @@ const Navbar = () => {
               About
             </Link>
             <Link href="/visualization" className="text-gray-700 hover:text-pink-500">
-              Visualization
+              Analytical Methods
+            </Link>
+            <Link href="/visualization" className="text-gray-700 hover:text-pink-500">
+              Major Finding
+            </Link>
+            <Link href="/visualization" className="text-gray-700 hover:text-pink-500">
+              Project Objective
             </Link>
 
 
