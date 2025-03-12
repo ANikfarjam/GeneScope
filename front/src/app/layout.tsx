@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Gene Scope",
-  description: "an app that does gene stuff",
+  description: " AI-powered dashboard that leverages deep learning models to provide prognosis and analytical insights based on patients' gene expression data.",
 };
 
 export default function RootLayout({

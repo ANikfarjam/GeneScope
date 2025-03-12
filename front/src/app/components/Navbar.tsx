@@ -93,14 +93,16 @@ const Navbar = () => {
               <>
                 <span className="text-gray-700 text-center">Welcome, {user.username}!</span>
                 <button
-                  onClick={handleLogout}
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
-                >
-                  Logout
-                </button>
+  onClick={handleLogout}
+  className="bg-red-500 text-white px-6 py-2 h-10 rounded-lg hover:bg-red-600 transition"
+>
+  Logout
+</button>
               </>
             ) : (
-              <Link href="/login" className="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition">
+              <Link href="/login" 
+              className="bg-red-500 text-white px-6 py-3 h-5 rounded-lg hover:bg-red-600 transition"
+>
                 Login
               </Link>
             )}

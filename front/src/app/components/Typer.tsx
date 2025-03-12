@@ -12,8 +12,9 @@ const Typer = ({ text }: TyperProps) => {
   const [displayText, setDisplayText] = useState("");
 
   useEffect(() => {
+    if (typeof window === "undefined") return; // Prevents SSR issues
     let index = 0;
-    setDisplayText(""); // Reset text on input change
+    setDisplayText(""); 
 
     const interval = setInterval(() => {
       if (index < text.length) {
@@ -22,7 +23,7 @@ const Typer = ({ text }: TyperProps) => {
       } else {
         clearInterval(interval);
       }
-    }, 20); // Typing speed
+    }, 10); 
 
     return () => clearInterval(interval);
   }, [text]);
