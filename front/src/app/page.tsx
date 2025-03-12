@@ -5,7 +5,7 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { Bar } from "react-chartjs-2";
 import { Doughnut } from "react-chartjs-2";
-import { Chart, registerables, ArcElement, Tooltip, Legend } from "chart.js";
+import { Chart, registerables } from "chart.js";
 import Typer from "./components/Typer";
 import { motion } from "framer-motion"; // Import Framer Motion
 import Link from "next/link";
