@@ -59,11 +59,10 @@ export default function Chatbot() {
   //  }
   //}, []);
 
-
   useEffect(() => {
     localStorage.setItem("chatHistory", JSON.stringify(messages));
   }, [messages]);
-  
+
   const generateChartData = (type: "bar" | "line" | "pie") => {
     const data = {
       labels: ["January", "February", "March", "April", "May"],
@@ -91,6 +90,7 @@ export default function Chatbot() {
     };
     return { type, data };
   };
+
   //const extractChartData = (input: string) => {
   //  const words = input.split(/\s+/); // Split input by spaces
   //  const labels: string[] = [];
@@ -136,24 +136,23 @@ export default function Chatbot() {
   //    ],
   //  };
   //};
-  
-  
+
   const sendMessage = async () => {
     if (!input.trim()) return;
-  
+
     const newMessage: Message = { role: "user", content: input };
     setMessages((prev) => [...prev, newMessage]);
     setInput("");
     setLoading(true);
-  
+
     try {
       let chartType: "bar" | "line" | "pie" | null = null;
       if (input.toLowerCase().includes("bar chart")) chartType = "bar";
       else if (input.toLowerCase().includes("line chart")) chartType = "line";
       else if (input.toLowerCase().includes("pie chart")) chartType = "pie";
-  
+
       let assistantMessage: Message;
-  
+
       if (chartType) {
         const chartData = generateChartData(chartType); // ✅ Using generateChartData
         assistantMessage = {
@@ -168,11 +167,11 @@ export default function Chatbot() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt: input }),
         });
-  
+
         const data = await res.json();
         assistantMessage = { role: "assistant", content: data.result };
       }
-  
+
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error("Chatbot error:", error);
@@ -180,46 +179,53 @@ export default function Chatbot() {
       setLoading(false);
     }
   };
-  
-  
 
   return (
     <div className="p-6 w-full h-[800px] max-w-[1050px] mx-auto text-black flex flex-col bg-transparent shadow-none border-none">
-    <h2 className="text-2xl font-bold text-gray-800 text-center mb-4 hidden">Chatbot</h2>
+      <h2 className="text-2xl font-bold text-gray-800 text-center mb-4 hidden">
+        Chatbot
+      </h2>
 
       {/* Chat Messages Container */}
       <div className="flex-1 overflow-y-auto border rounded-lg p-4 bg-gray-100 space-y-3 shadow-inner">
         {messages.map((msg, index) => (
-          <div key={index} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-<div
-  className={`px-4 py-2 rounded-xl text-sm max-w-[80%] ${
-    msg.role === "user"
-      ? "bg-blue-500 text-white"
-      : "bg-white text-gray-900 border border-gray-300 "
-  }`}
->
-
-{msg.role === "assistant" ? (
-  msg.chartType && msg.chartData ? ( // Ensure both chartType and chartData exist
-    <div className="h-48 w-80">
-      {msg.chartType === "bar" && (
-        <Bar data={msg.chartData as ChartData<"bar">} />
-      )}
-      {msg.chartType === "line" && (
-        <Line data={msg.chartData as ChartData<"line">} />
-      )}
-      {msg.chartType === "pie" && (
-        <Pie data={msg.chartData as ChartData<"pie">} />
-      )}
-    </div>
-  ) : (
-    <Typer text={msg.content} />
-  )
-) : (
-  <ReactMarkdown className="prose max-w-none" remarkPlugins={[remarkGfm]}>
-    {msg.content}
-  </ReactMarkdown>
-)}
+          <div
+            key={index}
+            className={`flex ${
+              msg.role === "user" ? "justify-end" : "justify-start"
+            }`}
+          >
+            <div
+              className={`px-4 py-2 rounded-xl text-sm max-w-[80%] ${
+                msg.role === "user"
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-gray-900 border border-gray-300 "
+              }`}
+            >
+              {msg.role === "assistant" ? (
+                msg.chartType && msg.chartData ? ( // Ensure both chartType and chartData exist
+                  <div className="h-48 w-80">
+                    {msg.chartType === "bar" && (
+                      <Bar data={msg.chartData as ChartData<"bar">} />
+                    )}
+                    {msg.chartType === "line" && (
+                      <Line data={msg.chartData as ChartData<"line">} />
+                    )}
+                    {msg.chartType === "pie" && (
+                      <Pie data={msg.chartData as ChartData<"pie">} />
+                    )}
+                  </div>
+                ) : (
+                  <Typer text={msg.content} />
+                )
+              ) : (
+                <ReactMarkdown
+                  className="prose max-w-none"
+                  remarkPlugins={[remarkGfm]}
+                >
+                  {msg.content}
+                </ReactMarkdown>
+              )}
             </div>
           </div>
         ))}
@@ -243,7 +249,10 @@ export default function Chatbot() {
         <button className="p-2 text-gray-500 hover:text-gray-700 transition">
           <FiMoreHorizontal size={20} />
         </button>
-        <button className="p-2 text-blue-600 hover:text-blue-800 transition" onClick={sendMessage}>
+        <button
+          className="p-2 text-blue-600 hover:text-blue-800 transition"
+          onClick={sendMessage}
+        >
           <FiSend size={22} />
         </button>
       </div>
