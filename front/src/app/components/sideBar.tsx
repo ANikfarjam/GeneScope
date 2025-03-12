@@ -21,7 +21,11 @@ const Sidebar = () => {
   }, []);
 
   return (
-    <div className={`h-screen bg-gray-900 text-white flex flex-col ${isOpen ? "w-64" : "w-16"} transition-all duration-300 fixed`}>
+    <div
+      className={`h-screen bg-gray-900 text-white flex flex-col ${
+        isOpen ? "w-64" : "w-16"
+      } transition-all duration-300 fixed`}
+    >
       <div className="p-4 flex justify-between items-center">
         {isOpen && <h2 className="text-xl font-bold">History</h2>}
         <button onClick={() => setIsOpen(!isOpen)} className="text-white">
@@ -32,7 +36,10 @@ const Sidebar = () => {
       <nav className="flex flex-col space-y-4 mt-4 p-2">
         {history.length > 0 ? (
           history.map((msg, index) => (
-            <div key={index} className="text-sm bg-gray-800 p-2 rounded-md truncate hover:bg-gray-700">
+            <div
+              key={index}
+              className="text-sm bg-gray-800 p-2 rounded-md truncate hover:bg-gray-700"
+            >
               <FiMessageCircle className="inline mr-2" />
               {msg.content.slice(0, 20)}...
             </div>

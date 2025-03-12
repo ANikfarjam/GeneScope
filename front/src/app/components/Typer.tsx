@@ -14,7 +14,7 @@ const Typer = ({ text }: TyperProps) => {
   useEffect(() => {
     if (typeof window === "undefined") return; // Prevents SSR issues
     let index = 0;
-    setDisplayText(""); 
+    setDisplayText("");
 
     const interval = setInterval(() => {
       if (index < text.length) {
@@ -23,7 +23,7 @@ const Typer = ({ text }: TyperProps) => {
       } else {
         clearInterval(interval);
       }
-    }, 10); 
+    }, 10);
 
     return () => clearInterval(interval);
   }, [text]);
@@ -40,7 +40,9 @@ const Typer = ({ text }: TyperProps) => {
               </table>
             </div>
           ),
-          thead: ({ children }) => <thead className="bg-gray-200">{children}</thead>,
+          thead: ({ children }) => (
+            <thead className="bg-gray-200">{children}</thead>
+          ),
           th: ({ children }) => (
             <th className="border border-gray-400 px-4 py-2 text-left font-semibold bg-gray-100">
               {children}
