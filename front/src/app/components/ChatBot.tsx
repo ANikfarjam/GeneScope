@@ -63,34 +63,6 @@ export default function Chatbot() {
     localStorage.setItem("chatHistory", JSON.stringify(messages));
   }, [messages]);
 
-  const generateChartData = (type: "bar" | "line" | "pie") => {
-    const data = {
-      labels: ["January", "February", "March", "April", "May"],
-      datasets: [
-        {
-          label: "Sales ($)",
-          data: [1200, 1900, 3000, 2500, 2800],
-          backgroundColor: [
-            "rgba(255, 99, 132, 0.5)",
-            "rgba(54, 162, 235, 0.5)",
-            "rgba(255, 206, 86, 0.5)",
-            "rgba(75, 192, 192, 0.5)",
-            "rgba(153, 102, 255, 0.5)",
-          ],
-          borderColor: [
-            "rgba(255, 99, 132, 1)",
-            "rgba(54, 162, 235, 1)",
-            "rgba(255, 206, 86, 1)",
-            "rgba(75, 192, 192, 1)",
-            "rgba(153, 102, 255, 1)",
-          ],
-          borderWidth: 1,
-        },
-      ],
-    };
-    return { type, data };
-  };
-
   //const extractChartData = (input: string) => {
   //  const words = input.split(/\s+/); // Split input by spaces
   //  const labels: string[] = [];

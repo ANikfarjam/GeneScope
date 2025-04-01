@@ -10,7 +10,10 @@ const chatModel = new ChatOpenAI({
   temperature: 0.7,
   openAIApiKey: process.env.NEXT_PUBLIC_STUFF,
 });
-
+interface ToolStep {
+  action: { tool: string };
+  observation: { content: string };
+}
 const generateChartTool = new DynamicStructuredTool({
   name: "generate_chart",
   description:
@@ -107,9 +110,8 @@ User prompt: ${prompt}
 `;
 
     const result = await executor.invoke({ input: wrappedPrompt });
-
     const toolStep = result?.intermediateSteps?.find(
-      (step: any) => step?.action?.tool === "generate_chart"
+      (step: ToolStep) => step?.action?.tool === "generate_chart"
     );
 
     if (toolStep?.observation?.content) {
