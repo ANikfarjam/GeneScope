@@ -4,4 +4,9 @@ data/
 *.soft
 *.npy
 *.pkl
-/BackEnd/Models/media/videos/
+/BackEnd/Marimo_server/media/
+/BackEnd/Marimo_server/FB/
+/BackEnd/Marimo_server/assets/
+/BackEnd/Storage/
+.env
+__pycache__
