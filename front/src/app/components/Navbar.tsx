@@ -51,7 +51,6 @@ const Navbar = () => {
               Project Objective
             </Link>
 
-            {/* If user is logged in, show Welcome and Logout */}
             {user ? (
               <>
                 <span className="text-gray-700">Welcome, {user.username}!</span>

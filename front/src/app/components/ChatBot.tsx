@@ -156,7 +156,11 @@ export default function Chatbot() {
       setLoading(false);
     }
   };
-
+  /*
+  these are probably not needed
+  !msg.content.includes("http") &&
+  !msg.content.includes("![") && <Typer text={msg.content} />}
+*/
   return (
     <div className="p-6 w-full h-[800px] max-w-[1050px] mx-auto text-black flex flex-col bg-transparent shadow-none border-none">
       <h2 className="text-2xl font-bold text-gray-800 text-center mb-4 hidden">
