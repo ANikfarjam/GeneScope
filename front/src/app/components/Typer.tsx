@@ -5,14 +5,14 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 interface TyperProps {
-  text: string;
+  text?: string; // Make text optional
 }
 
 const Typer = ({ text }: TyperProps) => {
   const [displayText, setDisplayText] = useState("");
 
   useEffect(() => {
-    if (typeof window === "undefined") return; // Prevents SSR issues
+    if (!text || typeof window === "undefined") return; // ✅ guard for undefined text
     let index = 0;
     setDisplayText("");
 

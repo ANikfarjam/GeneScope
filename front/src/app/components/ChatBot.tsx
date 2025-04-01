@@ -146,29 +146,34 @@ export default function Chatbot() {
     setLoading(true);
 
     try {
-      let chartType: "bar" | "line" | "pie" | null = null;
-      if (input.toLowerCase().includes("bar chart")) chartType = "bar";
-      else if (input.toLowerCase().includes("line chart")) chartType = "line";
-      else if (input.toLowerCase().includes("pie chart")) chartType = "pie";
-
       let assistantMessage: Message;
 
-      if (chartType) {
-        const chartData = generateChartData(chartType); // ✅ Using generateChartData
-        assistantMessage = {
-          role: "assistant",
-          content: `Here is your ${chartType} chart:`,
-          chartType,
-          chartData: chartData.data,
-        };
-      } else {
-        const res = await fetch("/api/agent", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: input }),
-        });
+      const res = await fetch("/api/agent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: input }),
+      });
 
-        const data = await res.json();
+      const data = await res.json();
+      let parsed;
+      try {
+        parsed =
+          typeof data.result === "string"
+            ? JSON.parse(data.result)
+            : data.result;
+        console.log("Parsed result:", parsed);
+
+        if (parsed?.type && parsed?.data) {
+          assistantMessage = {
+            role: "assistant",
+            content: `Here is your ${parsed.type} chart:`,
+            chartType: parsed.type,
+            chartData: parsed.data,
+          };
+        } else {
+          assistantMessage = { role: "assistant", content: data.result };
+        }
+      } catch {
         assistantMessage = { role: "assistant", content: data.result };
       }
 
@@ -203,21 +208,25 @@ export default function Chatbot() {
               }`}
             >
               {msg.role === "assistant" ? (
-                msg.chartType && msg.chartData ? ( // Ensure both chartType and chartData exist
-                  <div className="h-48 w-80">
-                    {msg.chartType === "bar" && (
-                      <Bar data={msg.chartData as ChartData<"bar">} />
-                    )}
-                    {msg.chartType === "line" && (
-                      <Line data={msg.chartData as ChartData<"line">} />
-                    )}
-                    {msg.chartType === "pie" && (
-                      <Pie data={msg.chartData as ChartData<"pie">} />
-                    )}
-                  </div>
-                ) : (
-                  <Typer text={msg.content} />
-                )
+                <>
+                  {msg.content &&
+                    !msg.content.includes("http") &&
+                    !msg.content.includes("![") && <Typer text={msg.content} />}
+
+                  {msg.chartType && msg.chartData && (
+                    <div className="h-48 w-80 mt-2">
+                      {msg.chartType === "bar" && (
+                        <Bar data={msg.chartData as ChartData<"bar">} />
+                      )}
+                      {msg.chartType === "line" && (
+                        <Line data={msg.chartData as ChartData<"line">} />
+                      )}
+                      {msg.chartType === "pie" && (
+                        <Pie data={msg.chartData as ChartData<"pie">} />
+                      )}
+                    </div>
+                  )}
+                </>
               ) : (
                 <ReactMarkdown
                   className="prose max-w-none"
