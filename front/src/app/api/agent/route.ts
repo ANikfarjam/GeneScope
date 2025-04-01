@@ -5,6 +5,7 @@ import { DynamicStructuredTool } from "langchain/tools";
 import { z } from "zod";
 //AAAAAAAAAAAAAAAaaa
 //TODO -> fix prompt implement vector embedding tool
+//graph is functional but struggling on generating input right after graph
 const chatModel = new ChatOpenAI({
   modelName: "gpt-4",
   temperature: 0.7,
@@ -16,6 +17,7 @@ interface ToolStep {
 }
 const generateChartTool = new DynamicStructuredTool({
   name: "generate_chart",
+
   description:
     "📊 MANDATORY: Use this tool to generate any bar, line, or pie chart for Chart.js. " +
     "DO NOT return code snippets or markdown descriptions. Only use this tool to return the chart data object. " +
