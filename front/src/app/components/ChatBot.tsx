@@ -162,7 +162,7 @@ export default function Chatbot() {
           chartData: chartData.data,
         };
       } else {
-        const res = await fetch("/api/generate", {
+        const res = await fetch("/api/agent", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt: input }),
