@@ -50,6 +50,17 @@ export default function Chatbot() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [showCsvPrompt, setShowCsvPrompt] = useState(false);
+
+  useEffect(() => {
+    // First message appears immediately
+    const timer = setTimeout(() => {
+      setShowCsvPrompt(true);
+    }, 1900); // Delay long enough for Typer to finish (adjust as needed)
+
+    return () => clearTimeout(timer);
+  }, []);
   //const [user, setUser] = useState<User | null>(null);
 
   //useEffect(() => {
@@ -169,6 +180,50 @@ export default function Chatbot() {
 
       {/* Chat Messages Container */}
       <div className="flex-1 overflow-y-auto border rounded-lg p-4 bg-gray-100 space-y-3 shadow-inner">
+        <div className="flex justify-start">
+          <div className="px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[80%] bg-white text-gray-900 border border-gray-300">
+            <Typer text="👋 Hi there! I'm GeneScope. Ask me about breast cancer, genetics, or let me show you a chart!" />
+          </div>
+        </div>
+
+        {showCsvPrompt && (
+          <>
+            <div className="flex justify-start">
+              <div className="px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[80%] bg-white text-gray-900 border border-gray-300 space-y-2">
+                <Typer text="🧬 Would you like to use our model for prognosis? Please upload your CSV file here and press Continue." />
+                <div className="flex items-center space-x-3">
+                  {/* Custom File Upload */}
+                  <label className="px-3 py-1 bg-gray-200 text-gray-800 rounded cursor-pointer hover:bg-gray-300 transition">
+                    Choose CSV
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          console.log("Uploaded file:", file.name);
+                          // Store in state if needed
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+
+                  {/* Continue Button */}
+                  <button
+                    onClick={() => {
+                      console.log("Continue button clicked");
+                    }}
+                    className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -177,10 +232,10 @@ export default function Chatbot() {
             }`}
           >
             <div
-              className={`px-4 py-2 rounded-xl text-sm max-w-[80%] ${
+              className={`px-4 py-2 rounded-xl   text-sm max-w-[80%] ${
                 msg.role === "user"
-                  ? "bg-blue-500 text-white"
-                  : "bg-white text-gray-900 border border-gray-300 "
+                  ? "bg-blue-500 text-white rounded-tr-none"
+                  : "bg-white rounded-tl-none text-gray-900 border border-gray-300 "
               }`}
             >
               {msg.role === "assistant" ? (

@@ -67,7 +67,6 @@ const isChartPrompt = async (input: string): Promise<boolean> => {
   const detectionPrompt = `
 Determine if the following user prompt is asking to generate a chart.
 Respond with only "yes" or "no".
-
 Prompt: "${input}"
 `;
 
@@ -104,13 +103,13 @@ export async function POST(req: NextRequest) {
     );
 
     const wrappedPrompt = `
-You are a data visualization assistant.
-Only use the "generate_chart" tool to generate any chart.
-Never return code blocks or markdown.
-Only return the chart JSON using the tool.
-
-User prompt: ${prompt}
-`;
+    You are a data visualization assistant.
+    Only use the "generate_chart" tool to generate any chart.
+    Never return code blocks or markdown.
+    Only return the chart JSON using the tool.
+      
+    User prompt: ${prompt}
+    `;
 
     const result = await executor.invoke({ input: wrappedPrompt });
     const toolStep = result?.intermediateSteps?.find(
