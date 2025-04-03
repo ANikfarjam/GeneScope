@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.11.7"
+__generated_with = "0.12.2"
 app = marimo.App(width="full")
 
 
@@ -366,7 +366,6 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(io, mo, pd):
-
     with open('../../data/SuplementoryFiles/GSE62944_01_27_15_TCGA_20_420_Clinical_Variables_7706_Samples.txt', 'r') as file:
         exractedData1=[line.split('\t') for line in file.readlines()]
     with open('../../data/SuplementoryFiles/GSE62944_06_01_15_TCGA_24_548_Clinical_Variables_9264_Samples.txt', 'r') as file:
@@ -705,6 +704,15 @@ def _(info_str, melignent_df, mo, new_brca_df, np, pd):
 
 
 @app.cell
+def _(droped_Df, mo):
+    mo.ui.tabs=(
+        {'1st':{col: droped_Df[col].value_counts() for col in droped_Df.iloc[:,4:100]},
+        '2nd':{col: droped_Df[col].value_counts() for col in droped_Df.iloc[:,101:]}}
+    )
+    return
+
+
+@app.cell
 def _(droped_Df):
     #'clinical_stage', ajcc_staging_edition, tumor_status
     clinical_MTN = droped_Df[['clinical_M', 'clinical_N', 'clinical_T']].value_counts()
@@ -723,12 +731,6 @@ def _(droped_Df):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""Now we cleaned up the data frame, its time to lable the samples based on <span style="color:green">M, T, N</span> markers related to breast cancer that we mentioned earlier.""")
-    return
-
-
-@app.cell
-def _(droped_Df):
-    droped_Df.value_counts()
     return
 
 
@@ -846,7 +848,7 @@ def _(io, mo, other_sup_file):
     moded_info = buffer.getvalue()  # Store the captured output as a string
 
     # Display tabs correctly
-    mo.ui.tabs({
+    mo.tabs({
         "Cleaned Table": mo.ui.table(other_sup_file),
         "Info": mo.ui.code_editor(f"`\n{moded_info}\n`")  # Properly formatted info
     })
@@ -880,40 +882,6 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo, other_sup_file, pd):
-    """
-    This function is combining stages:
-    """
-    stage_dic={
-        1:['Stage I','Stage IA','Stage IB'],
-        2:['Stage II', 'Stage IIA', 'Stage IIB'],
-        3:['Stage IIIA', 'Stage IIIB', 'Stage IIIC'],
-        4:['Stage IV']
-        }
-    def combine_stage(df, stage_dic=stage_dic):
-        stageI_df=df[df['ajcc_pathologic_stage'].isin(stage_dic[1])].copy()
-        stageI_df['ajcc_pathologic_stage']=1
-        stageII_df=df[df['ajcc_pathologic_stage'].isin(stage_dic[2])].copy()
-        stageII_df['ajcc_pathologic_stage']=2
-        stageIII_df=df[df['ajcc_pathologic_stage'].isin(stage_dic[3])].copy()
-        stageIII_df['ajcc_pathologic_stage']=3
-        stageIV_df=df[df['ajcc_pathologic_stage'].isin(stage_dic[4])].copy()
-        stageIV_df['ajcc_pathologic_stage']=4
-    
-        rcombined_df = pd.concat([stageI_df, stageII_df, stageIII_df, stageIV_df], ignore_index=True)
-    
-        return rcombined_df
-
-    relabled_df = combine_stage(other_sup_file)
-
-    mo.ui.tabs({
-        'New_table': mo.ui.table(relabled_df),
-        'stage_count': relabled_df['ajcc_pathologic_stage'].value_counts()
-    })
-    return combine_stage, relabled_df, stage_dic
-
-
-@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
@@ -936,7 +904,6 @@ def _(mo):
         Train an HMM on gene expression profiles of the minority classes to generate similar but distinct sequences.
 
         <span style='color:green'>Since we have already done the AHP analysis for biomarkers analysis We are going to employ HMM to generate symentically gene expression for minority classes.</span>
-
         """
     )
     return
@@ -946,11 +913,13 @@ def _(mo):
 def _(cancer_dataSet, other_sup_file, pd):
     """
     creating and saving the stage dfs
+    gender                                     737 non-null    object 
+     45  ethnicity                                  737 non-null    object 
+     46  vital_status
     """
     other_sup_file.rename(columns={'ajcc_pathologic_stage':'Stage'}, inplace=True)
-    stages_df = pd.merge(other_sup_file[['barcode', 'Stage']], cancer_dataSet, left_on='barcode', right_on='Samples')
+    stages_df = pd.merge(other_sup_file[['barcode', 'Stage', 'age_at_diagnosis', 'gender', 'ethnicity', 'vital_status']], cancer_dataSet, left_on='barcode', right_on='Samples')
     stages_df.iloc[:,:4].info(verbose=True, show_counts=True)
-
     return (stages_df,)
 
 
@@ -963,83 +932,25 @@ def _(stages_df):
 @app.cell
 def _(stages_df):
     stages_df.drop(columns='barcode', inplace=True)
-    stages_df.to_csv('./AHPresults/stage_dataSet.csv', index=False)
-
     return
 
 
-@app.cell(hide_code=True)
-def _(other_sup_file):
-    from sklearn.preprocessing import LabelEncoder
-    le = LabelEncoder()
-    # Copy relevant columns from the dataset
-    corr_data = other_sup_file.iloc[:, 11:].copy().fillna(0)
-    # # One-Hot Encode categorical variables (Fixing the error)
-    for _clm in corr_data.columns:
-        corr_data[_clm] = le.fit_transform(corr_data[_clm])
-
-    # corr_data = corr_data.to_frame()
-    corr_target = corr_data.corrwith(corr_data['ajcc_pathologic_stage'])
-    return LabelEncoder, corr_data, corr_target, le
+@app.cell
+def _(stages_df):
+    stages_df.head()
+    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
-        ###<span style="color: Green">Use correlation matrices to find relationships between genes and patient features.</span>
-
-        I would like to see the correlation between the cancerous and non cancerous genes and patiens demographic
-        """
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def _(corr_target, mo):
-    import plotly.express as px
-    corr_mtrx = corr_target.fillna(0).copy().to_frame().rename(columns={0:'Correlation'})
-    print(corr_mtrx.shape)
-    mo.vstack([
-        mo.ui.plotly(
-            px.bar(corr_mtrx, x = corr_mtrx.index, y=corr_mtrx['Correlation'])    
-        ),
-        mo.ui.table(corr_mtrx.sort_values(by='Correlation'))
-    ])
-    return corr_mtrx, px
-
-
-@app.cell
-def _(corr_target):
-    type(corr_target)
+    mo.md(r"""For final clean up we are going to convert the age from days to year, and our data is ready for visualizatoin and further analysis.""")
     return
 
 
 @app.cell
-def _(cancer_dataSet, other_sup_file):
-    """labling GEO data sets"""
-    stage_df = other_sup_file.copy()
-    lable_df = stage_df[['barcode','ajcc_pathologic_stage']]
-    sample_dict = {}
-    for _, row in lable_df.iterrows():
-        sample_dict[row['barcode']] = row['ajcc_pathologic_stage']
-    def label_data(sample):
-        if sample in sample_dict.keys():
-            return sample_dict[sample]
-        else:
-            return None
-    stage_lables_df = cancer_dataSet.copy()
-    stage_lables_df['Stage'] = stage_lables_df[stage_lables_df.columns[0]].apply(label_data)
-    stage_df.head()
-    return label_data, lable_df, row, sample_dict, stage_df, stage_lables_df
-
-
-@app.cell
-def _(stage_lables_df):
-    stage_lables_df.dropna(inplace=True)
-    grouped_df = stage_lables_df.groupby(by='Stage').mean(numeric_only=True)
-    grouped_df
-    return (grouped_df,)
+def _():
+    #stages_df.to_csv('./AHPresults/stage_dataSet.csv', index=False)
+    return
 
 
 if __name__ == "__main__":

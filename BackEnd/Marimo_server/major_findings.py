@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.11.23-dev5"
+__generated_with = "0.11.7"
 app = marimo.App(width="medium")
 
 
@@ -37,60 +37,15 @@ def _(mo):
     return
 
 
-@app.cell
-def _():
-
-    import json
-    import os
-    from dotenv import load_dotenv
-    from azure.storage.blob import BlobServiceClient, BlobClient
-    load_dotenv()
-    print("loaded env vars!")
-    connection_string = os.getenv("azure_connection_str")
-    print(f'connectionstring: {connection_string}')
-    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
-    print('blob service connected!')
-    container_name = os.getenv("container_name")
-    print('container initiated')
-    container_client = blob_service_client.get_container_client(container_name)
-    blobs = container_client.list_blobs()
-    for blob in blobs:
-        if blob.name.endswith('.csv'):
-            blob_client = container_client.get_blob_client(blob.name)
-            with open(f"{blob.name}", "wb") as file:
-                download_stream = blob_client.download_blob().content_as_stream()
-                file.write(download_stream.readall())
-    with open("data.json", "r") as f:
-        data = json.load(f)
-    return (
-        BlobClient,
-        BlobServiceClient,
-        blob,
-        blob_client,
-        blob_service_client,
-        blobs,
-        connection_string,
-        container_client,
-        container_name,
-        data,
-        download_stream,
-        f,
-        file,
-        json,
-        load_dotenv,
-        os,
-    )
-
-
 @app.cell(hide_code=True)
-def _(data, mo):
+def _(mo):
     import pandas as pd
     import plotly.express as px
 
     # healthy_dataSet = pd.read_csv("../../data/ModelDataSets/helthyExpressions.csv")
     # healthy_dataSet.set_index(healthy_dataSet.columns[0], inplace=True)
     healthy_dataSet = pd.read_csv(
-        data["data"]["healthy_exp"], sep=",", index_col=0
+        './data/helthyExpressions.csv', sep=",", index_col=0
     )
     # healthy_dataSet.set_index(healthy_dataSet.columns[0], inplace=True)
     # Extract genes and compute mean expression
@@ -123,9 +78,7 @@ def _(data, mo):
 @app.cell(hide_code=True)
 def _(mo, pd, plot_df, px):
     # cancer_dataSet = pd.read_csv("../../data/ModelDataSets/cancerExpressions.csv")
-    cancer_dataSet = pd.read_csv(
-        "https://genescopestorage.blob.core.windows.net/datasets/cancerExpressions.csv?sp=r&st=2025-03-23T20:59:32Z&se=2026-11-26T05:59:32Z&sv=2024-11-04&sr=b&sig=1VqeLY%2BtVSGYKIE1Q3VwQ1IEln45MHGnJmpJ5Za7bGM%3D"
-    )
+    cancer_dataSet = pd.read_csv('./data/cancerExpressions.csv')
     plot_genes = plot_df["Genes"].tolist()
     average2 = cancer_dataSet[plot_genes].mean(axis=0)
     plot2_df = pd.DataFrame({"Genes": plot_genes, "avg_expr_level": average2})
@@ -334,8 +287,8 @@ def _(mo):
 
 
 @app.cell
-def _(data, pd):
-    ahp_df = pd.read_csv(data["data"]["ahp_scores"])
+def _(pd):
+    ahp_df = pd.read_csv('./AHPresults/final_Mod_ahp_scores.csv')
     return (ahp_df,)
 
 
@@ -400,7 +353,7 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo, pd):
-    desc_df = pd.read_csv("top500_desc.csv")
+    desc_df = pd.read_csv("./data/top500_desc.csv")
     mo.ui.tabs(
         {
             "Visual_Analysis": mo.hstack(
@@ -454,207 +407,27 @@ def _(mo, pd):
 
 
 @app.cell
-def _(ahp_df, pd, px):
-    from sklearn.decomposition import PCA
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.impute import SimpleImputer
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-
-    # Step 1: Select relevant features
-    features = [
-        "t_test",
-        "entropy",
-        "roc_auc",
-        "Wilcoxon",
-        "Wilcoxon_p",
-        "snr",
-        "Scores",
-    ]
-    X = ahp_df[features].copy()
-
-    # Step 2: Drop any columns that are completely NaN
-    X = X.dropna(axis=1, how="all")
-
-    # Step 3: Store actual feature names that remain
-    used_features = X.columns.tolist()
-
-    # Step 4: Impute missing values
-    imputer = SimpleImputer(strategy="mean")
-    X_imputed = imputer.fit_transform(X)
-
-    # Step 5: Standardize
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X_imputed)
-
-    # Step 6: PCA
-    pca = PCA(n_components=3)
-    X_pca = pca.fit_transform(X_scaled)
-
-    # Step 7: Create column names for PCA components
-    pc_names = [f"PC{i+1}" for i in range(pca.n_components)]
-
-    # Step 8: Add PCA results to your dataframe
-    for i, pc in enumerate(pc_names):
-        ahp_df[pc] = X_pca[:, i]
-
-    # Step 9: Axis labels with variance explained
-    explained_var = pca.explained_variance_ratio_ * 100
-    axis_labels = [
-        f"{pc} ({var:.1f}%)" for pc, var in zip(pc_names, explained_var)
-    ]
-
-    # Step 10: 3D scatter plot
-    pca_fig = px.scatter_3d(
-        ahp_df,
-        x="PC1",
-        y="PC2",
-        z="PC3",
-        color="Scores",
-        hover_data=["Gene"],
-        title="3D PCA of Gene AHP Scores",
-        labels={
-            "PC1": axis_labels[0],
-            "PC2": axis_labels[1],
-            "PC3": axis_labels[2],
-            "Scores": "AHP Score",
-        },
-    )
-
-    pca_fig.update_layout(coloraxis_colorbar=dict(title="AHP Score"))
-    pca_fig.show()
-
-    # Step 11: PCA Loadings using only the features that were actually used
-    loadings = pd.DataFrame(
-        pca.components_.T,
-        columns=pc_names,
-        index=used_features,  # ✅ This is the fix!
-    )
-
-    print("🔍 PCA Loadings:")
-    print(loadings)
-
-    # Optional: Heatmap of feature contributions
-    plt.figure(figsize=(8, 5))
-    sns.heatmap(loadings, annot=True, cmap="coolwarm")
-    plt.title("PCA Component Loadings (Feature Contributions)")
-    plt.show()
-    return (
-        PCA,
-        SimpleImputer,
-        StandardScaler,
-        X,
-        X_imputed,
-        X_pca,
-        X_scaled,
-        axis_labels,
-        explained_var,
-        features,
-        i,
-        imputer,
-        loadings,
-        pc,
-        pc_names,
-        pca,
-        pca_fig,
-        plt,
-        scaler,
-        sns,
-        used_features,
-    )
-
-
-@app.cell(hide_code=True)
 def _(mo):
-    mo.md("""## <span style="color: green">PairWize MAtrix Visualization""")
+    mo.md(
+        r"""
+        ### <span style='color: brown'>Prognosis Analysis</span>
+
+        Cancer prognosis analysis involves estimating the likely course and outcome of a cancer, including survival rates and recurrence probabilities, by examining factors like tumor stage, size, and spread, as well as patient-specific characteristics. 
+        """
+    )
     return
 
 
-@app.cell(hide_code=True)
-def _(
-    ahp_df,
-    ahp_top,
-    entropy_matrix,
-    mo,
-    pd,
-    px,
-    roc_matrix,
-    snr_matrix,
-    t_test_matrix,
-):
-    # Convert sparse matrix to dense format
-    t_test_dense_matrix = (
-        t_test_matrix.toarray()
-    )  # Convert sparse to dense numpy array
-    entropy_dense_matrix = entropy_matrix.toarray()
-    roc_dense_matrix = roc_matrix.toarray()
-    snr_dense_matrix = snr_matrix.toarray()
-    # top genes
-    top_genes = ahp_top.Gene.tolist()[:50]
-    # Create a DataFrame with gene names as both index and columns
-    t_test_pairwise_df = pd.DataFrame(
-        t_test_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene
-    ).loc[top_genes, top_genes]
-    entropy_pairwise_df = pd.DataFrame(
-        entropy_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene
-    ).loc[top_genes, top_genes]
-    roc_pairwise_df = pd.DataFrame(
-        roc_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene
-    ).loc[top_genes, top_genes]
-    snr_pairwise_df = pd.DataFrame(
-        snr_dense_matrix, index=ahp_df.Gene, columns=ahp_df.Gene
-    ).loc[top_genes, top_genes]
-
-
-    # Replace NaN values (if any) with 0
-    def creat_heatmap(df):
-        fig = px.imshow(df)
-        return mo.ui.plotly(fig)
-
-
-    mo.ui.tabs(
-        {
-            "T_Test": mo.vstack(
-                [
-                    creat_heatmap(t_test_pairwise_df),
-                    mo.ui.table(t_test_pairwise_df),
-                ]
-            ),
-            "Entropy": mo.vstack(
-                [
-                    creat_heatmap(entropy_pairwise_df),
-                    mo.ui.table(entropy_pairwise_df),
-                ]
-            ),
-            "ROC": mo.vstack(
-                [creat_heatmap(roc_pairwise_df), mo.ui.table(roc_pairwise_df)]
-            ),
-            "SNR": mo.vstack(
-                [creat_heatmap(snr_pairwise_df), mo.ui.table(snr_pairwise_df)]
-            ),
-        }
-    )
-    return (
-        creat_heatmap,
-        entropy_dense_matrix,
-        entropy_pairwise_df,
-        roc_dense_matrix,
-        roc_pairwise_df,
-        snr_dense_matrix,
-        snr_pairwise_df,
-        t_test_dense_matrix,
-        t_test_pairwise_df,
-        top_genes,
-    )
+@app.cell
+def _(pd):
+    stage_df = pd.read_csv('./AHPresults/stage_dataSet.csv')
+    stage_df.iloc[:,:5]
+    return (stage_df,)
 
 
 @app.cell
-def _():
-    # gense_stage=plot_df['Genes'].to_list()[:10]
-    # stage_plt_df = grouped_df[gense_stage]
-    # mo.ui.plotly(
-    #     px.line(stage_plt_df, y=stage_plt_df.columns, x=stage_plt_df.index)
-    # )
+def _(stage_df):
+    stage_df.iloc[:,:].unique()
     return
 
 
