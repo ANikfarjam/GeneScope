@@ -3,6 +3,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { initializeAgentExecutorWithOptions } from "langchain/agents";
 import { DynamicStructuredTool } from "langchain/tools";
 import { z } from "zod";
+
 //TODO -> the langchain process takes a long time need to make it more efficient
 //AAAAAAAAAAAAAAAaaa
 //TODO -> fix prompt implement vector embedding tool
@@ -16,6 +17,7 @@ interface ToolStep {
   action: { tool: string };
   observation: { content: string };
 }
+
 const generateChartTool = new DynamicStructuredTool({
   name: "generate_chart",
 
