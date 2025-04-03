@@ -5,6 +5,8 @@ import { PineconeStore } from "@langchain/community/vectorstores/pinecone";
 import { pineconeClient } from "./pinecone.js";
 //key sotred
 //TODO -> make it more efficient
+const pineconeIndexName = process.env.PINECONE_INDEX || "default-index-name";
+
 export async function storePdfsInPinecone() {
   const embeddings = new OpenAIEmbeddings({
     openAIApiKey: process.env.NEXT_PUBLIC_STUFF,
@@ -26,7 +28,7 @@ export async function storePdfsInPinecone() {
 
   try {
     await PineconeStore.fromDocuments(allDocs, embeddings, {
-      pineconeIndex: pineconeClient.Index("gene-scope"),
+      pineconeIndex: pineconeClient.Index(pineconeIndexName),
     });
 
     console.log("PDF embeddings stored in Pinecone.");
