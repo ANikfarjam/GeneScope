@@ -4,6 +4,7 @@ import { OpenAIEmbeddings } from "@langchain/openai";
 import { PineconeStore } from "@langchain/community/vectorstores/pinecone";
 import { pineconeClient } from "./pinecone.js";
 //key sotred
+//TODO -> make it more efficient
 export async function storePdfsInPinecone() {
   const embeddings = new OpenAIEmbeddings({
     openAIApiKey: process.env.NEXT_PUBLIC_STUFF,
