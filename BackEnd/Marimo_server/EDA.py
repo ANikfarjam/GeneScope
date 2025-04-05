@@ -4,12 +4,6 @@ __generated_with = "0.8.22"
 app = marimo.App(width="full")
 
 
-@app.cell
-def _():
-    import marimo as mo
-    return (mo,)
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md("""Author: Ashkan Nikfarjam""")
@@ -142,7 +136,6 @@ def _():
 
 @app.cell
 def _(create_supl_df):
-
     cancerBRCA_type_df, data, cType_count= create_supl_df('../../data/SuplementoryFiles/TCGA_24_CancerType_Samples.txt', 'BRCA')
 
     cancer_descriptions_list = [
@@ -962,8 +955,167 @@ def __(mo, pd):
 
 
 @app.cell
-def __():
+def __(mo):
+    mo.md(
+        r"""
+        ### <span style="color: brown">DataSet Clean up Proccess</span>
+        In order to find the most important features for our staging of breast cancer prognosis, we have evaluated a Random Forest classifier which involves preparing the data, encoding categorical features, handling missing values, splitting the dataset, training the model, and evaluating its performance on a test set. This initial evaluation with all available features will help establish a baseline and identify which features are most influential in predicting the stages of breast cancer.
+        """
+    )
     return
+
+
+@app.cell
+def __():
+    from sklearn.model_selection import train_test_split, GridSearchCV
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.preprocessing import LabelEncoder
+    from sklearn.metrics import classification_report, confusion_matrix
+    import pandas as pd
+    import numpy as np
+    import marimo as mo
+
+    clinical_df = pd.read_csv("./random_forest/clinical_data.csv")
+    target = 'Stage'
+    features = clinical_df.columns.drop(target)
+
+    le = LabelEncoder()
+    for col in features:
+        if clinical_df[col].dtype == 'object':  
+            clinical_df[col] = le.fit_transform(clinical_df[col].astype(str))
+
+    X = clinical_df[features].copy()
+    y = clinical_df[target]
+    X.fillna(X.mean(), inplace=True)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    rf = RandomForestClassifier(n_estimators=100, random_state=42)
+    rf.fit(X_train, y_train)
+
+    # Predict on the testing set
+    y_pred = rf.predict(X_test)
+    print(classification_report(y_test, y_pred, zero_division=1))
+    return (
+        GridSearchCV,
+        LabelEncoder,
+        RandomForestClassifier,
+        X,
+        X_test,
+        X_train,
+        classification_report,
+        clinical_df,
+        col,
+        confusion_matrix,
+        features,
+        le,
+        mo,
+        np,
+        pd,
+        rf,
+        target,
+        train_test_split,
+        y,
+        y_pred,
+        y_test,
+        y_train,
+    )
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        ### <span style="color: brown">Feature Analysis of Clinical Data</span>
+        To refine our understanding of breast cancer prognosis, we now focus on the critical task of feature evaluation. After setting up our data, encoding categorical variables, and handling missing values, we meticulously trained a Random Forest classifier with the aim of uncovering which features significantly influence the staging of breast cancer.
+
+        """
+    )
+    return
+
+
+@app.cell
+def __(features, mo, np, pd, rf):
+
+    feature_importances = rf.feature_importances_
+    indices = np.argsort(feature_importances)[::-1]
+    non_zero_indices = [i for i in indices if feature_importances[i] != 0]
+
+    feature_ranking_df = pd.DataFrame({
+        'Feature': [features[i] for i in non_zero_indices],
+        'Importance': [feature_importances[i] for i in non_zero_indices]
+    })
+
+    feature_ranking_df = feature_ranking_df.sort_values(by='Importance', ascending=False)
+    feature_ranking_df.reset_index(drop=True, inplace=True)
+    mo.ui.table(feature_ranking_df)
+    return (
+        feature_importances,
+        feature_ranking_df,
+        indices,
+        non_zero_indices,
+    )
+
+
+@app.cell
+def __(feature_importances, features, non_zero_indices):
+    import matplotlib.pyplot as plt
+
+    top_10_indices = non_zero_indices[:15]
+    plt.figure()
+    plt.title("Top 15 Feature importances")
+    plt.bar(range(len(top_10_indices)), [feature_importances[i] for i in top_10_indices], color="r", align="center")
+    plt.xticks(range(len(top_10_indices)), [features[i] for i in top_10_indices], rotation=90)  # Rotate labels to 45 degrees
+    plt.xlim([-1, len(top_10_indices)])
+    plt.tight_layout() 
+    plt.show()
+    return plt, top_10_indices
+
+
+@app.cell
+def __(mo):
+    mo.md(r"""Based on the insights gleaned from our feature importance analysis, future model refinement will focus on incorporating only the most impactful features. Additionally, to optimize the predictive performance of our models, we will implement a grid search strategy.""")
+    return
+
+
+@app.cell
+def __(
+    GridSearchCV,
+    X_test,
+    X_train,
+    classification_report,
+    rf,
+    y_test,
+    y_train,
+):
+    features_important = ['paper_pathologic_stage', 'ajcc_pathologic_n', 'ajcc_pathologic_t', 'days_to_collection', 
+                'paper_days_to_last_followup', 'year_of_diagnosis', 'treatments', 'initial_weight', 'sample_id', 
+                'days_to_birth', 'pathology_report_uuid', 'demographic_id', 'paper_days_to_birth', 'diagnosis_id', 
+                'Unnamed: 0', 'age_at_diagnosis', 'sample_submitter_id', 'paper_patient', 'patient', 
+                'paper_age_at_initial_pathologic_diagnosis', 'bcr_patient_barcode', 'barcode', 'submitter_id', 
+                'sample', 'age_at_index', 'sites_of_involvement', 'paper_PARADIGM.Clusters', 'paper_Mutation.Clusters', 
+                'primary_diagnosis', 'paper_CNV.Clusters', 'paper_BRCA_Subtype_PAM50', 'morphology', 'ajcc_pathologic_m', 
+                'method_of_diagnosis', 'paper_miRNA.Clusters', 'paper_mRNA.Clusters', 'race', 'paper_DNA.Methylation.Clusters', 
+                'laterality', 'ethnicity', 'preservation_method', 'paper_Included_in_previous_marker_papers', 
+                'oct_embedded', 'paper_vital_status', 'vital_status', 'prior_malignancy', 'synchronous_malignancy', 
+                'age_is_obfuscated', 'prior_treatment', 'tissue_or_organ_of_origin', 'icd_10_code']
+
+    param_grid = {
+        'n_estimators': [100, 200, 300],
+        'max_depth': [None, 10, 20, 30],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4],
+        'bootstrap': [True, False]
+    }
+    grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, cv=5, verbose=1, n_jobs=-1)
+    grid_search.fit(X_train, y_train)
+
+    print("best parameters:", grid_search.best_params_)
+    print("best score:", grid_search.best_score_)
+
+    y_pred_grid = grid_search.best_estimator_.predict(X_test)
+    print(classification_report(y_test, y_pred_grid, zero_division=1))
+
+    return features_important, grid_search, param_grid, y_pred_grid
 
 
 if __name__ == "__main__":
