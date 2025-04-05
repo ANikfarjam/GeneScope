@@ -1,10 +1,10 @@
 import marimo
 
-__generated_with = "0.12.2"
+__generated_with = "0.8.22"
 app = marimo.App(width="full")
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _():
     import marimo as mo
     return (mo,)
@@ -142,6 +142,7 @@ def _():
 
 @app.cell
 def _(create_supl_df):
+
     cancerBRCA_type_df, data, cType_count= create_supl_df('../../data/SuplementoryFiles/TCGA_24_CancerType_Samples.txt', 'BRCA')
 
     cancer_descriptions_list = [
@@ -950,6 +951,18 @@ def _(mo):
 @app.cell
 def _():
     #stages_df.to_csv('./AHPresults/stage_dataSet.csv', index=False)
+    return
+
+
+@app.cell
+def __(mo, pd):
+    df = pd.read_csv("./random_forest/clinical_data_20.csv")
+    mo.ui.table(df)
+    return (df,)
+
+
+@app.cell
+def __():
     return
 
 
