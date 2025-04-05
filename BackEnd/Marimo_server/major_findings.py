@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.11.7"
+__generated_with = "0.12.2"
 app = marimo.App(width="medium")
 
 
@@ -14,7 +14,7 @@ def _():
 def _(mo):
     mo.md(
         """
-        ###<span style="color: green">Project Overview</span> 
+        ###<span style="color: brown">Project Overview</span> 
 
         We analyze gene expression patterns in breast tissue samples to identify differentially expressed genes associated with early-stage breast cancer and to study cancer progression. Our goal is to develop a predictive model that accurately assesses breast cancer prognosis, improving early detection and treatment planning."
         Lot of early research paper were sujesting using models such as HMM how ever these models are Require pre-selected features (e.g., from AHP-based ranking). May miss complex interactions between genes because they rely on predefined relationships. Thus we decided to use deep learning approach to be able to create a robust model for subtype classificatino and also assist us with prognosis studies. We migh still use ahp analysis for some side edas. as well as corolation analysis on clinical variables helping furthur diganosis.
@@ -27,7 +27,7 @@ def _(mo):
 def _(mo):
     mo.md(
         """
-        ### <span style="color: green">Visually see the top 300 Genes in the Healthy samples dataset!
+        ### <span style="color: brown">Visually see the top 300 Genes in the Healthy samples dataset!
 
         Now lets see what are the most exressed genes in the BRCA genes. The mean expression for all the genes is selcted and following chart is showing the top 300 genes that had highes mean.
 
@@ -111,9 +111,9 @@ def _(mo):
 
         In the context of biomarker analysis for BRCA-related research, AHP can significantly improve the selection of key biomarkers by aggregating multiple statistical gene selection methods. Instead of relying on a single metric, such as a t-test or entropy, the modified AHP integrates multiple ranking criteria (e.g., Wilcoxon test, ROC curves, signal-to-noise ratio) to create a more stable and reliable subset of genes. This method ensures that the chosen biomarkers are not only statistically significant but also robust across different datasets and ranking approaches. By identifying the most influential genes systematically, AHP helps refine the list of biomarkers that could be further analyzed for their role in breast cancer progression, prognosis, or response to treatment.
 
-        <span style="color: green">Modified AHP:</span>
+        <span style="color: brown">Modified AHP:</span>
 
-        * <span style="color: green">Two-Sample t-Test:</span>
+        * <span style="color: brown">Two-Sample t-Test:</span>
 
         Purpose: Identifies statistically significant differences in gene expression between two groups (e.g., cancerous vs. healthy cells).
 
@@ -121,7 +121,7 @@ def _(mo):
 
         Output: A t-score and p-value. A small p-value indicates significant differences in expression.
 
-        * <span style="color: green">Entropy Test:</span>
+        * <span style="color: brown">Entropy Test:</span>
 
         Purpose: Measures the disorder in gene expression levels.
 
@@ -129,7 +129,7 @@ def _(mo):
 
         Output: Higher entropy values indicate genes with more variability, which are more useful for classification.
 
-        * <span style="color: green">Wilcoxon Rank-Sum Test:</span>
+        * <span style="color: brown">Wilcoxon Rank-Sum Test:</span>
 
         Purpose: A non-parametric test used to rank genes based on their median expression differences.
 
@@ -137,7 +137,7 @@ def _(mo):
 
         Output: A Wilcoxon statistic and a p-value. A low p-value suggests significant differences in gene ranks.
 
-        * <span style="color: green">Signal-to-Noise Ratio (SNR):</span>
+        * <span style="color: brown">Signal-to-Noise Ratio (SNR):</span>
 
         Purpose: Compares the difference in mean expression levels relative to the standard deviation.
 
@@ -145,7 +145,7 @@ def _(mo):
 
         Output: A higher SNR suggests that the gene has a strong discriminatory power between groups.
 
-        * <span style="color: green">AHP Weighted Ranking:</span>
+        * <span style="color: brown">AHP Weighted Ranking:</span>
 
         Purpose: Integrates statistical measures into a single weighted ranking system to prioritize significant genes.
 
@@ -153,7 +153,7 @@ def _(mo):
 
         Output: A final ranking score indicating the importance of each gene in classification.
 
-        * <span style="color: green"> Eigenvalues and Eigenvectors in Gene Selection (Modified AHP): </span>
+        * <span style="color: brown"> Eigenvalues and Eigenvectors in Gene Selection (Modified AHP): </span>
 
         The modified Analytic Hierarchy Process (AHP) used for gene selection involves constructing a pairwise comparison matrix where genes are ranked based on multiple statistical criteria (e.g., t-test, entropy, ROC, Wilcoxon, and SNR).
 
@@ -176,9 +176,6 @@ def _(mo):
         HMMs with Eigenvalues provide a probabilistic framework to model cancer progression and classify gene expression data efficiently.
 
         Eigenvectors define important features, helping reduce computational complexity and improving stability.
-
-
-        <span style="color: brown">Please run [computeAhp.py](https://github.com/ANikfarjam/GeneScope) to calculate the ahp scores!</span>
         """
     )
     return
@@ -188,7 +185,7 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-        # **Pairwise Comparison Matrix and Eigenvalues in Modified AHP**
+        ### <span style="color: brown">Pairwise Comparison Matrix and Eigenvalues in Modified AHP</span>
 
         The article describes the calculation of the **pairwise comparison matrix** and the **eigenvalues and eigenvectors** in the context of the **modified Analytic Hierarchy Process (AHP)** used for gene selection.
 
@@ -406,28 +403,243 @@ def _(mo, pd):
     return (desc_df,)
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
         ### <span style='color: brown'>Prognosis Analysis</span>
 
-        Cancer prognosis analysis involves estimating the likely course and outcome of a cancer, including survival rates and recurrence probabilities, by examining factors like tumor stage, size, and spread, as well as patient-specific characteristics. 
+        For studying prognosis, since we already planned to create an hmm model for data augmentation, we decided to analyze transmission emmition and initial probabilities. This will give us a valuabe insight on probabity of cancer advancing to next stage, as well as probabily of a malignant tissue falls into which stage of cancer.
         """
     )
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(pd):
-    stage_df = pd.read_csv('./AHPresults/stage_dataSet.csv')
-    stage_df.iloc[:,:5]
-    return (stage_df,)
+    """
+    loading calculated probabilities from our csvs
+    """
+    initial_p_df = pd.read_csv('../Models/HMM/probabilitiesResults/intial_p.csv')
+    emmition_p_df = pd.read_csv('../Models/HMM/probabilitiesResults/combined_em_p.csv')
+    transition_p_df = pd.read_csv('../Models/HMM/probabilitiesResults/ts_p.csv')
+    return emmition_p_df, initial_p_df, transition_p_df
 
 
-@app.cell
-def _(stage_df):
-    stage_df.iloc[:,:].unique()
+@app.cell(hide_code=True)
+def _(emmition_p_df, initial_p_df, mo, pd, transition_p_df):
+    import plotly.graph_objects as go
+    import networkx as nx
+
+    # Prepare the adjacency matrix by removing the 'Stage' column and converting to numeric values
+    transition_p_dfs = transition_p_df.set_index('Stage')
+    transition_p_dfs = transition_p_dfs.apply(pd.to_numeric, errors='coerce')
+
+    # Set the index of initial_p_df to the 'Stage' column for easy lookup
+    initial_p_dfs = initial_p_df.set_index('Stage')
+
+    # Extracting stages from the dataframe
+    stages = transition_p_dfs.index.tolist()
+    columns = transition_p_dfs.columns.tolist()
+
+    # Creating a directed graph
+    G = nx.DiGraph()
+
+    # Adding nodes
+    G.add_nodes_from(stages)
+
+    # Adding weighted edges based on transition probabilities, skipping self-loops
+    for from_stage in stages:
+        for to_stage in columns:
+            if from_stage != to_stage:  # Ignore self-loops
+                prob = transition_p_dfs.loc[from_stage, to_stage]  # Use transition_p_dfs here
+                if prob > 0:
+                    G.add_edge(from_stage, to_stage, weight=prob)
+
+    # Define node positions for top-down hierarchical layout
+    pos = {}
+    layer_height = 200
+    layer_width = 300
+    y_position = 0
+
+    # Define stages' positions manually to make them structured
+    for i, stage in enumerate(stages):
+        pos[stage] = (i * layer_width, y_position)
+        if i % 2 == 1:  # Move to the next layer every two stages for clarity
+            y_position -= layer_height
+
+    # Creating edge traces
+    edge_x = []
+    edge_y = []
+    edge_weights = []
+
+    for edge in G.edges(data=True):
+        x0, y0 = pos[edge[0]]
+        x1, y1 = pos[edge[1]]
+        edge_x.append(x0)
+        edge_x.append(x1)
+        edge_x.append(None)
+        edge_y.append(y0)
+        edge_y.append(y1)
+        edge_y.append(None)
+        edge_weights.append(edge[2]['weight'])
+
+    edge_trace = go.Scatter(
+        x=edge_x, y=edge_y,
+        line=dict(width=1, color='#888'),
+        hoverinfo='none',
+        mode='lines'
+    )
+
+    # Extract initial probabilities for color mapping
+    node_colors = [initial_p_dfs.loc[stage, 'count'] if stage in initial_p_dfs.index else 0 for stage in stages]
+
+    # Creating node traces
+    node_x = []
+    node_y = []
+    node_text = []
+    for stage in stages:
+        x, y = pos[stage]
+        node_x.append(x)
+        node_y.append(y)
+        node_text.append(stage)
+
+    node_trace = go.Scatter(
+        x=node_x, y=node_y,
+        mode='markers+text',
+        text=node_text,
+        textposition='top center',
+        marker=dict(
+            showscale=True,
+            colorscale='Viridis',
+            cmin=min(node_colors),
+            cmax=max(node_colors),
+            color=node_colors,
+            colorbar=dict(
+                title='Initial Probability',
+                thickness=15,
+                xanchor='left',
+                titleside='right'
+            ),
+            size=15,
+            line_width=2
+        )
+    )
+
+    # Creating annotations for edge weights (probabilities)
+    annotations = []
+    for edge in G.edges(data=True):
+        x0, y0 = pos[edge[0]]
+        x1, y1 = pos[edge[1]]
+        weight = edge[2]['weight']
+        annotations.append(
+            dict(
+                x=(x0 + x1) / 2,
+                y=(y0 + y1) / 2 - 15,  # Moving text slightly below the edges
+                text=f'{weight:.4f}',
+                showarrow=False,
+                font=dict(color="blue", size=10)  # Making weight text blue
+            )
+        )
+
+    # Creating the figure and naming it 'transition_fig'
+    transition_fig = go.Figure(data=[edge_trace, node_trace],
+                    layout=go.Layout(
+                        title='Breast Cancer Stage Transition Probability Tree',
+                        titlefont_size=16,
+                        showlegend=False,
+                        hovermode='closest',
+                        margin=dict(b=0, l=0, r=0, t=40),
+                        annotations=annotations,
+                        xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+                        plot_bgcolor='rgba(240, 240, 240, 0.8)'
+                    )
+                   )
+
+    # Display the Plotly figure
+    mo.vstack([
+        mo.ui.plotly(transition_fig),
+        mo.ui.tabs({
+        'transition':mo.ui.table(transition_p_df),
+        'initial':mo.ui.table(initial_p_df),
+        'emmition':mo.ui.table(emmition_p_df),
+
+        })])
+    return (
+        G,
+        annotations,
+        columns,
+        edge,
+        edge_trace,
+        edge_weights,
+        edge_x,
+        edge_y,
+        from_stage,
+        go,
+        i,
+        initial_p_dfs,
+        layer_height,
+        layer_width,
+        node_colors,
+        node_text,
+        node_trace,
+        node_x,
+        node_y,
+        nx,
+        pos,
+        prob,
+        stage,
+        stages,
+        to_stage,
+        transition_fig,
+        transition_p_dfs,
+        weight,
+        x,
+        x0,
+        x1,
+        y,
+        y0,
+        y1,
+        y_position,
+    )
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ### <span style="color: brown">Key Observations:</span>
+
+        **<span style="color: brown">Initial Probabilities (Color Intensity):**
+
+        * The color bar indicates initial probabilities for each stage, with darker shades representing lower probabilities and brighter shades representing higher probabilities.
+
+        * Stage IIA (yellow) has the highest initial probability, suggesting that it's a more common or frequently diagnosed stage compared to others.
+
+        * Stage I and Stage IV have lower initial probabilities, indicating they are less commonly the starting points or endpoints of the transition process.
+
+        **<span style="color: brown">Transition Probabilities (Edge Labels):</span>**
+
+        * Transitions are marked by probabilities, suggesting a sequence of disease progression from early stages to more advanced stages.
+
+        * The highest transition probability is between Stage IB to Stage II (0.1000) and Stage II to Stage IIA (0.1250). This suggests that the transition from Stage IB to Stage II is relatively frequent or likely.
+
+        * Lower transition probabilities are found in later stages like Stage IIIC to Stage IV (0.0119), indicating a much rarer or less likely progression at this point.
+
+        **<span style="color: brown">Progression Pattern:</span>**
+
+        * The progression from early to advanced stages seems gradual but consistent.
+
+        * Higher transition probabilities occur between earlier stages, while later stages have much lower probabilities of progressing, particularly from Stage IIIC to Stage IV.
+
+        **<span style="color: brown">Potential Implication:</span>**
+
+        * Early Detection Matters: The visualization highlights that earlier stages are more likely to progress to slightly advanced stages, but the probability of reaching late-stage Stage IV is quite low.
+
+        * This supports the importance of early detection and intervention, as once the disease reaches Stage IIIC, progression to Stage IV becomes much less likely.
+        """
+    )
     return
 
 
