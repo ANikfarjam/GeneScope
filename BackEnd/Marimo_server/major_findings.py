@@ -409,7 +409,44 @@ def _(mo):
         r"""
         ### <span style='color: brown'>Prognosis Analysis</span>
 
-        For studying prognosis, since we already planned to create an hmm model for data augmentation, we decided to analyze transmission emmition and initial probabilities. This will give us a valuabe insight on probabity of cancer advancing to next stage, as well as probabily of a malignant tissue falls into which stage of cancer.
+        For studying prognosis, since we already planned to create an HMM model for data augmentation, we decided to analyze transmission, emission, and initial probabilities. This will give us valuable insight into the probability of cancer advancing to the next stage, as well as the probability of a malignant tissue falling into a particular stage of cancer.
+
+        **<span style='color: brown'>Initial Probability Calculation</span>**
+
+        The initial probability of a stage \( S_i \) is calculated by counting the occurrences of each stage in the dataset and dividing by the total number of samples. However, if the dataset is unbalanced, the probability calculation will be biased. To mitigate this bias, we apply a weight to each stage to balance the contributions:
+
+        \[
+        P(S_i) = \frac{w_i \times N_i}{\sum_{j} w_j \times N_j}
+        \]
+
+        Where:
+        - \( N_i \) is the number of samples in stage \( S_i \).
+        - \( w_i = \frac{N_{\text{min}}}{N_i} \) is the weight assigned to stage \( S_i \), where \( N_{\text{min}} \) is the count of the stage with the fewest samples.
+
+        **<span style='color: brown'>Transition Probability Calculation</span>**
+
+        The transition probability between two stages \( S_i \) and \( S_j \) is calculated using:
+
+        \[
+        P(S_j | S_i) = \frac{w_i \times T_{ij}}{\sum_k w_i \times T_{ik}}
+        \]
+
+        Where:
+        - \( T_{ij} \) is the number of transitions from stage \( S_i \) to stage \( S_j \).
+        - \( w_i \) is the weight calculated as above.
+
+        This ensures that stages with fewer samples are appropriately considered during the transition probability calculation.
+
+        **<span style='color: brown'>Emission Probability Calculation</span>**
+
+        Emission probabilities are calculated separately for numerical and categorical variables.
+
+        - **Numerical Data:**
+          - The mean of each feature per stage is calculated.
+        - **Categorical Data:**
+          - The probability of each category within a column is calculated per stage.
+
+        Combining the numerical and categorical probabilities provides a comprehensive emission probability matrix.
         """
     )
     return
@@ -420,9 +457,9 @@ def _(pd):
     """
     loading calculated probabilities from our csvs
     """
-    initial_p_df = pd.read_csv('../Models/HMM/probabilitiesResults/intial_p.csv')
+    initial_p_df = pd.read_csv('../Models/HMM/probabilitiesResults/weighted_initial_p.csv')
     emmition_p_df = pd.read_csv('../Models/HMM/probabilitiesResults/combined_em_p.csv')
-    transition_p_df = pd.read_csv('../Models/HMM/probabilitiesResults/ts_p.csv')
+    transition_p_df = pd.read_csv('../Models/HMM/probabilitiesResults/weighted_ts_p.csv')
     return emmition_p_df, initial_p_df, transition_p_df
 
 
@@ -559,7 +596,10 @@ def _(emmition_p_df, initial_p_df, mo, pd, transition_p_df):
 
     # Display the Plotly figure
     mo.vstack([
-        mo.ui.plotly(transition_fig),
+        mo.ui.tabs({
+            'Weighted':mo.ui.plotly(transition_fig),
+            'Unwieghted':mo.image('./unwighted.png')
+                   }),
         mo.ui.tabs({
         'transition':mo.ui.table(transition_p_df),
         'initial':mo.ui.table(initial_p_df),
@@ -615,31 +655,188 @@ def _(mo):
 
         * The color bar indicates initial probabilities for each stage, with darker shades representing lower probabilities and brighter shades representing higher probabilities.
 
-        * Stage IIA (yellow) has the highest initial probability, suggesting that it's a more common or frequently diagnosed stage compared to others.
+        * Stage IIA remains the most frequent starting point, shown by its brighter shade compared to other stages. This indicates a higher weighted probability of diagnosis at this stage, even after adjusting for sample size disparities.
 
-        * Stage I and Stage IV have lower initial probabilities, indicating they are less commonly the starting points or endpoints of the transition process.
+        * Stage IIIA has a darker shade, implying a much lower initial probability compared to others, likely due to its relative rarity or reduced representation in the dataset.
 
         **<span style="color: brown">Transition Probabilities (Edge Labels):</span>**
 
-        * Transitions are marked by probabilities, suggesting a sequence of disease progression from early stages to more advanced stages.
+        * Transitions between stages are indicated by edge labels with probability values. These probabilities now account for sample size differences.
 
-        * The highest transition probability is between Stage IB to Stage II (0.1000) and Stage II to Stage IIA (0.1250). This suggests that the transition from Stage IB to Stage II is relatively frequent or likely.
+        * The highest transition probabilities are Stage IB to Stage II (0.1000) and Stage II to Stage IIA (0.1250). This suggests that disease progression from Stage IB to Stage II and from Stage II to Stage IIA remains frequent, even after weighting adjustments.
 
-        * Lower transition probabilities are found in later stages like Stage IIIC to Stage IV (0.0119), indicating a much rarer or less likely progression at this point.
+        * Transition probabilities are significantly lower between later stages, such as Stage IIIC to Stage IV (0.0119). This suggests that progression from Stage IIIC to Stage IV is still rare, emphasizing the importance of early-stage interventions.
 
         **<span style="color: brown">Progression Pattern:</span>**
 
-        * The progression from early to advanced stages seems gradual but consistent.
+        * The overall progression pattern remains consistent, with higher transition probabilities occurring between earlier stages and lower probabilities as the disease advances.
 
-        * Higher transition probabilities occur between earlier stages, while later stages have much lower probabilities of progressing, particularly from Stage IIIC to Stage IV.
+        * While there is a natural flow from early stages to advanced stages, the likelihood of progression reduces significantly as the stages progress, particularly beyond Stage IIA.
+
 
         **<span style="color: brown">Potential Implication:</span>**
 
         * Early Detection Matters: The visualization highlights that earlier stages are more likely to progress to slightly advanced stages, but the probability of reaching late-stage Stage IV is quite low.
 
-        * This supports the importance of early detection and intervention, as once the disease reaches Stage IIIC, progression to Stage IV becomes much less likely.
+        * Improved Accuracy Through Weighting: By factoring in sample size differences, the model offers a more balanced perspective of transition probabilities, ensuring that rarer stages are not overshadowed by more common ones.
         """
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(pd):
+    clinical = pd.read_csv('./AHPresults/fina_Stage_unaugmented.csv')
+    clinical
+    return (clinical,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ###<span style="color:brown">Medical Terminalogies for Cancer Staging</span>
+
+        **Cancer Staging:**
+
+        Stage refers to the extent of your cancer, such as how large the tumor is and if it has spread. 
+
+        **Systems That Describe Stage:**
+
+        There are many staging systems. Some, such as the TNM staging system, are used for many types of cancer. Others are specific to a particular type of cancer. Most staging systems include information about where the tumor is located in the body
+        the size of the tumor whether the cancer has spread to nearby lymph nodes
+        whether the cancer has spread to a different part of the body
+
+        **The TNM Staging System**
+
+        The TNM system is the most widely used cancer staging system. Most hospitals and medical centers use the TNM system as their main method for cancer reporting. You are likely to see your cancer described by this staging system in your pathology report unless there is a different staging system for your type of cancer. Examples of cancers with different staging systems include brain and spinal cord tumors and blood cancers. 
+
+        In the TNM system:
+
+        * The T refers to the size and extent of the main tumor. The main tumor is usually called the primary tumor.
+        * The N refers to the number of nearby lymph nodes that have cancer.
+        * The M refers to whether the cancer has metastasized. This means that the cancer has spread from the primary tumor to other parts of the body.
+        * When your cancer is described by the TNM system, there will be numbers after each letter that give more details about the cancer—for example, T1N0MX or T3N1M0. The following explains what the letters and numbers mean.
+
+        Primary tumor (T):
+
+        * TX: Main tumor cannot be measured.
+        * T0: Main tumor cannot be found.
+        * T1, T2, T3, T4: Refers to the size and/or extent of the main tumor. The higher the number after the T, the larger the tumor or the more it has grown into nearby tissues. * * T's may be further divided to provide more detail, such as T3a and T3b.
+
+        Regional lymph nodes (N):
+
+        * NX: Cancer in nearby lymph nodes cannot be measured.
+        * N0: There is no cancer in nearby lymph nodes.
+        * N1, N2, N3: Refers to the number and location of lymph nodes that contain cancer. The higher the number after the N, the more lymph nodes that contain cancer.
+
+        Distant metastasis (M)
+
+        * MX: Metastasis cannot be measured.
+        * M0: Cancer has not spread to other parts of the body.
+        * M1: Cancer has spread to other parts of the body.
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.image('./BRCA_StageGrouping.png')
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.hstack([
+        mo.md(f"""
+        **<span style="color: brown">Introduction to miRNA Clusters in Breast Cancer Analysis</span>**
+
+    MicroRNAs (miRNAs) are small, non-coding RNAs that regulate gene expression by binding to mRNAs, thereby influencing critical cellular processes such as cell growth, apoptosis, metastasis, and immune response. In breast cancer, dysregulated miRNA expression is closely associated with disease progression, including tumor size, lymph node involvement, distant metastasis, and treatment response.
+
+    miRNA clusters refer to groups of miRNAs that are either transcribed together from a common genomic region or exhibit similar expression patterns across samples. Clustering analysis helps identify patterns associated with distinct clinical features, providing insights into their potential role as biomarkers for prognosis and treatment outcomes.
+
+    The following visualizations illustrate the distribution of miRNA clusters across various tumor sizes, lymph node involvement stages, and distant metastasis status, highlighting their relevance in breast cancer prognosis.
+        """),
+        mo.image('https://www.mayoclinic.org/-/media/kcms/gbs/patient-consumer/images/2013/08/26/09/58/br00022_im04258_br7_metastatic_breast_cancerthu_jpg.png', width= 500, height=400)
+    ])
+    return
+
+
+@app.cell
+def _(clinical, mo):
+    # Creating DataFrames from value_counts() instead of converting to dictionary
+    regional_lymph = clinical[['Stage', 'ajcc_pathologic_n','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']].value_counts().reset_index(name='value')
+    size = clinical[['Stage', 'ajcc_pathologic_t','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']].value_counts().reset_index(name='value')
+    metastasize = clinical[['Stage', 'ajcc_pathologic_m','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']].value_counts().reset_index(name='value')
+
+    # Displaying them in the UI as separate tabs
+    data_table = mo.ui.tabs({
+        'Tumor Size': mo.ui.table(size.sort_values(by='Stage')),
+        'Regional lymph nodes': mo.ui.table(regional_lymph.sort_values(by='Stage')),
+        'Distant metastasis': mo.ui.table(metastasize.sort_values(by='Stage'))
+    })
+
+    data_table
+    return data_table, metastasize, regional_lymph, size
+
+
+@app.cell
+def _(clinical):
+    alternate_table = clinical[['Stage',  'ajcc_pathologic_t', 'ajcc_pathologic_n','ajcc_pathologic_m','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']].value_counts().reset_index(name='value')
+    #convert age from days to year
+    alternate_table['age_at_diagnosis']=alternate_table['age_at_diagnosis'].apply(lambda age: float(age/365))
+    alternate_table
+    return (alternate_table,)
+
+
+@app.cell
+def _(alternate_table, mo):
+    from sklearn.preprocessing import MinMaxScaler
+
+    alternate_table.rename(columns={'value':'count'},inplace=True)
+
+    import plotly.express as px
+    from sklearn.preprocessing import MinMaxScaler
+    import pandas as pd
+
+    # Normalize numerical data to a 0-1 scale for better plotting
+    scaler = MinMaxScaler()
+    alternate_table[['age_at_diagnosis', 'count']] = scaler.fit_transform(alternate_table[['age_at_diagnosis', 'count']])
+
+    # Convert categorical variables to strings for plotting
+    categorical_columns = ['Stage', 'ajcc_pathologic_t', 'ajcc_pathologic_n', 
+                           'ajcc_pathologic_m', 'paper_miRNA.Clusters', 
+                           'ethnicity', 'race', 'vital_status']
+    alternate_table[categorical_columns] = alternate_table[categorical_columns].astype(str)
+
+    # Selecting all relevant columns for plotting
+    plot_data = alternate_table[['Stage', 'ajcc_pathologic_t', 'ajcc_pathologic_n',
+                                 'ajcc_pathologic_m', 'paper_miRNA.Clusters', 'ethnicity', 
+                                 'race', 'age_at_diagnosis', 'vital_status', 'count']]
+
+    # Create a Parallel Coordinates Plot
+    cl_fig = px.parallel_coordinates(
+        plot_data,
+        dimensions=plot_data.columns,
+        color="count",
+        color_continuous_scale=px.colors.sequential.Viridis,
+        title="Parallel Coordinates Plot of Cancer Data"
+    )
+
+    cl_fig.show()
+
+
+
+    mo.ui.plotly(cl_fig)
+
+
+    return MinMaxScaler, categorical_columns, cl_fig, pd, plot_data, px, scaler
+
+
+@app.cell
+def _(clinical):
+    clinical['Stage'].value_counts()
     return
 
 
