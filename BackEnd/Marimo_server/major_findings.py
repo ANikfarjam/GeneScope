@@ -783,60 +783,55 @@ def _(clinical, mo):
 
 @app.cell
 def _(clinical):
-    alternate_table = clinical[['Stage',  'ajcc_pathologic_t', 'ajcc_pathologic_n','ajcc_pathologic_m','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']].value_counts().reset_index(name='value')
+    alternate_table = clinical[['Stage',  'ajcc_pathologic_t', 'ajcc_pathologic_n','ajcc_pathologic_m','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']]
     #convert age from days to year
     alternate_table['age_at_diagnosis']=alternate_table['age_at_diagnosis'].apply(lambda age: float(age/365))
     alternate_table
     return (alternate_table,)
 
 
-@app.cell
-def _(alternate_table, mo):
-    from sklearn.preprocessing import MinMaxScaler
+app._unparsable_cell(
+    r"""
+    \"\"\"
 
-    alternate_table.rename(columns={'value':'count'},inplace=True)
+    0–4 years Infants/Toddlers
+    5–14 years Childhood
+    15–19 years Adolescents
+    20-29 Young Adults
+    30-49 Adults
+    50–64 Middle-Aged Adults
+    65 -  Seniors
 
-    import plotly.express as px
-    from sklearn.preprocessing import MinMaxScaler
-    import pandas as pd
+    \"\"\"
+    def age_group(age):
+        if age <= 4:
+            return 'Infants/Toddlers'
+        elif 4 < age <= 14:
+            return 'Childhood'
+        elif 14 < age <= 19:
+            return 'Adolescents'
+        elif 19 < age <= 29:
+            return 'Young Adults'
+        elif 29 < age <= 49:
+            return 'Adults'
+        elif 49 < age <= 64:
+            return 'Middle-Aged Adults'
+        else:
+            return 'Seniors'
+    alternate_table['age_at_diagnosis'] = alternate_table['age_at_diagnosis'].apply(age_group)
 
-    # Normalize numerical data to a 0-1 scale for better plotting
-    scaler = MinMaxScaler()
-    alternate_table[['age_at_diagnosis', 'count']] = scaler.fit_transform(alternate_table[['age_at_diagnosis', 'count']])
-
-    # Convert categorical variables to strings for plotting
-    categorical_columns = ['Stage', 'ajcc_pathologic_t', 'ajcc_pathologic_n', 
-                           'ajcc_pathologic_m', 'paper_miRNA.Clusters', 
-                           'ethnicity', 'race', 'vital_status']
-    alternate_table[categorical_columns] = alternate_table[categorical_columns].astype(str)
-
-    # Selecting all relevant columns for plotting
-    plot_data = alternate_table[['Stage', 'ajcc_pathologic_t', 'ajcc_pathologic_n',
-                                 'ajcc_pathologic_m', 'paper_miRNA.Clusters', 'ethnicity', 
-                                 'race', 'age_at_diagnosis', 'vital_status', 'count']]
-
-    # Create a Parallel Coordinates Plot
-    cl_fig = px.parallel_coordinates(
-        plot_data,
-        dimensions=plot_data.columns,
-        color="count",
-        color_continuous_scale=px.colors.sequential.Viridis,
-        title="Parallel Coordinates Plot of Cancer Data"
+    prognosis_fig = px.scatter(
+        alternate_table,
+        x=
     )
-
-    cl_fig.show()
-
-
-
-    mo.ui.plotly(cl_fig)
-
-
-    return MinMaxScaler, categorical_columns, cl_fig, pd, plot_data, px, scaler
+    """,
+    name="_"
+)
 
 
 @app.cell
 def _(clinical):
-    clinical['Stage'].value_counts()
+    clinical['race'].value_counts()
     return
 
 

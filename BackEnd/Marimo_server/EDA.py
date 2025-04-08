@@ -1,10 +1,16 @@
 import marimo
 
-__generated_with = "0.8.22"
-app = marimo.App(width="full")
+__generated_with = "0.12.2"
+app = marimo.App(width="medium")
 
 
-@app.cell(hide_code=True)
+@app.cell
+def _():
+    import marimo as mo
+    return (mo,)
+
+
+@app.cell
 def _(mo):
     mo.md("""Author: Ashkan Nikfarjam""")
     return
@@ -609,61 +615,6 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        """
-        ###<span style="color:green">Medical Terminalogies for Cancer Staging</span>
-
-        **Cancer Staging:**
-
-        Stage refers to the extent of your cancer, such as how large the tumor is and if it has spread. 
-
-        **Systems That Describe Stage:**
-
-        There are many staging systems. Some, such as the TNM staging system, are used for many types of cancer. Others are specific to a particular type of cancer. Most staging systems include information about where the tumor is located in the body
-        the size of the tumor whether the cancer has spread to nearby lymph nodes
-        whether the cancer has spread to a different part of the body
-
-        **The TNM Staging System**
-
-        The TNM system is the most widely used cancer staging system. Most hospitals and medical centers use the TNM system as their main method for cancer reporting. You are likely to see your cancer described by this staging system in your pathology report unless there is a different staging system for your type of cancer. Examples of cancers with different staging systems include brain and spinal cord tumors and blood cancers. 
-
-        In the TNM system:
-
-        * The T refers to the size and extent of the main tumor. The main tumor is usually called the primary tumor.
-        * The N refers to the number of nearby lymph nodes that have cancer.
-        * The M refers to whether the cancer has metastasized. This means that the cancer has spread from the primary tumor to other parts of the body.
-        * When your cancer is described by the TNM system, there will be numbers after each letter that give more details about the cancer—for example, T1N0MX or T3N1M0. The following explains what the letters and numbers mean.
-
-        Primary tumor (T):
-
-        * TX: Main tumor cannot be measured.
-        * T0: Main tumor cannot be found.
-        * T1, T2, T3, T4: Refers to the size and/or extent of the main tumor. The higher the number after the T, the larger the tumor or the more it has grown into nearby tissues. * * T's may be further divided to provide more detail, such as T3a and T3b.
-
-        Regional lymph nodes (N):
-
-        * NX: Cancer in nearby lymph nodes cannot be measured.
-        * N0: There is no cancer in nearby lymph nodes.
-        * N1, N2, N3: Refers to the number and location of lymph nodes that contain cancer. The higher the number after the N, the more lymph nodes that contain cancer.
-
-        Distant metastasis (M)
-
-        * MX: Metastasis cannot be measured.
-        * M0: Cancer has not spread to other parts of the body.
-        * M1: Cancer has spread to other parts of the body.
-        """
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.image(src='BRCA_StageGrouping.png', caption='From AJCC cancer staging manual. 6th Edition. New York: Springer-Verlag, 2002 with permission.')
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
     mo.md("""###<span style="color: green">Labaling Data:</span>""")
     return
 
@@ -947,15 +898,8 @@ def _():
     return
 
 
-@app.cell
-def __(mo, pd):
-    df = pd.read_csv("./random_forest/clinical_data_20.csv")
-    mo.ui.table(df)
-    return (df,)
-
-
-@app.cell
-def __(mo):
+@app.cell(hide_code=True)
+def _(mo):
     mo.md(
         r"""
         ### <span style="color: brown">DataSet Clean up Proccess</span>
@@ -965,17 +909,15 @@ def __(mo):
     return
 
 
-@app.cell
-def __():
+@app.cell(hide_code=True)
+def _(other_sup_file):
     from sklearn.model_selection import train_test_split, GridSearchCV
     from sklearn.ensemble import RandomForestClassifier
     from sklearn.preprocessing import LabelEncoder
     from sklearn.metrics import classification_report, confusion_matrix
-    import pandas as pd
-    import numpy as np
-    import marimo as mo
 
-    clinical_df = pd.read_csv("./random_forest/clinical_data.csv")
+
+    clinical_df = other_sup_file.copy()
     target = 'Stage'
     features = clinical_df.columns.drop(target)
 
@@ -1008,9 +950,6 @@ def __():
         confusion_matrix,
         features,
         le,
-        mo,
-        np,
-        pd,
         rf,
         target,
         train_test_split,
@@ -1021,21 +960,19 @@ def __():
     )
 
 
-@app.cell
-def __(mo):
+@app.cell(hide_code=True)
+def _(mo):
     mo.md(
         r"""
         ### <span style="color: brown">Feature Analysis of Clinical Data</span>
         To refine our understanding of breast cancer prognosis, we now focus on the critical task of feature evaluation. After setting up our data, encoding categorical variables, and handling missing values, we meticulously trained a Random Forest classifier with the aim of uncovering which features significantly influence the staging of breast cancer.
-
         """
     )
     return
 
 
-@app.cell
-def __(features, mo, np, pd, rf):
-
+@app.cell(hide_code=True)
+def _(features, mo, np, pd, rf):
     feature_importances = rf.feature_importances_
     indices = np.argsort(feature_importances)[::-1]
     non_zero_indices = [i for i in indices if feature_importances[i] != 0]
@@ -1048,17 +985,12 @@ def __(features, mo, np, pd, rf):
     feature_ranking_df = feature_ranking_df.sort_values(by='Importance', ascending=False)
     feature_ranking_df.reset_index(drop=True, inplace=True)
     mo.ui.table(feature_ranking_df)
-    return (
-        feature_importances,
-        feature_ranking_df,
-        indices,
-        non_zero_indices,
-    )
+    return feature_importances, feature_ranking_df, indices, non_zero_indices
 
 
-@app.cell
-def __(feature_importances, features, non_zero_indices):
-    import matplotlib.pyplot as plt
+@app.cell(hide_code=True)
+def _(mo):
+    """import matplotlib.pyplot as plt
 
     top_10_indices = non_zero_indices[:15]
     plt.figure()
@@ -1067,26 +999,22 @@ def __(feature_importances, features, non_zero_indices):
     plt.xticks(range(len(top_10_indices)), [features[i] for i in top_10_indices], rotation=90)  # Rotate labels to 45 degrees
     plt.xlim([-1, len(top_10_indices)])
     plt.tight_layout() 
-    plt.show()
-    return plt, top_10_indices
+    plt.savefig('./top15..png')
+    """
+
+    mo.image('./top15..png')
+    return
 
 
-@app.cell
-def __(mo):
+@app.cell(hide_code=True)
+def _(mo):
     mo.md(r"""Based on the insights gleaned from our feature importance analysis, future model refinement will focus on incorporating only the most impactful features. Additionally, to optimize the predictive performance of our models, we will implement a grid search strategy.""")
     return
 
 
-@app.cell
-def __(
-    GridSearchCV,
-    X_test,
-    X_train,
-    classification_report,
-    rf,
-    y_test,
-    y_train,
-):
+@app.cell(hide_code=True)
+def _(mo):
+    mo.ui.code_editor("""
     features_important = ['paper_pathologic_stage', 'ajcc_pathologic_n', 'ajcc_pathologic_t', 'days_to_collection', 
                 'paper_days_to_last_followup', 'year_of_diagnosis', 'treatments', 'initial_weight', 'sample_id', 
                 'days_to_birth', 'pathology_report_uuid', 'demographic_id', 'paper_days_to_birth', 'diagnosis_id', 
@@ -1114,8 +1042,8 @@ def __(
 
     y_pred_grid = grid_search.best_estimator_.predict(X_test)
     print(classification_report(y_test, y_pred_grid, zero_division=1))
-
-    return features_important, grid_search, param_grid, y_pred_grid
+    """)
+    return
 
 
 if __name__ == "__main__":
