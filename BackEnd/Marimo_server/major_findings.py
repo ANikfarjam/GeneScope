@@ -409,7 +409,10 @@ def _(mo):
         r"""
         ### <span style='color: brown'>Prognosis Analysis</span>
 
-        For studying prognosis, since we already planned to create an HMM model for data augmentation, we decided to analyze transmission, emission, and initial probabilities. This will give us valuable insight into the probability of cancer advancing to the next stage, as well as the probability of a malignant tissue falling into a particular stage of cancer.
+        The prognosis for cancer refers to the expected outcome or course of the disease, including the likelihood of survival and recurrence. It's a doctor's best estimate based on various factors related to the cancer itself and the patient's overall health. Prognosis is influenced by factors like the type and stage of cancer, the patient's age and health, and how the cancer responds to treatment. 
+
+        We were initially planning to use Morkov model or Boosting algorithm to calculate transition probability of cancer stage to another. However since we dont have data that record stage progression we cant predict that. However we can futher analyze the probability of a patient get diagnosed with each stage. Our data can help us to also further study cancer sage with respect to parient's demographic and also study melignant samples by their size, lumpth nodes and their spread on to the other organisms. 
+
 
         **<span style='color: brown'>Initial Probability Calculation</span>**
 
@@ -423,30 +426,23 @@ def _(mo):
         - \( N_i \) is the number of samples in stage \( S_i \).
         - \( w_i = \frac{N_{\text{min}}}{N_i} \) is the weight assigned to stage \( S_i \), where \( N_{\text{min}} \) is the count of the stage with the fewest samples.
 
-        **<span style='color: brown'>Transition Probability Calculation</span>**
+        ### <span style='color: brown'>Utilizing Catboost</span>
 
-        The transition probability between two stages \( S_i \) and \( S_j \) is calculated using:
+        CatBoost is a powerful gradient boosting algorithm, and can learn the underlying relationships between clinical and demographic features and cancer stage outcomes directly from the data. By training on features such as age, tumor size, lymph node involvement, metastasis, and patient ethnicity, CatBoost can model the probability of a patient being diagnosed at each cancer stage. It internally handles class imbalance through loss functions and built-in support for weighted datasets, allowing it to estimate class probabilities more accurately even when stage distributions are skewed. Thus, while we cannot trace how a patient moves from one stage to another, CatBoost enables us to assess the likelihood of a patient presenting with a specific stage, based on their biological and demographic profile.
+
+        CatBoost offers built-in support for handling imbalanced classes using the auto_class_weights parameter, which automatically calculates class weights to ensure that minority classes are not underrepresented during training. This is especially useful in cancer prognosis tasks, where certain stages may have far fewer samples. You can specify values like "Balanced" or "SqrtBalanced" to control how the class weights are computed based on either direct ratios or square-root-scaled ratios. These weights are then used internally to modify the loss function, allowing the model to learn equally well from all classes despite imbalance. For example, in the "Balanced" setting, the class weight 
+
+        **Balanced:**
 
         \[
-        P(S_j | S_i) = \frac{w_i \times T_{ij}}{\sum_k w_i \times T_{ik}}
+        CW_k = \frac{\max\limits_{c=1}^{K} \left( \sum_{t_i=c} w_i \right)}{\sum_{t_i=k} w_i}
         \]
 
-        Where:
-        - \( T_{ij} \) is the number of transitions from stage \( S_i \) to stage \( S_j \).
-        - \( w_i \) is the weight calculated as above.
+        **SqrtBalanced:**
 
-        This ensures that stages with fewer samples are appropriately considered during the transition probability calculation.
-
-        **<span style='color: brown'>Emission Probability Calculation</span>**
-
-        Emission probabilities are calculated separately for numerical and categorical variables.
-
-        - **Numerical Data:**
-          - The mean of each feature per stage is calculated.
-        - **Categorical Data:**
-          - The probability of each category within a column is calculated per stage.
-
-        Combining the numerical and categorical probabilities provides a comprehensive emission probability matrix.
+        \[
+        CW_k = \sqrt{ \frac{\max\limits_{c=1}^{K} \left( \sum_{t_i=c} w_i \right)}{\sum_{t_i=k} w_i} }
+        \]
         """
     )
     return
@@ -464,184 +460,57 @@ def _(pd):
 
 
 @app.cell(hide_code=True)
-def _(emmition_p_df, initial_p_df, mo, pd, transition_p_df):
-    import plotly.graph_objects as go
-    import networkx as nx
+def _(mo, pd, px):
+    # Load data
+    model_data = pd.read_csv('./AHPresults/fina_Stage_unaugmented.csv')
+    stage_p_df = pd.read_csv('../Models/gbst/result/stage_result.csv', index_col=0)
+    model_matrix = pd.read_csv('../Models/gbst/result/classification_mtrx.csv', index_col=0)
+    gdp_matrix = pd.read_csv('../Models/gbst/result/gdb_p_result.csv')
+    manually_calc_prop = pd.read_csv('../Models/HMM/probabilitiesResults/weighted_initial_p.csv')
 
-    # Prepare the adjacency matrix by removing the 'Stage' column and converting to numeric values
-    transition_p_dfs = transition_p_df.set_index('Stage')
-    transition_p_dfs = transition_p_dfs.apply(pd.to_numeric, errors='coerce')
+    # Format 'count' column to 2 decimal places for display
+    manually_calc_prop['count'] = manually_calc_prop['count'].round(2)
+    manually_calc_prop.rename(columns={'count': 'calculate_p'}, inplace=True)
 
-    # Set the index of initial_p_df to the 'Stage' column for easy lookup
-    initial_p_dfs = initial_p_df.set_index('Stage')
 
-    # Extracting stages from the dataframe
-    stages = transition_p_dfs.index.tolist()
-    columns = transition_p_dfs.columns.tolist()
+    # Merge stage probabilities with manually calculated probabilities
+    merged_df = stage_p_df.merge(manually_calc_prop, left_on=stage_p_df.index, right_on=manually_calc_prop['Stage'])
 
-    # Creating a directed graph
-    G = nx.DiGraph()
+    # Drop 'Stage' column if no longer needed
+    merged_df.drop(columns='Stage', inplace=True)
 
-    # Adding nodes
-    G.add_nodes_from(stages)
-
-    # Adding weighted edges based on transition probabilities, skipping self-loops
-    for from_stage in stages:
-        for to_stage in columns:
-            if from_stage != to_stage:  # Ignore self-loops
-                prob = transition_p_dfs.loc[from_stage, to_stage]  # Use transition_p_dfs here
-                if prob > 0:
-                    G.add_edge(from_stage, to_stage, weight=prob)
-
-    # Define node positions for top-down hierarchical layout
-    pos = {}
-    layer_height = 200
-    layer_width = 300
-    y_position = 0
-
-    # Define stages' positions manually to make them structured
-    for i, stage in enumerate(stages):
-        pos[stage] = (i * layer_width, y_position)
-        if i % 2 == 1:  # Move to the next layer every two stages for clarity
-            y_position -= layer_height
-
-    # Creating edge traces
-    edge_x = []
-    edge_y = []
-    edge_weights = []
-
-    for edge in G.edges(data=True):
-        x0, y0 = pos[edge[0]]
-        x1, y1 = pos[edge[1]]
-        edge_x.append(x0)
-        edge_x.append(x1)
-        edge_x.append(None)
-        edge_y.append(y0)
-        edge_y.append(y1)
-        edge_y.append(None)
-        edge_weights.append(edge[2]['weight'])
-
-    edge_trace = go.Scatter(
-        x=edge_x, y=edge_y,
-        line=dict(width=1, color='#888'),
-        hoverinfo='none',
-        mode='lines'
+    # Plot stage probabilities
+    stage_fig = px.bar(
+        merged_df,
+        x=merged_df.index,
+        y=['Estimated Probability', 'calculate_p']
     )
 
-    # Extract initial probabilities for color mapping
-    node_colors = [initial_p_dfs.loc[stage, 'count'] if stage in initial_p_dfs.index else 0 for stage in stages]
+    # Aggregate GDP matrix for True Stage
+    columns_to_sum = gdp_matrix.columns.drop('True Stage')
+    gdp_agg = gdp_matrix.groupby('True Stage')[columns_to_sum].mean().reset_index()
 
-    # Creating node traces
-    node_x = []
-    node_y = []
-    node_text = []
-    for stage in stages:
-        x, y = pos[stage]
-        node_x.append(x)
-        node_y.append(y)
-        node_text.append(stage)
+    # Create image heatmap of GDP aggregated results
+    gdg_fig = px.imshow(gdp_agg.iloc[:, 1:])
 
-    node_trace = go.Scatter(
-        x=node_x, y=node_y,
-        mode='markers+text',
-        text=node_text,
-        textposition='top center',
-        marker=dict(
-            showscale=True,
-            colorscale='Viridis',
-            cmin=min(node_colors),
-            cmax=max(node_colors),
-            color=node_colors,
-            colorbar=dict(
-                title='Initial Probability',
-                thickness=15,
-                xanchor='left',
-                titleside='right'
-            ),
-            size=15,
-            line_width=2
-        )
+    # Display in Marimo tabs
+    mo.ui.tabs(
+        {
+            'Stage Diagnosis Probability': mo.vstack([mo.ui.plotly(stage_fig), mo.ui.table(model_data)]),
+            'CatBoost Performance': mo.hstack([mo.ui.plotly(gdg_fig), mo.ui.table(model_matrix)])
+        }
     )
-
-    # Creating annotations for edge weights (probabilities)
-    annotations = []
-    for edge in G.edges(data=True):
-        x0, y0 = pos[edge[0]]
-        x1, y1 = pos[edge[1]]
-        weight = edge[2]['weight']
-        annotations.append(
-            dict(
-                x=(x0 + x1) / 2,
-                y=(y0 + y1) / 2 - 15,  # Moving text slightly below the edges
-                text=f'{weight:.4f}',
-                showarrow=False,
-                font=dict(color="blue", size=10)  # Making weight text blue
-            )
-        )
-
-    # Creating the figure and naming it 'transition_fig'
-    transition_fig = go.Figure(data=[edge_trace, node_trace],
-                    layout=go.Layout(
-                        title='Breast Cancer Stage Transition Probability Tree',
-                        titlefont_size=16,
-                        showlegend=False,
-                        hovermode='closest',
-                        margin=dict(b=0, l=0, r=0, t=40),
-                        annotations=annotations,
-                        xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                        yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-                        plot_bgcolor='rgba(240, 240, 240, 0.8)'
-                    )
-                   )
-
-    # Display the Plotly figure
-    mo.vstack([
-        mo.ui.tabs({
-            'Weighted':mo.ui.plotly(transition_fig),
-            'Unwieghted':mo.image('./unwighted.png')
-                   }),
-        mo.ui.tabs({
-        'transition':mo.ui.table(transition_p_df),
-        'initial':mo.ui.table(initial_p_df),
-        'emmition':mo.ui.table(emmition_p_df),
-
-        })])
     return (
-        G,
-        annotations,
-        columns,
-        edge,
-        edge_trace,
-        edge_weights,
-        edge_x,
-        edge_y,
-        from_stage,
-        go,
-        i,
-        initial_p_dfs,
-        layer_height,
-        layer_width,
-        node_colors,
-        node_text,
-        node_trace,
-        node_x,
-        node_y,
-        nx,
-        pos,
-        prob,
-        stage,
-        stages,
-        to_stage,
-        transition_fig,
-        transition_p_dfs,
-        weight,
-        x,
-        x0,
-        x1,
-        y,
-        y0,
-        y1,
-        y_position,
+        columns_to_sum,
+        gdg_fig,
+        gdp_agg,
+        gdp_matrix,
+        manually_calc_prop,
+        merged_df,
+        model_data,
+        model_matrix,
+        stage_fig,
+        stage_p_df,
     )
 
 
@@ -651,44 +520,20 @@ def _(mo):
         r"""
         ### <span style="color: brown">Key Observations:</span>
 
-        **<span style="color: brown">Initial Probabilities (Color Intensity):**
+        The comparison between CatBoost-estimated stage probabilities and the manually weighted probabilities highlights a consistent pattern: early-stage diagnoses (e.g., Stage IIA, IIB) are predicted with higher probability, while late-stage diagnoses (e.g., Stage IV) receive lower predicted probabilities.
 
-        * The color bar indicates initial probabilities for each stage, with darker shades representing lower probabilities and brighter shades representing higher probabilities.
+        This makes sense within the clinical context of breast cancer, where advanced stages are rare at the point of initial diagnosis. According to the American Cancer Society, the majority of invasive breast cancers are diagnosed in early stages, and Stage IV cases account for a small minority of breast cancer presentations. This supports the biological plausibility of the lower predicted probabilities for late-stage cancers, rather than indicating bias or model weakness.
 
-        * Stage IIA remains the most frequent starting point, shown by its brighter shade compared to other stages. This indicates a higher weighted probability of diagnosis at this stage, even after adjusting for sample size disparities.
+        ### <span style="color: brown">Conclusion (In the Context of Prognosis and Biomarker Analysis)</span>
 
-        * Stage IIIA has a darker shade, implying a much lower initial probability compared to others, likely due to its relative rarity or reduced representation in the dataset.
+        These findings reinforce the reliability of gene expression and clinical features in distinguishing between breast cancer stages, even in the absence of longitudinal data. While we cannot track stage transitions over time, we can use machine learning to assess the likelihood of a patient being diagnosed at a specific stage, based on their molecular and demographic profile.
 
-        **<span style="color: brown">Transition Probabilities (Edge Labels):</span>**
+        In this study, stage probabilities learned from CatBoost serve as a proxy for prognosis analysis, especially when tied back to gene-level biomarker rankings derived from our AHP method. The model’s tendency to assign lower probabilities to later stages mirrors real-world clinical distribution and strengthens the case that our biomarker-based models are capturing true biological signals relevant to diagnosis and prognosis.
 
-        * Transitions between stages are indicated by edge labels with probability values. These probabilities now account for sample size differences.
-
-        * The highest transition probabilities are Stage IB to Stage II (0.1000) and Stage II to Stage IIA (0.1250). This suggests that disease progression from Stage IB to Stage II and from Stage II to Stage IIA remains frequent, even after weighting adjustments.
-
-        * Transition probabilities are significantly lower between later stages, such as Stage IIIC to Stage IV (0.0119). This suggests that progression from Stage IIIC to Stage IV is still rare, emphasizing the importance of early-stage interventions.
-
-        **<span style="color: brown">Progression Pattern:</span>**
-
-        * The overall progression pattern remains consistent, with higher transition probabilities occurring between earlier stages and lower probabilities as the disease advances.
-
-        * While there is a natural flow from early stages to advanced stages, the likelihood of progression reduces significantly as the stages progress, particularly beyond Stage IIA.
-
-
-        **<span style="color: brown">Potential Implication:</span>**
-
-        * Early Detection Matters: The visualization highlights that earlier stages are more likely to progress to slightly advanced stages, but the probability of reaching late-stage Stage IV is quite low.
-
-        * Improved Accuracy Through Weighting: By factoring in sample size differences, the model offers a more balanced perspective of transition probabilities, ensuring that rarer stages are not overshadowed by more common ones.
+        Ultimately, this validates our approach of combining modified AHP for gene ranking with CatBoost classification for prognosis modeling, creating a biologically informed and statistically sound method for supporting early detection and precision diagnostics in breast cancer care.
         """
     )
     return
-
-
-@app.cell(hide_code=True)
-def _(pd):
-    clinical = pd.read_csv('./AHPresults/fina_Stage_unaugmented.csv')
-    clinical
-    return (clinical,)
 
 
 @app.cell(hide_code=True)
@@ -763,12 +608,12 @@ def _(mo):
     return
 
 
-@app.cell
-def _(clinical, mo):
+@app.cell(hide_code=True)
+def _(mo, model_data):
     # Creating DataFrames from value_counts() instead of converting to dictionary
-    regional_lymph = clinical[['Stage', 'ajcc_pathologic_n','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']].value_counts().reset_index(name='value')
-    size = clinical[['Stage', 'ajcc_pathologic_t','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']].value_counts().reset_index(name='value')
-    metastasize = clinical[['Stage', 'ajcc_pathologic_m','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']].value_counts().reset_index(name='value')
+    regional_lymph = model_data[['Stage', 'ajcc_pathologic_n','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']].value_counts().reset_index(name='value')
+    size = model_data[['Stage', 'ajcc_pathologic_t','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']].value_counts().reset_index(name='value')
+    metastasize = model_data[['Stage', 'ajcc_pathologic_m','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']].value_counts().reset_index(name='value')
 
     # Displaying them in the UI as separate tabs
     data_table = mo.ui.tabs({
@@ -776,23 +621,27 @@ def _(clinical, mo):
         'Regional lymph nodes': mo.ui.table(regional_lymph.sort_values(by='Stage')),
         'Distant metastasis': mo.ui.table(metastasize.sort_values(by='Stage'))
     })
-
-    data_table
     return data_table, metastasize, regional_lymph, size
 
 
-@app.cell
-def _(clinical):
-    alternate_table = clinical[['Stage',  'ajcc_pathologic_t', 'ajcc_pathologic_n','ajcc_pathologic_m','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']]
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ### <span style='color:brown'>Cox Proportional Hazards Model in Our Study</span>
+
+        For our breast cancer prognosis study, we use the Cox Proportional Hazards Model to understand how clinical and molecular factors influence a patient's risk of mortality over time. While our dataset lacks exact time-to-death, we approximate follow-up duration based on diagnosis year to estimate survival outcomes. By modeling variables like tumor characteristics (T/N/M), age at diagnosis, ethnicity, race, and miRNA expression clusters, we identify which features are associated with higher or lower hazard (risk) of death. This helps us interpret the prognostic value of key biomarkers and demographic factors in breast cancer outcomes.
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(model_data):
+    alternate_table = model_data[['Stage',  'year_of_diagnosis','ajcc_pathologic_t', 'ajcc_pathologic_n','ajcc_pathologic_m','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']]
     #convert age from days to year
     alternate_table['age_at_diagnosis']=alternate_table['age_at_diagnosis'].apply(lambda age: float(age/365))
-    alternate_table
-    return (alternate_table,)
-
-
-app._unparsable_cell(
-    r"""
-    \"\"\"
+    """
 
     0–4 years Infants/Toddlers
     5–14 years Childhood
@@ -802,7 +651,7 @@ app._unparsable_cell(
     50–64 Middle-Aged Adults
     65 -  Seniors
 
-    \"\"\"
+    """
     def age_group(age):
         if age <= 4:
             return 'Infants/Toddlers'
@@ -820,19 +669,68 @@ app._unparsable_cell(
             return 'Seniors'
     alternate_table['age_at_diagnosis'] = alternate_table['age_at_diagnosis'].apply(age_group)
 
-    prognosis_fig = px.scatter(
-        alternate_table,
-        x=
+    return age_group, alternate_table
+
+
+@app.cell(hide_code=True)
+def _(mo, pd, px):
+    #import data
+    cox_hazerdus_p = pd.read_csv('../Models/CoxPHFitter/result/cox_comparison_metrics.csv')
+    cox_hazerdus_p.drop(columns='cmp to', inplace=True)
+    cox_summry = pd.read_csv('../Models/CoxPHFitter/result/cox_model_summary.csv',index_col=0)
+    cox_summry = cox_summry.T
+    # Replace any values > 10 with NaN (or clip at 10 if you prefer)
+    cox_summry_numeric = cox_summry.select_dtypes(include='number')
+    cox_summry[cox_summry_numeric.columns] = cox_summry_numeric.where(cox_summry_numeric <= 10)
+    hazard_fig = px.bar(cox_hazerdus_p, x='covariate', y='p', color='z')
+    # cox_summry.set_index('covariate',inplace=True)
+    summery_fig = px.imshow(cox_summry)
+
+    insight = mo.md(f"""
+    ### <span style='color:brown'>Key Findings</span>
+
+    **<span style='color:brown'>Elevated Risk Among Asian Populations:</span>**
+
+    * The model indicates that individuals identified as Asian have a higher hazard ratio compared to the reference group (White individuals).  
+    * This aligns with epidemiological data showing that cancer is the leading cause of death among Asian Americans, with higher incidences of liver, stomach, and nasopharyngeal cancers.  
+      [Source: PMC](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5283572/)
+
+    **<span style='color:brown'>Age-Related Risks:</span>**
+
+    * Seniors exhibit a significantly higher hazard ratio, suggesting increased mortality risk with advancing age.  
+    * Conversely, young adults show a lower hazard ratio, indicating a reduced risk relative to the reference group.
+
+    **<span style='color:brown'>Impact of Cancer Stage:</span>**
+
+    * Advanced cancer stages, particularly Stage IV, are associated with markedly higher hazard ratios, underscoring the critical importance of early detection and intervention.
+
+    **<span style='color:brown'>Genetic and Biological Factors:</span>**
+
+    * Certain genetic polymorphisms prevalent in Asian populations, such as ALDH2 deficiency, contribute to increased susceptibility to cancers like esophageal cancer.  
+      [Source: Wikipedia - Alcohol Flush Reaction](https://en.wikipedia.org/wiki/Alcohol_flush_reaction)
+
+    * Additionally, variations in the CYP2D6 gene affect drug metabolism, potentially influencing treatment efficacy and outcomes.  
+      [Source: Wikipedia - CYP2D6](https://en.wikipedia.org/wiki/CYP2D6)
+    """)
+
+
+    mo.vstack([
+        mo.ui.tabs({
+            'Hazerdus Probabilities': hazard_fig,
+            'Model Summery': summery_fig
+        }),
+        insight
+    ])
+
+
+    return (
+        cox_hazerdus_p,
+        cox_summry,
+        cox_summry_numeric,
+        hazard_fig,
+        insight,
+        summery_fig,
     )
-    """,
-    name="_"
-)
-
-
-@app.cell
-def _(clinical):
-    clinical['race'].value_counts()
-    return
 
 
 if __name__ == "__main__":
