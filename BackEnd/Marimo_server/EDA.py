@@ -1085,11 +1085,9 @@ def __(mo):
         The best-performing model used the following parameters:
 
         - `n_estimators = 100`
-        - `max_depth = None` (allowing trees to grow fully)
         - `min_samples_split = 5`
         - `min_samples_leaf = 1`
         - `bootstrap = False`
-
         """
     )
     return
