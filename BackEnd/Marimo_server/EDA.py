@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.12.2"
+__generated_with = "0.8.22"
 app = marimo.App(width="medium")
 
 
@@ -16,7 +16,7 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md(
         r"""
@@ -28,13 +28,13 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.center(mo.image(src="TCGAcancerTypes.png",caption="The Cancer Types available in TCGA database. This image is from the TCGA officcial website!", width=500,  height=400))
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md("""According to [NCBI]("") 20 years after the original publication of the human genome, the number of protein-coding genes is stabilizing around 19,500 (Figure 2), although the number of isoforms of these genes is still a subject of intensive study and discussion.""")
     return
@@ -86,11 +86,11 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md(
         """
-        ### <span style="color: green">Data Files in GSE62944
+        ### <span style="color: brown">Data Files in GSE62944
 
         These are the available suplementory file for this geo dataset that we can use for labaling and creating our data set in csv format and furthermore creating Test/Train/Val data: 
 
@@ -826,7 +826,7 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md(
         r"""
@@ -886,7 +886,7 @@ def _(stages_df):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md(r"""For final clean up we are going to convert the age from days to year, and our data is ready for visualizatoin and further analysis.""")
     return
@@ -898,18 +898,26 @@ def _():
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md(
         r"""
         ### <span style="color: brown">DataSet Clean up Proccess</span>
-        In order to find the most important features for our staging of breast cancer prognosis, we have evaluated a Random Forest classifier which involves preparing the data, encoding categorical features, handling missing values, splitting the dataset, training the model, and evaluating its performance on a test set. This initial evaluation with all available features will help establish a baseline and identify which features are most influential in predicting the stages of breast cancer.
+        Before diving into model training, I started by preparing the clinical dataset. The target variable I wanted to predict was Stage which refers to the stage of breast cancer for each patient. To get the data into a usable format, I encoded all categorical variables using LabelEncoder, since machine learning models generally require numerical inputs. I also filled in any missing values with the mean of each column — not perfect, but a reasonable starting point for handling gaps in the data. When everything was cleaned up I then split the dataset into training and test sets using an 80/20 split. This gave me a good balance between having enough data to train the model and enough to evaluate it afterward. With that done, I trained a baseline RandomForestClassifier using the default settings (100 trees, no max depth, etc.). This gave me a first look at how well the model could predict cancer stages using all the features, and it set the foundation for deeper analysis.
+
+        The initial classification report looked promising. For example, classes like Stage IIA and Stage IIB were predicted quite well, while classes like Stage II and Stage IIIC showed lower performance — probably due to class imbalance or overlap in clinical features. This gave me a sense of which labels were harder for the model to get right and where there might be room to improve.
         """
     )
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
+def __(pd):
+    other_sup_file = pd.read_csv("random_forest\clinical_data.csv")
+    return (other_sup_file,)
+
+
+@app.cell
 def _(other_sup_file):
     from sklearn.model_selection import train_test_split, GridSearchCV
     from sklearn.ensemble import RandomForestClassifier
@@ -960,18 +968,18 @@ def _(other_sup_file):
     )
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md(
         r"""
         ### <span style="color: brown">Feature Analysis of Clinical Data</span>
-        To refine our understanding of breast cancer prognosis, we now focus on the critical task of feature evaluation. After setting up our data, encoding categorical variables, and handling missing values, we meticulously trained a Random Forest classifier with the aim of uncovering which features significantly influence the staging of breast cancer.
+        With the model trained, I wanted to see which features actually mattered. Random Forests make this easy since they provide feature importance scores out of the box. These scores show how much each variable contributed to reducing uncertainty in the model’s predictions. I sorted the features by importance and created a bar chart of the top 15.
         """
     )
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(features, mo, np, pd, rf):
     feature_importances = rf.feature_importances_
     indices = np.argsort(feature_importances)[::-1]
@@ -985,7 +993,18 @@ def _(features, mo, np, pd, rf):
     feature_ranking_df = feature_ranking_df.sort_values(by='Importance', ascending=False)
     feature_ranking_df.reset_index(drop=True, inplace=True)
     mo.ui.table(feature_ranking_df)
-    return feature_importances, feature_ranking_df, indices, non_zero_indices
+    return (
+        feature_importances,
+        feature_ranking_df,
+        indices,
+        non_zero_indices,
+    )
+
+
+@app.cell
+def __(mo):
+    mo.md(r"""From this results we can see that a few features such as `paper_pathologic_stage`, `ajcc_pathologic_n`, and `ajcc_pathologic_t` were by far the most influential. This makes sense because these features are directly related to the clinical staging process. Features like days_to_collection, days_to_last_followup, and treatments also showed up, which might reflect how the progression and treatment timing relate to cancer stage.""")
+    return
 
 
 @app.cell(hide_code=True)
@@ -1006,13 +1025,24 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(r"""Based on the insights gleaned from our feature importance analysis, future model refinement will focus on incorporating only the most impactful features. Additionally, to optimize the predictive performance of our models, we will implement a grid search strategy.""")
+@app.cell
+def __(mo):
+    mo.md(r"""Visualizing this not only helped with model interpretability, but also gave me a clearer idea of which features were worth keeping for future models. Instead of throwing in the entire dataset, I could now focus on a cleaner and more impactful set of predictors, improving both speed and accuracy.""")
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+        After identifying the key features, I narrowed down my list to those that had the most impact on the model. I stored them in a list called features_important. This included clinical observations, demographic info, and a few identifiers that surprisingly had predictive power. Using only these features, I retrained the model — but this time, I wanted to do it right.
+        Now instead of using the default settings, I ran a GridSearchCV to find the best combination of hyperparameters. I defined a grid that tested different numbers of trees (n_estimators), maximum depths, split criteria, and whether to use bootstrapping. The grid search ran 5-fold cross-validation on each parameter combination to get the most reliable estimate of performance.
+        """
+    )
+    return
+
+
+@app.cell
 def _(mo):
     mo.ui.code_editor("""
     features_important = ['paper_pathologic_stage', 'ajcc_pathologic_n', 'ajcc_pathologic_t', 'days_to_collection', 
@@ -1043,6 +1073,120 @@ def _(mo):
     y_pred_grid = grid_search.best_estimator_.predict(X_test)
     print(classification_report(y_test, y_pred_grid, zero_division=1))
     """)
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        This process took longer to run, but it paid off. I ended up with a model that was better tuned to the dataset and less prone to overfitting. Grid search also gave me valuable insight into which settings worked best for this particular problem , whether deeper trees helped or hurt the results, and whether using more estimators led to meaningful improvements.
+
+        The best-performing model used the following parameters:
+
+        - `n_estimators = 100`
+        - `max_depth = None` (allowing trees to grow fully)
+        - `min_samples_split = 5`
+        - `min_samples_leaf = 1`
+        - `bootstrap = False`
+
+        """
+    )
+    return
+
+
+@app.cell
+def __(
+    LabelEncoder,
+    RandomForestClassifier,
+    classification_report,
+    other_sup_file,
+    train_test_split,
+):
+    selected_brca_features  = ['paper_pathologic_stage', 'ajcc_pathologic_n',
+                          'ajcc_pathologic_t', 'days_to_collection', 
+                          'paper_days_to_last_followup', 'year_of_diagnosis',
+                          'treatments', 'initial_weight', 'sample_id', 
+                          'days_to_birth', 'pathology_report_uuid',
+                          'demographic_id', 'paper_days_to_birth', 'diagnosis_id', 
+                          'Unnamed: 0', 'age_at_diagnosis', 'sample_submitter_id',
+                          'paper_patient', 'patient', 
+                          'paper_age_at_initial_pathologic_diagnosis',
+                          'bcr_patient_barcode', 'barcode', 'submitter_id', 
+                          'sample', 'age_at_index', 'sites_of_involvement',
+                          'paper_PARADIGM.Clusters', 'paper_Mutation.Clusters', 
+                          'primary_diagnosis', 'paper_CNV.Clusters',
+                          'paper_BRCA_Subtype_PAM50', 'morphology',
+                          'ajcc_pathologic_m', 'method_of_diagnosis', 
+                          'paper_miRNA.Clusters','paper_mRNA.Clusters',
+                          'race', 'paper_DNA.Methylation.Clusters', 
+                          'laterality', 'ethnicity', 'preservation_method',
+                          'paper_Included_in_previous_marker_papers', 
+                          'oct_embedded', 'paper_vital_status', 'vital_status',
+                          'prior_malignancy', 'synchronous_malignancy', 
+                          'age_is_obfuscated', 'prior_treatment', 
+                          'tissue_or_organ_of_origin','icd_10_code']
+
+
+    # Load and prepare dataset
+    brca_clinical_df = other_sup_file.copy()
+    brca_target_column = 'Stage'
+    brca_input_features = selected_brca_features
+
+    # Encode categorical variables
+    brca_label_encoder = LabelEncoder()
+    for brca_column in brca_input_features:
+        if brca_clinical_df[brca_column].dtype == 'object':  
+            brca_clinical_df[brca_column] = brca_label_encoder.fit_transform(brca_clinical_df[brca_column].astype(str))
+
+    # Prepare feature and target data
+    brca_X = brca_clinical_df[brca_input_features].copy()
+    brca_y = brca_clinical_df[brca_target_column]
+    brca_X.fillna(brca_X.mean(), inplace=True)
+
+    # Train-test split
+    brca_X_train, brca_X_test, brca_y_train, brca_y_test = train_test_split(brca_X, brca_y, test_size=0.2, random_state=42)
+
+    # Define and train tuned Random Forest model
+    brca_rf_model = RandomForestClassifier(
+        n_estimators=100,
+        min_samples_split=5,
+        min_samples_leaf=1,
+        bootstrap=False,
+        random_state=42
+    )
+    brca_rf_model.fit(brca_X_train, brca_y_train)
+
+    # Evaluate model
+    brca_y_pred = brca_rf_model.predict(brca_X_test)
+    print(classification_report(brca_y_test, brca_y_pred, zero_division=1))
+    return (
+        brca_X,
+        brca_X_test,
+        brca_X_train,
+        brca_clinical_df,
+        brca_column,
+        brca_input_features,
+        brca_label_encoder,
+        brca_rf_model,
+        brca_target_column,
+        brca_y,
+        brca_y_pred,
+        brca_y_test,
+        brca_y_train,
+        selected_brca_features,
+    )
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        After looking at the new classification report, the final model definitely performs better than the baseline. Accuracy went up slightly from 91% to 93%, which is already a good sign. But more importantly, the model is doing a better job overall especially with the harder-to-predict classes. For example, Stage IIIC improved a lot recall jumped from 0.43 to 0.86, and the F1-score went from 0.60 to 0.92. That’s a huge improvement and shows the model can now catch more of those cases correctly. Other classes like Stage IIA, IIB, and IIIA also stayed strong, with both precision and recall staying high.
+
+        Stage II is still an issue the model got 0 recall again but to be fair, there are only 3 samples, so that’s probably more of a data problem than a model issue. Overall though, the macro and weighted averages for recall and F1-score improved, meaning the model is handling class imbalance better than before. Tuning the parameters and using only the most important features really paid off.
+        """
+    )
     return
 
 
