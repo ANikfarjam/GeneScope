@@ -1,5 +1,4 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, UserCredential, updateProfile } from "firebase/auth";
-import { auth } from "./firebase";
+import { UserCredential } from "firebase/auth";
 
 // Type definition for authentication functions
 export interface AuthResponse {
@@ -7,16 +6,27 @@ export interface AuthResponse {
   error: string | null;
 }
 
-
 // Sign Up Function with Username
-export const signUp = async (email: string, password: string, username: string): Promise<AuthResponse> => {
+export const signUp = async (
+  email: string,
+  password: string,
+  username: string
+): Promise<AuthResponse> => {
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const { createUserWithEmailAndPassword, updateProfile } = await import(
+      "firebase/auth"
+    );
+    const { auth } = await import("./firebase.client");
 
-    // Update Firebase user profile to store the username
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
     if (userCredential.user) {
       await updateProfile(userCredential.user, {
-        displayName: username, // Stores the username in Firebase
+        displayName: username,
       });
     }
 
@@ -26,11 +36,20 @@ export const signUp = async (email: string, password: string, username: string):
   }
 };
 
-
 // Login Function
-export const login = async (email: string, password: string): Promise<AuthResponse> => {
+export const login = async (
+  email: string,
+  password: string
+): Promise<AuthResponse> => {
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const { signInWithEmailAndPassword } = await import("firebase/auth");
+    const { auth } = await import("./firebase.client");
+
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
     return { user: userCredential.user, error: null };
   } catch (error) {
     return { user: null, error: (error as Error).message };
@@ -40,6 +59,9 @@ export const login = async (email: string, password: string): Promise<AuthRespon
 // Logout Function
 export const logout = async (): Promise<void> => {
   try {
+    const { signOut } = await import("firebase/auth");
+    const { auth } = await import("./firebase.client");
+
     await signOut(auth);
   } catch (error) {
     console.error("Logout Error:", error);

@@ -1,5 +1,5 @@
-// src/firebase.ts
-import { initializeApp } from "firebase/app";
+// src/firebase.client.ts
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
 
 // Define Firebase configuration (replace with your Firebase Console values)
@@ -14,5 +14,5 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const auth: Auth = getAuth(app);
