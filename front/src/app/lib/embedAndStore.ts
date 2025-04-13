@@ -2,7 +2,7 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { PineconeStore } from "@langchain/community/vectorstores/pinecone";
-import { pineconeClient } from "./pinecone.js";
+import { getPineconeClient } from "./pinecone.js";
 //key sotred
 //TODO -> make it more efficient
 const pineconeIndexName = process.env.PINECONE_INDEX || "default-index-name";
@@ -28,7 +28,7 @@ export async function storePdfsInPinecone() {
 
   try {
     await PineconeStore.fromDocuments(allDocs, embeddings, {
-      pineconeIndex: pineconeClient.Index(pineconeIndexName),
+      pineconeIndex: getPineconeClient().Index(pineconeIndexName),
     });
 
     console.log("PDF embeddings stored in Pinecone.");

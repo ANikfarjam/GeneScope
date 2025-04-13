@@ -1,8 +1,16 @@
 import { Pinecone } from "@pinecone-database/pinecone";
-//where key stored
-//TODO -> security
-const pineconeClient = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY || "",
-});
 
-export { pineconeClient };
+let client: Pinecone | null = null;
+
+export function getPineconeClient(): Pinecone {
+  if (!client) {
+    const apiKey = process.env.PINECONE_API_KEY;
+    if (!apiKey) {
+      throw new Error("PINECONE_API_KEY is not set.");
+    }
+
+    client = new Pinecone({ apiKey });
+  }
+
+  return client;
+}
