@@ -175,7 +175,7 @@ def _(create_supl_df):
     return cType_count, cancerBRCA_type_df, cancer_descriptions_list, data
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md("""* These are the unique cancer types in dataset""")
     return
@@ -206,9 +206,9 @@ def _(create_supl_df):
     return (Normal_Sample_gene,)
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
-    mo.md(r"""As we can see there are 113 normal cancer samples where i moght do [%60, %20, %20] distribution for train test and val datasets witch would be [67, 23, 23] samples for healthy dataset!""")
+    mo.md(r"""As we can see there are 113 normal cancer samples where i might do [%60, %20, %20] distribution for train test and val datasets witch would be [67, 23, 23] samples for healthy dataset!""")
     return
 
 
@@ -364,7 +364,7 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(io, mo, pd):
     with open('../../data/SuplementoryFiles/GSE62944_01_27_15_TCGA_20_420_Clinical_Variables_7706_Samples.txt', 'r') as file:
         exractedData1=[line.split('\t') for line in file.readlines()]
@@ -414,7 +414,7 @@ def _(io, mo, pd):
     )
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md("""After Creating a data fram from the two <span style="color: brown">two clinical suplimentary files</span>, now we have to extract all the BRCA data from it and the following table displays all the brca related logistics. Now we can delve in furthure to create a dataset for stage prognosis and furthermore analyze patients demografic and see how they are corolated.""")
     return
@@ -595,7 +595,7 @@ def _(BRCA_CV):
     return new_brca_df, np
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md(
         """
@@ -613,9 +613,9 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
-    mo.md("""###<span style="color: green">Labaling Data:</span>""")
+    mo.md("""###<span style="color: brown">Labaling Data:</span>""")
     return
 
 
@@ -679,11 +679,11 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md(
         r"""
-        ###<span style="color: green">Using a secondary Clinical Variable dataset Directy extracted from TCGA</span>
+        ###<span style="color: brown">Using a secondary Clinical Variable dataset Directy extracted from TCGA</span>
         It seams like the suplementary files for clinical variables is not structed verywell. How ever using R pakage we extracted a better clinical values from TCGA dataset that could be used the same gene expression the NCBI GEO dataset so instead we are going to use this instead.
         """
     )
@@ -743,7 +743,7 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo, pd):
     import io
     # Load dataset
@@ -766,7 +766,7 @@ def _(mo, pd):
 def _(mo):
     mo.md(
         """
-        ### <span style="color: green">DataSet Clean up Proccess</span>
+        ### <span style="color: brown">DataSet Clean up Proccess</span>
 
         There are many columns that contains zero non_Null values. To prevent pandas dropping other columns or rows mistakenly I drop the columns that had more than threshold of %80 Nan values. and drop the rows of staging related columns respectively. The following data set is the cleaned up version of our dataset.
         """
@@ -832,7 +832,7 @@ def _(mo):
         r"""
         With all stages combined still our data looks inbalanced. Researches sujest that to either adjust the weight during training or perform Data Augmentation (with Biological Knowledge) using techniques called **SMOTE** or **(VAE) or GANs**:
 
-        ###<span style="color: green"> Augmentation technique</span>
+        ###<span style="color: brown"> Augmentation technique</span>
 
         * **SMOTE (Synthetic Minority Over-sampling Technique)**: Creates synthetic samples by interpolating between existing samples of the minority class.
 
@@ -848,7 +848,7 @@ def _(mo):
 
         Train an HMM on gene expression profiles of the minority classes to generate similar but distinct sequences.
 
-        <span style='color:green'>Since we have already done the AHP analysis for biomarkers analysis We are going to employ HMM to generate symentically gene expression for minority classes.</span>
+        <span style='color:brown'>Since we have already done the AHP analysis for biomarkers analysis We are going to employ HMM to generate symentically gene expression for minority classes.</span>
         """
     )
     return
