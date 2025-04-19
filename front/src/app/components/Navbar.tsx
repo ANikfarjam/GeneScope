@@ -87,19 +87,19 @@ const Navbar = () => {
               About
             </Link>
             <Link
-              href="/visualization"
+              href="/analyticalmethod"
               className="text-gray-700 hover:text-pink-500"
             >
               Analytical Methods
             </Link>
             <Link
-              href="/visualization"
+              href="/majorfindings"
               className="text-gray-700 hover:text-pink-500"
             >
               Major Finding
             </Link>
             <Link
-              href="/visualization"
+              href="/projectobjective"
               className="text-gray-700 hover:text-pink-500"
             >
               Project Objective
