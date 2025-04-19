@@ -337,6 +337,15 @@ def _(chart, mo):
 
 
 @app.cell
+def _():
+    """
+    top 50 genes in each stage
+    """
+
+    return
+
+
+@app.cell
 def _(ahp_df, mo):
     mo.ui.data_explorer(ahp_df)
     return
@@ -350,9 +359,10 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo, pd):
-    desc_df = pd.read_csv("./data/top500_desc.csv")
+    desc_df = pd.read_csv("./AHPresults//gene_dictionary.csv")
     mo.ui.tabs(
         {
+            "top 500 genes and thei info": mo.ui.table(desc_df),
             "Visual_Analysis": mo.hstack(
                 [
                     mo.md(
@@ -396,8 +406,7 @@ def _(mo, pd):
                         ]
                     ),
                 ]
-            ),
-            "top 500 genes and thei info": mo.ui.table(desc_df),
+            )
         }
     )
     return (desc_df,)
@@ -668,7 +677,6 @@ def _(model_data):
         else:
             return 'Seniors'
     alternate_table['age_at_diagnosis'] = alternate_table['age_at_diagnosis'].apply(age_group)
-
     return age_group, alternate_table
 
 
@@ -721,8 +729,6 @@ def _(mo, pd, px):
         }),
         insight
     ])
-
-
     return (
         cox_hazerdus_p,
         cox_summry,
@@ -731,6 +737,82 @@ def _(mo, pd, px):
         insight,
         summery_fig,
     )
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        [Susan G. Comen]('https://www.komen.org/breast-cancer/diagnosis/stages-staging/tumor-size/') published and article on the **<span style='color: brown'>Primary tumor (T)** and size associated with each tumor and their size: 
+
+        | Category | Tumor Size (cm) | Tumor Size (inches) | Description |
+        |----------|-----------------|---------------------|------------|
+        TX | — | — | Primary tumor cannot be assessed
+        T0 | 0 | 0 | No evidence of primary tumor
+        Tis | — | — | Carcinoma in situ
+        T1mi | ≤ 0.1 | ≤ 0.04 | Microinvasion
+        T1a | 0.1 – 0.5 | 0.04 – 0.2 | 
+        T1b | 0.5 – 1 | 0.2 – 0.4 | 
+        T1c | 1 – 2 | 0.4 – 0.8 | 
+        T2 | 2 – 5 | 0.8 – 2.0 | 
+        T3 | 5 | 2.0 | 
+        T4 | Any size | Any size | Tumor of any size with direct extension to chest wall and/or skin
+        """
+    )
+    return
+
+
+@app.cell
+def _(alternate_table, cox_hazerdus_p, mo):
+    mo.hstack([cox_hazerdus_p, alternate_table])
+    return
+
+
+@app.cell
+def _(alternate_table, pd):
+    # Define the T-stage to tumor size mapping in centimeters
+    t_stage_to_size = {
+        'Tis': (0, 0),
+        'T1mi': (0.1, 0.1),
+        'T1a': (0.1, 0.5),
+        'T1b': (0.5, 1),
+        'T1c': (1, 2),
+        'T1': (0.1, 2),     # fallback if T1 subtype isn't available
+        'T2': (2, 5),
+        'T3': (5, 7),
+        'T4': (7, 10),
+        'TX': (None, None)  # unassessable
+    }
+
+    # Function to convert cm to inches
+    def cm_to_inch(cm_range):
+        if cm_range[0] is None:
+            return (None, None)
+        return tuple(round(cm / 2.54, 2) for cm in cm_range)
+
+    df = alternate_table.copy()
+
+    # Map tumor size range (in cm)
+    df['tumor_size_cm'] = df['ajcc_pathologic_t'].map(lambda t: t_stage_to_size.get(t, (None, None)))
+
+    # Split into min and max size columns (in cm)
+    df[['tumor_size_min_cm', 'tumor_size_max_cm']] = pd.DataFrame(df['tumor_size_cm'].tolist(), index=df.index)
+
+    # Convert to inches
+    df[['tumor_size_min_in', 'tumor_size_max_in']] = df['tumor_size_cm'].apply(lambda cm: cm_to_inch(cm)).apply(pd.Series)
+
+    # Drop intermediate tuple column
+    df.drop(columns='tumor_size_cm', inplace=True)
+
+    #aggregate data
+    agg_df = df.groupby(by=['Stage', 'ethnicity', 'race', 'age_at_diagnosis','vital_status']).agg({df.columns[-4]: 'mean'}).reset_index()
+    agg_df
+    return agg_df, cm_to_inch, df, t_stage_to_size
+
+
+@app.cell
+def _():
+    return
 
 
 if __name__ == "__main__":
