@@ -7,7 +7,6 @@ from sklearn.metrics import classification_report
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
-pd.set_option('display.max_columns', None)
 from sklearn.utils import class_weight
 from sklearn.decomposition import PCA
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
