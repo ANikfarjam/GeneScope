@@ -1,26 +1,22 @@
-from typing import Annotated, Callable, Coroutine
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import FastAPI
 import marimo
-from fastapi import FastAPI, Form, Request, Response
+from fastapi.responses import RedirectResponse
 
-
-# Create a marimo asgi app
+# Create a marimo multi-app server
 server = (
     marimo.create_asgi_app()
+    .with_app(path="/", root="app.py")  # This sets the homepage
     .with_app(path="/eda", root="EDA.py")
     .with_app(path="/major_findings", root="major_findings.py")
 )
 
-# Create a FastAPI app
+# Create the FastAPI app and mount the Marimo server
 app = FastAPI()
 
-# app.add_middleware(auth_middleware)
-# app.add_route("/login", my_login_route, methods=["POST"])
-
+# Mount the multi-app Marimo server at root
 app.mount("/", server.build())
 
-# Run the server
+# Run it
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(app, host="localhost", port=8000)
