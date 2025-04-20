@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.8.22"
+__generated_with = "0.12.2"
 app = marimo.App(width="medium")
 
 
@@ -16,11 +16,17 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
-        # <span style="color:brown">Data Source</span>
+        # <span style='color:brown'>GeneScope and Breast Cancer</span>
+
+        ### <span style='color:brown'>Objective:</span>
+
+        Breast cancer is the most frequently diagnosed cancer in women and remains one of the leading causes of cancer-related deaths worldwide. It typically originates from the epithelial cells lining the milk ducts or lobules responsible for milk production and transport. GeneScope aims to investigate breast cancer biomarkers and patient prognosis by building a predictive model for cancer stage classification. Our approach integrates gene expression data with key clinical variables such as tumor size, lymph node involvement, and patient demographics. Unlike many prior studies that rely heavily on traditional statistical models,such as t-tests, entropy based scoring, or Hidden Markov Models. We combine statistical methods with modern machine learning techniques to create a more robust and data-driven framework. Specifically, we employ a modified Analytic Hierarchy Process (AHP) for gene ranking, use CatBoost to estimate stage probabilities, and implement deep learning models to capture more subtle and complex patterns in the data. Through this multi-faceted approach, we aim to improve classification accuracy and deepen understanding of the clinical and molecular dynamics of breast cancer progression.
+
+        ### <span style="color:brown">Data Source</span>
 
         The Gene Expression dataset has been extracted from the [NCBI Gene Expression Omnibus GSEGSE62944](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE62944). The dataset consists of 9264 tumor samples and 741 normal samples across 24 cancer types from The Cancer Genome Atlas. This data set is created from all the TCGA samples that have an expression of 23,000 genes!
         """
@@ -28,19 +34,19 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.center(mo.image(src="TCGAcancerTypes.png",caption="The Cancer Types available in TCGA database. This image is from the TCGA officcial website!", width=500,  height=400))
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md("""According to [NCBI]("") 20 years after the original publication of the human genome, the number of protein-coding genes is stabilizing around 19,500 (Figure 2), although the number of isoforms of these genes is still a subject of intensive study and discussion.""")
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
@@ -52,7 +58,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.image(src="NGS.png")
     return
@@ -86,7 +92,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         """
@@ -109,11 +115,19 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""<span style="color: brown">1. EDA for 24 cancer type file</span>""")
+    mo.md(
+        r"""
+        <span style="color: brown">1. EDA for 24 cancer type file</span>
+
+        This suplementary files was refresing each patient sample id to their related diagnosed cancer. and it had 1119 sample for breawt cancer.
+
+        **Note:** this data set labels breast cancer as BRCA and its nor related to the supressor gene BRCA.
+        """
+    )
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     import pandas as pd
     def create_supl_df(source, cancerType):
@@ -140,7 +154,7 @@ def _():
     return create_supl_df, pd
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(create_supl_df):
     cancerBRCA_type_df, data, cType_count= create_supl_df('../../data/SuplementoryFiles/TCGA_24_CancerType_Samples.txt', 'BRCA')
 
@@ -175,15 +189,72 @@ def _(create_supl_df):
     return cType_count, cancerBRCA_type_df, cancer_descriptions_list, data
 
 
-@app.cell
-def _(mo):
-    mo.md("""* These are the unique cancer types in dataset""")
-    return
-
-
-@app.cell
+@app.cell(hide_code=True)
 def _(cType_count, mo):
-    mo.ui.table(cType_count)
+    mo.ui.tabs({
+        'Cancers Count': mo.ui.table(cType_count),
+        'Extraction Method': mo.hstack([
+            mo.ui.code_editor(f"""
+    def create_supl_df(source, cancerType):
+        \"\"\"
+        This function creates a data frame from a supplementary file.
+        Input: supplementary file path, cancerType of interest
+        Returns: a filtered DataFrame, raw data, and cancer type counts
+        \"\"\"
+
+        # Read supplementary file    
+        with open(source, 'r') as file:
+            data = [line.split('\\t') for line in file.readlines()]
+
+        data_dic = {{"Samples": [], "CancerType": []}}
+        for line in data:
+            data_dic['Samples'].append(line[0])
+            data_dic['CancerType'].append(line[1])
+
+        cancer_type_df = pd.DataFrame(data_dic)
+        cancer_type_df['CancerType'] = cancer_type_df['CancerType'].str.strip()
+        cType_count = cancer_type_df.CancerType.value_counts()
+        cancer_type_df = cancer_type_df[cancer_type_df['CancerType'] == cancerType]
+        return cancer_type_df, data, cType_count  
+            """),
+            mo.ui.code_editor(f"""
+    cancerBRCA_type_df, data, cType_count = create_supl_df(
+        'TCGA_24_CancerType_Samples.txt', 'BRCA'
+    )
+
+    cancer_descriptions_list = [
+        "Breast Cancer - A malignant tumor that develops from breast cells.",
+        "Uterine Corpus Endometrial Carcinoma - A cancer originating in the lining of the uterus.",
+        "Kidney Renal Clear Cell Carcinoma - A common kidney cancer originating in renal tubules.",
+        "Lung Adenocarcinoma - A non-small cell lung cancer starting in mucus-secreting glands.",
+        "Lower-Grade Glioma - A slow-growing brain tumor arising from glial cells.",
+        "Thyroid Carcinoma - A cancer that develops in the thyroid gland.",
+        "Head and Neck Squamous Cell Carcinoma - A cancer originating in the mucosal linings of the head and neck.",
+        "Prostate Adenocarcinoma - A cancer that forms in the prostate gland.",
+        "Lung Squamous Cell Carcinoma - A type of lung cancer arising from squamous cells lining the airways.",
+        "Colon Adenocarcinoma - A common type of colorectal cancer originating in glandular cells.",
+        "Skin Cutaneous Melanoma - A dangerous type of skin cancer that develops from melanocytes.",
+        "Ovarian Serous Cystadenocarcinoma - A type of ovarian cancer developing in the epithelial cells of the ovary.",
+        "Stomach Adenocarcinoma - A malignant tumor forming in the stomach lining.",
+        "Bladder Urothelial Carcinoma - A cancer that arises from the bladder lining.",
+        "Liver Hepatocellular Carcinoma - The most common type of liver cancer, often linked to hepatitis or cirrhosis.",
+        "Cervical Squamous Cell Carcinoma and Endocervical Adenocarcinoma - A cancer arising from the cervix.",
+        "Kidney Renal Papillary Cell Carcinoma",
+        "Acute Myeloid Leukemia",
+        "Glioblastoma Multiforme - An aggressive brain tumor arising from glial cells.",
+        "Rectum Adenocarcinoma - A form of colorectal cancer affecting the rectum.",
+        "Adrenocortical Carcinoma - A rare cancer that originates in the adrenal cortex.",
+        "Kidney Chromophobe",
+        "Uterine Carcinosarcoma",
+        "Genomic Variation in Diffuse Large B Cell Lymphomas"
+    ]
+
+    cType_count = cType_count.to_frame()
+    cType_count['Description'] = cancer_descriptions_list
+            """)
+        ])
+    })
+
     return
 
 
@@ -898,12 +969,12 @@ def _():
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
         ### <span style="color: brown">DataSet Clean up Proccess</span>
-        Before diving into model training, I started by preparing the clinical dataset. The target variable I wanted to predict was Stage which refers to the stage of breast cancer for each patient. To get the data into a usable format, I encoded all categorical variables using LabelEncoder, since machine learning models generally require numerical inputs. I also filled in any missing values with the mean of each column — not perfect, but a reasonable starting point for handling gaps in the data. When everything was cleaned up I then split the dataset into training and test sets using an 80/20 split. This gave me a good balance between having enough data to train the model and enough to evaluate it afterward. With that done, I trained a baseline RandomForestClassifier using the default settings (100 trees, no max depth, etc.). This gave me a first look at how well the model could predict cancer stages using all the features, and it set the foundation for deeper analysis.
+        Before diving into model training, we started by preparing the clinical dataset. The target variable we wanted to predict was Stage which refers to the stage of breast cancer for each patient. To get the data into a usable format, we encoded all categorical variables using LabelEncoder, since machine learning models generally require numerical inputs. we also filled in any missing values with the mean of each column — not perfect, but a reasonable starting point for handling gaps in the data. When everything was cleaned up we then split the dataset into training and test sets using an 80/20 split. This gave me a good balance between having enough data to train the model and enough to evaluate it afterward. With that done, we trained a baseline RandomForestClassifier using the default settings (100 trees, no max depth, etc.). This gave me a first look at how well the model could predict cancer stages using all the features, and it set the foundation for deeper analysis.
 
         The initial classification report looked promising. For example, classes like Stage IIA and Stage IIB were predicted quite well, while classes like Stage II and Stage IIIC showed lower performance — probably due to class imbalance or overlap in clinical features. This gave me a sense of which labels were harder for the model to get right and where there might be room to improve.
         """
@@ -912,7 +983,7 @@ def _(mo):
 
 
 @app.cell
-def __(pd):
+def _(pd):
     other_sup_file = pd.read_csv("random_forest\clinical_data.csv")
     return (other_sup_file,)
 
@@ -993,16 +1064,11 @@ def _(features, mo, np, pd, rf):
     feature_ranking_df = feature_ranking_df.sort_values(by='Importance', ascending=False)
     feature_ranking_df.reset_index(drop=True, inplace=True)
     mo.ui.table(feature_ranking_df)
-    return (
-        feature_importances,
-        feature_ranking_df,
-        indices,
-        non_zero_indices,
-    )
+    return feature_importances, feature_ranking_df, indices, non_zero_indices
 
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md(r"""From this results we can see that a few features such as `paper_pathologic_stage`, `ajcc_pathologic_n`, and `ajcc_pathologic_t` were by far the most influential. This makes sense because these features are directly related to the clinical staging process. Features like days_to_collection, days_to_last_followup, and treatments also showed up, which might reflect how the progression and treatment timing relate to cancer stage.""")
     return
 
@@ -1026,7 +1092,7 @@ def _(mo):
 
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md(r"""Visualizing this not only helped with model interpretability, but also gave me a clearer idea of which features were worth keeping for future models. Instead of throwing in the entire dataset, I could now focus on a cleaner and more impactful set of predictors, improving both speed and accuracy.""")
     return
 
@@ -1077,7 +1143,7 @@ def _(mo):
 
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md(
         r"""
         This process took longer to run, but it paid off. I ended up with a model that was better tuned to the dataset and less prone to overfitting. Grid search also gave me valuable insight into which settings worked best for this particular problem , whether deeper trees helped or hurt the results, and whether using more estimators led to meaningful improvements.
@@ -1094,7 +1160,7 @@ def __(mo):
 
 
 @app.cell
-def __(
+def _(
     LabelEncoder,
     RandomForestClassifier,
     classification_report,
@@ -1177,7 +1243,7 @@ def __(
 
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md(
         r"""
         After looking at the new classification report, the final model definitely performs better than the baseline. Accuracy went up slightly from 91% to 93%, which is already a good sign. But more importantly, the model is doing a better job overall especially with the harder-to-predict classes. For example, Stage IIIC improved a lot recall jumped from 0.43 to 0.86, and the F1-score went from 0.60 to 0.92. That’s a huge improvement and shows the model can now catch more of those cases correctly. Other classes like Stage IIA, IIB, and IIIA also stayed strong, with both precision and recall staying high.
