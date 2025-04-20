@@ -3,25 +3,22 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.decomposition import PCA
-from sklearn.metrics import classification_report
-from sklearn.utils.class_weight import compute_class_weight
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 from imblearn.over_sampling import SMOTE
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, Input
-from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
+import warnings
+warnings.filterwarnings('ignore')
 
-
+# Load and prepare dataset
 df = pd.read_csv('/content/fina_Stage_unaugmented.csv', low_memory=False)
 df = df.drop_duplicates(subset='Samples')
 df = df.dropna(subset=['Stage'])
 
 y = df['Stage']
-
 drop_cols = [
     'Samples', 'Stage', 'vital_status', 'submitter_id', 'barcode',
     'sample_id', 'sample', 'sample_submitter_id', 'patient', 'paper_patient',
-    'diagnosis_id', 'bcr_patient_barcode',  
+    'diagnosis_id', 'bcr_patient_barcode',
     'paper_age_at_initial_pathologic_diagnosis', 'paper_days_to_birth',
     'paper_pathologic_stage', 'ajcc_pathologic_n', 'ajcc_pathologic_t',
     'ajcc_pathologic_m', 'year_of_diagnosis', 'treatments', 'Unnamed: 0',
@@ -39,65 +36,47 @@ drop_cols = [
 ]
 X = df.drop(columns=[col for col in drop_cols if col in df.columns])
 X = X.select_dtypes(include=[np.number])
+
 X.replace([np.inf, -np.inf], np.nan, inplace=True)
 X.dropna(inplace=True)
 y = y.loc[X.index]
 
-
-# Label Encoding Standardize + PCA
-label_encoder = LabelEncoder()
-y_encoded = label_encoder.fit_transform(y)
-
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-pca = PCA(n_components=0.95, random_state=42)
-X_pca = pca.fit_transform(X_scaled)
+label_encoder = LabelEncoder()
+y_encoded = label_encoder.fit_transform(y)
+#smote due to some stages lacking samples
+smote = SMOTE(random_state=42, k_neighbors=3)
+X_resampled, y_resampled = smote.fit_resample(X_scaled, y_encoded)
 
-
-smote = SMOTE(random_state=42,  k_neighbors=1)
-X_resampled, y_resampled = smote.fit_resample(X_pca, y_encoded)
-
-num_classes = len(np.unique(y_resampled))
-y_onehot = tf.keras.utils.to_categorical(y_resampled, num_classes=num_classes)
+#to reduce the dimentiality
+pca = PCA(n_components=30)
+X_pca = pca.fit_transform(X_resampled)
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X_resampled, y_onehot, test_size=0.2, random_state=42
+    X_pca, y_resampled, test_size=0.2, random_state=42, stratify=y_resampled
 )
 
-model = Sequential([
-    Input(shape=(X_train.shape[1],)),
-    Dense(128, activation='relu'),
-    Dropout(0.3),
-    Dense(64, activation='relu'),
-    Dropout(0.2),
-    Dense(num_classes, activation='softmax')
-])
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train, y_train)
+y_pred = knn.predict(X_test)
 
-model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+train_acc = knn.score(X_train, y_train)
+test_acc = knn.score(X_test, y_test)
+report = classification_report(y_test, y_pred, target_names=label_encoder.classes_, output_dict=True)
+report_df = pd.DataFrame(report).transpose()
+conf_matrix = confusion_matrix(y_test, y_pred)
+conf_df = pd.DataFrame(conf_matrix, index=label_encoder.classes_, columns=label_encoder.classes_)
 
-callbacks = [
-    ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3),
-    EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
-]
+y_true = y_test
+y_pred_classes = y_pred
+y_true_classes = y_test
 
-history = model.fit(
-    X_train, y_train,
-    epochs=30,
-    batch_size=32,
-    validation_split=0.2,
-    callbacks=callbacks,
-    verbose=1
-)
+print(f"\nTraining Accuracy: {train_acc:.4f}")
+print(f"Test Accuracy: {test_acc:.4f}\n")
 
-loss, acc = model.evaluate(X_test, y_test)
-print(f"\nTest Accuracy: {acc:.4f}")
-
-y_pred = model.predict(X_test)
-y_pred_classes = np.argmax(y_pred, axis=1)
-y_true_classes = np.argmax(y_test, axis=1)
-
-print("\nClassification Report:\n")
+print("Classification Report:\n")
 present_labels = np.unique(y_true_classes)
 present_class_names = label_encoder.classes_[present_labels].astype(str)
 
@@ -107,5 +86,7 @@ print(classification_report(
     target_names=present_class_names
 ))
 
-model.save_weights("brca_stage_model_smote_pca.weights.h5")
-print("Weights saved!")
+
+report_df.to_csv("knn_report_smote_pca.csv", index=True)
+conf_df.to_csv("knn_confusion_matrix_smote_pca.csv", index=True)
+print("Report and confusion matrix saved.")
