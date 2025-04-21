@@ -190,9 +190,8 @@ export default function Chatbot() {
           <>
             <div className="flex justify-start">
               <div className="px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[80%] bg-white text-gray-900 border border-gray-300 space-y-2">
-                <Typer text="🧬 Would you like to use our model for prognosis? Please upload your CSV file here and press Continue." />
+                <Typer text="🧬 Would you like to use our model for cancer staging prediction? Please upload your CSV file here and press Continue." />
                 <div className="flex items-center space-x-3">
-                  {/* Custom File Upload */}
                   <label className="px-3 py-1 bg-gray-200 text-gray-800 rounded cursor-pointer hover:bg-gray-300 transition">
                     Choose CSV
                     <input
@@ -202,14 +201,12 @@ export default function Chatbot() {
                         const file = e.target.files?.[0];
                         if (file) {
                           console.log("Uploaded file:", file.name);
-                          // Store in state if needed
                         }
                       }}
                       className="hidden"
                     />
                   </label>
 
-                  {/* Continue Button */}
                   <button
                     onClick={() => {
                       console.log("Continue button clicked");
