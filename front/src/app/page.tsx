@@ -102,7 +102,7 @@ export default function Home() {
           Breast Cancer Classification
         </h1>
         <div
-          className="text-lg mb-8 h-32 w-full overflow-hidden relative text-left pt-2"
+          className="text-lg mb-8 h-32 w-full overflow-hidden relative text-left pt-2 "
           data-aos="fade-right"
         >
           <Typer
@@ -110,6 +110,20 @@ export default function Home() {
   By analyzing complex biological patterns, it predicts cancer progression, assesses risk levels, and offers data-driven recommendations. 
   "
           />
+        </div>
+        <div
+          className="mt-12 text-left shadow-lg p-4 inset-shadow-xs bg-white"
+          data-aos="fade-up"
+        >
+          GeneScope goes beyond static analysis it combines clinical features
+          like tumor size, lymph node involvement, and age with gene expression
+          data to deliver accurate stage predictions using advanced deep
+          learning techniques. The platform also features an intelligent chatbot
+          powered by LangChain and Pinecone, enabling users to explore complex
+          cancer related questions interactively. Whether you're a medical
+          professional, researcher, or curious learner, GeneScope offers an
+          intuitive way to visualize data, understand risk, and uncover
+          meaningful patterns in cancer biology.
         </div>
 
         <div className="mt-12 shadow-lg p-4 inset-shadow-xs bg-white">
