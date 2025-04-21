@@ -113,7 +113,6 @@ body {
     left: 58%;
   }
 }
-/* 1119px to 895px */
 @media (max-width: 1119px) and (min-width: 895px) {
   .center {
     left: 55%;
