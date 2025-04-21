@@ -120,7 +120,7 @@ export default function Home() {
           data to deliver accurate stage predictions using advanced deep
           learning techniques. The platform also features an intelligent chatbot
           powered by LangChain and Pinecone, enabling users to explore complex
-          cancer related questions interactively. Whether you're a medical
+          cancer related questions interactively. Whether you&apos;re a medical
           professional, researcher, or curious learner, GeneScope offers an
           intuitive way to visualize data, understand risk, and uncover
           meaningful patterns in cancer biology.

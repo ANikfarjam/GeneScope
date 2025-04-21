@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-
+import Image from "next/image";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -66,9 +66,11 @@ const Navbar = () => {
 
             {user ? (
               <div className="relative" ref={dropdownRef}>
-                <img
+                <Image
                   src="/assets/appIcons/guest_user.png"
                   alt="User Avatar"
+                  width={40}
+                  height={40}
                   onClick={() => setDropdownOpen((prev) => !prev)}
                   className="w-10 h-10 rounded-full cursor-pointer border-2 border-pink-400"
                 />
@@ -132,9 +134,11 @@ const Navbar = () => {
 
             {user ? (
               <div className="text-center space-y-2">
-                <img
+                <Image
                   src="/assets/appIcons/guest_user.png"
                   alt="User Avatar"
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full mx-auto border-2 border-pink-400"
                 />
                 <p className="text-sm font-semibold text-gray-700">
