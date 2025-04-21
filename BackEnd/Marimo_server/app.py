@@ -13,7 +13,7 @@ def _():
 @app.cell(hide_code=True)
 def _(mo):
     import base64
-    def create_card(icon_html: str, title: str, desc: str, button_label: str):
+    def create_card(icon_html: str, title: str, desc: str, button_label: str, path: str):
         return mo.md(f"""
         <style>
         .card-container {{
@@ -55,17 +55,20 @@ def _(mo):
             border: none;
             border-radius: 4px;
             background-color: #007bff;
-            color: white;
+            color: white !important;
             cursor: pointer;
+            text-decoration: none;
         }}
         </style>
         <div class="card">
             <div class="card-icon">{icon_html}</div>
             <div class="card-title"><strong>{title}</strong></div>
             <div class="card-desc">{desc}</div>
-            <button class="card-button">{button_label}</button>
+            <a href="{path}" class="card-button">{button_label}</a>
         </div>
         """)
+
+
 
     # Define the icon HTML (e.g., an image tag)
     with open("chip.png", "rb") as image_file:
@@ -80,7 +83,8 @@ def _(mo):
         icon_html=icon_ml,
         title="Machine Learning",
         desc="Explore predictive models used for breast cancer classification and compare their performance.",
-        button_label="Learn More"
+        button_label="Learn More",
+        path="/ml"
     )
     # Define the icon HTML (e.g., an image tag)
     with open("exploratory-analysis.png", "rb") as image_file:
@@ -91,7 +95,8 @@ def _(mo):
         icon_html=icon_ml2,
         title="Objective and Data Exploration",
         desc="Explore extracted data, perform feature selection, and prepare data from supplementary files.",
-        button_label="Read More"
+        button_label="Read More",
+        path="/eda"
     )
     # Define the icon HTML (e.g., an image tag)
     with open("monitor.png", "rb") as image_file:
@@ -102,7 +107,8 @@ def _(mo):
         icon_html=icon_ml3,
         title="Major Findings",
         desc="Perform deep analysis of breast cancer biomarkers and prognosis with intuitive visuals.",
-        button_label="Read More"
+        button_label="Read More",
+        path="/major_findings"
     )
 
     # Display the cards within a container
