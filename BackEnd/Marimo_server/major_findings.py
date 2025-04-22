@@ -762,6 +762,38 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ### Interpreting the Cox Proportional Hazards Model
+
+        - A **hazard ratio > 1** means the variable **increases the risk** (a negative effect).
+        - A **hazard ratio < 1** means the variable **decreases the risk** (a protective effect).
+        - A **hazard ratio = 1** means the variable has **no effect** on the risk.
+
+        ---
+
+        ### Hypothesis Testing in the Cox Proportional Hazards Model
+
+        **Null Hypothesis (H0):**  
+        The covariate has no effect on the hazard (i.e., `coef = 0`, or `Hazard Ratio = 1`).
+
+        ---
+
+        - **p-value < 0.05** -> **Reject H0**  
+          - **Statistically significant**  
+          - The covariate **does affect** the hazard.
+
+        - **p-value ≥ 0.05** -> **Fail to reject H0**  
+          - **Not statistically significant**  
+          - The covariate **does not have a significant effect** on the hazard.
+
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
 def _(model_data):
     alternate_table = model_data[['Stage',  'year_of_diagnosis','ajcc_pathologic_t', 'ajcc_pathologic_n','ajcc_pathologic_m','paper_miRNA.Clusters','ethnicity','race', 'age_at_diagnosis', 'vital_status']]
     #convert age from days to year
@@ -841,7 +873,7 @@ def _(mo, pd, px):
     mo.vstack([
         mo.ui.tabs({
             'Hazerdus Probabilities': hazard_fig,
-            'Model Summery': summery_fig
+            'Model Summery': mo.vstack([summery_fig, mo.ui.table(pd.read_csv('../Models/CoxPHFitter/result/cox_model_summary.csv',index_col=0).T)])
         }),
         insight
     ])
