@@ -10,6 +10,140 @@ def _():
     return (mo,)
 
 
+@app.cell
+def _(mo):
+    # Define slider without marks
+    slider = mo.ui.slider(
+        start=0,
+        stop=3,
+        step=1,
+        value=0,
+        label="Select Analysis Model"
+    )
+
+    # Manual mapping for label display
+    model_labels = ["AHP", "CatBoost", "Cox Hazard Model", "Random Forest"]
+    return model_labels, slider
+
+
+@app.cell(hide_code=True)
+def _(mo, model_labels, slider):
+    # Markdown blocks per model
+    descriptions = {
+        0: mo.md("""
+    ### 🧠 Analytic Hierarchy Process (AHP)
+    AHP ranks genes using multiple statistical methods (t-test, Entropy, Wilcoxon, ROC, SNR), combining them through pairwise comparison matrices and eigenvector-based scoring to identify key biomarkers in breast cancer progression.
+    """),
+
+        1: mo.md("""
+    ### 🚀 CatBoost Classifier
+    CatBoost is a gradient boosting model that learns the likelihood of a patient being diagnosed at a specific cancer stage using gene expression and clinical features. It handles class imbalance and delivers calibrated stage probabilities.
+    """),
+
+        2: mo.md("""
+    ### 🧬 Cox Proportional Hazards Model
+    The Cox model estimates the impact of clinical and molecular features on patient survival risk. It outputs hazard ratios and identifies statistically significant factors affecting prognosis (like metastasis, age, lymph nodes).
+    """),
+
+        3: mo.md("""
+    ### 🌲 Random Forest
+    This ensemble method ranks the most important clinical features by their influence on cancer classification. It’s robust against overfitting and captures nonlinear patterns in demographic and clinical data.
+    """)
+    }
+
+    # Display current label + markdown
+    mo.vstack([
+        mo.md(f"### 🔬 Breast Cancer Model Analysis: {model_labels[slider.value]}"),
+        descriptions[slider.value]
+    ])
+    return (descriptions,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+
+    mo.md('''
+    <div style="font-family:sans-serif;">
+      <h2>Breast Cancer Analysis Walkthrough</h2>
+  
+      <div id="stepper" style="background: #f7f7f7; padding: 20px; border-left: 4px solid #663399; border-radius: 8px; min-height: 160px; margin-bottom: 15px; transition: opacity 0.3s ease-in-out;">
+        <h3>AHP - Analytic Hierarchy Process</h3>
+        <p>AHP ranks genes using t-test, entropy, Wilcoxon, ROC, and SNR. Scores are computed with eigenvectors from pairwise comparison matrices to identify strong biomarkers.</p>
+      </div>
+
+      <div style="display: flex; justify-content: space-between;">
+        <button id="prev-btn" style="padding: 10px 20px; background-color: #ccc; border: none; border-radius: 6px; font-weight: bold; color: #333;">← Previous</button>
+        <button id="next-btn" style="padding: 10px 20px; background-color: #663399; color: white; border: none; border-radius: 6px; font-weight: bold;">Next →</button>
+      </div>
+    </div>
+
+    <script>
+      const steps = [
+        {
+          title: "AHP - Analytic Hierarchy Process",
+          body: "AHP ranks genes using t-test, entropy, Wilcoxon, ROC, and SNR. Scores are computed with eigenvectors from pairwise comparison matrices to identify strong biomarkers."
+        },
+        {
+          title: "CatBoost Classifier",
+          body: "CatBoost uses gene expression and clinical features to predict stage probabilities. It handles imbalanced data and outputs likelihoods per stage."
+        },
+        {
+          title: "Cox Proportional Hazards Model",
+          body: "The Cox model estimates how variables like tumor size, lymph nodes, and demographics affect survival risk. Outputs hazard ratios and significance levels."
+        },
+        {
+          title: "Random Forest Feature Importance",
+          body: "Random Forest ranks clinical features by how much they improve classification. It captures nonlinear interactions and identifies key predictors in diagnosis."
+        }
+      ];
+
+      let current = 0;
+      const stepper = document.getElementById("stepper");
+      const prev = document.getElementById("prev-btn");
+      const next = document.getElementById("next-btn");
+
+      function updateStepper(index) {
+        stepper.style.opacity = 0;
+        setTimeout(() => {
+          stepper.innerHTML = `
+            <h3>${steps[index].title}</h3>
+            <p>${steps[index].body}</p>
+          `;
+          stepper.style.opacity = 1;
+        }, 200);
+
+        prev.disabled = index === 0;
+        next.disabled = index === steps.length - 1;
+
+        prev.style.backgroundColor = prev.disabled ? '#eee' : '#663399';
+        prev.style.color = prev.disabled ? '#aaa' : '#fff';
+
+        next.style.backgroundColor = next.disabled ? '#eee' : '#663399';
+        next.style.color = next.disabled ? '#aaa' : '#fff';
+      }
+
+      prev.addEventListener("click", () => {
+        if (current > 0) {
+          current--;
+          updateStepper(current);
+        }
+      });
+
+      next.addEventListener("click", () => {
+        if (current < steps.length - 1) {
+          current++;
+          updateStepper(current);
+        }
+      });
+
+      // Initialize
+      updateStepper(0);
+    </script>
+    ''')
+
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     import base64
@@ -145,40 +279,47 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo):
+def _():
     import pandas as pd
     # Load datasets
     ahp_df = pd.read_csv('./AHPresults/final_Mod_ahp_scores.csv')
     stage_df = pd.read_csv('./AHPresults/fina_Stage_unaugmented.csv')
-    healthy_exp_df = pd.read_csv('../../data/ModelDataSets/helthyExpressions.csv')
-    cancer_exp_df = pd.read_csv('../../data/ModelDataSets/cancerExpressions.csv')
+    stage_df = stage_df.iloc[:,:-1700]
+    return ahp_df, pd, stage_df
 
+
+@app.cell
+def _(stage_df):
+    valid_stages = stage_df['Stage'].value_counts()
+    valid_stages = valid_stages[valid_stages >= 14].index
+
+    # Sample 14 rows from each of those stages
+    sampled_df = (
+        stage_df[stage_df['Stage'].isin(valid_stages)]
+        .groupby("Stage", group_keys=False)
+        .apply(lambda x: x.sample(n=14, random_state=42))
+        .reset_index(drop=True)
+    )
+    return sampled_df, valid_stages
+
+
+@app.cell(hide_code=True)
+def _(ahp_df, mo, sampled_df):
     # Dictionary of datasets
     datasets = {
         "AHP Analysis": ahp_df,
-        "Cancer Stage DataSet": stage_df,
-        "Healthy Mean Expression": healthy_exp_df,
-        "Cancer Mean Expression": cancer_exp_df,
+        "Cancer Stage DataSet": sampled_df,
     }
-
     # UI: Dropdown
     dropdown = mo.ui.dropdown(
         label="Select Dataset",
         options=list(datasets.keys()),
-        value="AHP Analysis"  # default
+        value="AHP Analysis" # default
     )
-    return (
-        ahp_df,
-        cancer_exp_df,
-        datasets,
-        dropdown,
-        healthy_exp_df,
-        pd,
-        stage_df,
-    )
+    return datasets, dropdown
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(datasets, dropdown, mo):
     def show_data():
             selected = dropdown.value
