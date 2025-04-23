@@ -9,10 +9,10 @@ predict_bp = Blueprint('predict_bp', __name__)
 
 # Load model and preprocessing tools once
 
-model = tf.keras.models.load_model(r"C:\Users\pc\Desktop\projects\GeneScope\BackEnd\Models\MLP\brca_NN_vanila_another.keras", compile=False)
-scaler = joblib.load(r"C:\Users\pc\Desktop\projects\GeneScope\BackEnd\Models\MLP\scaler.save")
-pca = joblib.load(r"C:\Users\pc\Desktop\projects\GeneScope\BackEnd\Models\MLP\pca.save")
-label_encoder = joblib.load(r"C:\Users\pc\Desktop\projects\GeneScope\BackEnd\Models\MLP\label_encoder.save")
+model = tf.keras.models.load_model("./Models/MLP/brca_NN_vanila_another.keras", compile=False)
+scaler = joblib.load("./Models/MLP/scaler.save")
+pca = joblib.load("./Models/MLP/pca.save")
+label_encoder = joblib.load("./Models/MLP/label_encoder.save")
 
 
 # Drop columns function (must match training)
