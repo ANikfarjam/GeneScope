@@ -8,7 +8,7 @@ import os
 predict_bp = Blueprint('predict_bp', __name__)
 
 # Load model and preprocessing tools once
-model = tf.keras.models.load_model("../Marimo_server/Mls_yar_TMP/brca_NN_vanila_another.keras")
+model = tf.keras.models.load_model("../Marimo_server/Mls_yar_TMP/brca_NN_vanila_another.keras", compile=False)
 scaler = joblib.load("../Marimo_server/Mls_yar_TMP/scaler.save")
 pca = joblib.load("../Marimo_server/Mls_yar_TMP/pca.save")
 label_encoder = joblib.load("../Marimo_server/Mls_yar_TMP/label_encoder.save")
