@@ -158,7 +158,8 @@ export default function Chatbot() {
         "Stage IV",
       ];
 
-      const messageContent = `🧪 Prediction Complete:
+      const messageContent = `
+  🧪 Prediction Complete:
   - Stage: ${stage}
   - Age: ${clinical.age_at_index}
   - Weight: ${clinical.initial_weight}
@@ -188,7 +189,15 @@ export default function Chatbot() {
 
       // 🔥 NEW: Ask LangChain to interpret the result
       const explainPrompt = `
-  This patient is predicted to be at ${stage}.
+
+Imagine you just received a patient's clinical data after being predicted that they are at **${stage}**.
+You are a cancer specialist AI.
+Very concisely and seriously advise the patient on what steps they should consider now that they are aware of their stage.
+make sure to not give any conclusion or overall and encourage to ask more
+Base your suggestions on their **age (${clinical.age_at_index})**, **weight (${
+        clinical.initial_weight
+      })**, and the year of diagnosis (${clinical.year_of_diagnosis}).
+ 
   The top 3 probabilities are:
   - ${stageLabels[probs.indexOf(Math.max(...probs))]}: ${(
         Math.max(...probs) * 100
