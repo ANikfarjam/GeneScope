@@ -12,7 +12,7 @@ from tensorflow.keras.layers import Dense, Dropout, Input
 from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
 
 
-df = pd.read_csv('/content/fina_Stage_unaugmented.csv', low_memory=False)
+df = pd.read_csv('fina_Stage_unaugmented.csv', low_memory=False)
 df = df.drop_duplicates(subset='Samples')
 df = df.dropna(subset=['Stage'])
 
