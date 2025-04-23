@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.12.2"
+__generated_with = "0.11.12"
 app = marimo.App(width="medium")
 
 
@@ -61,86 +61,86 @@ def _(mo, model_labels, slider):
 
 @app.cell(hide_code=True)
 def _(mo):
+    mo.md(
+        """
+        <div style="font-family:sans-serif;">
+          <h2>Breast Cancer Analysis Walkthrough</h2>
 
-    mo.md('''
-    <div style="font-family:sans-serif;">
-      <h2>Breast Cancer Analysis Walkthrough</h2>
-  
-      <div id="stepper" style="background: #f7f7f7; padding: 20px; border-left: 4px solid #663399; border-radius: 8px; min-height: 160px; margin-bottom: 15px; transition: opacity 0.3s ease-in-out;">
-        <h3>AHP - Analytic Hierarchy Process</h3>
-        <p>AHP ranks genes using t-test, entropy, Wilcoxon, ROC, and SNR. Scores are computed with eigenvectors from pairwise comparison matrices to identify strong biomarkers.</p>
-      </div>
+          <div id="stepper" style="background: #f7f7f7; padding: 20px; border-left: 4px solid #663399; border-radius: 8px; min-height: 160px; margin-bottom: 15px; transition: opacity 0.3s ease-in-out;">
+            <h3>AHP - Analytic Hierarchy Process</h3>
+            <p>AHP ranks genes using t-test, entropy, Wilcoxon, ROC, and SNR. Scores are computed with eigenvectors from pairwise comparison matrices to identify strong biomarkers.</p>
+          </div>
 
-      <div style="display: flex; justify-content: space-between;">
-        <button id="prev-btn" style="padding: 10px 20px; background-color: #ccc; border: none; border-radius: 6px; font-weight: bold; color: #333;">← Previous</button>
-        <button id="next-btn" style="padding: 10px 20px; background-color: #663399; color: white; border: none; border-radius: 6px; font-weight: bold;">Next →</button>
-      </div>
-    </div>
+          <div style="display: flex; justify-content: space-between;">
+            <button id="prev-btn" style="padding: 10px 20px; background-color: #ccc; border: none; border-radius: 6px; font-weight: bold; color: #333;">← Previous</button>
+            <button id="next-btn" style="padding: 10px 20px; background-color: #663399; color: white; border: none; border-radius: 6px; font-weight: bold;">Next →</button>
+          </div>
+        </div>
 
-    <script>
-      const steps = [
-        {
-          title: "AHP - Analytic Hierarchy Process",
-          body: "AHP ranks genes using t-test, entropy, Wilcoxon, ROC, and SNR. Scores are computed with eigenvectors from pairwise comparison matrices to identify strong biomarkers."
-        },
-        {
-          title: "CatBoost Classifier",
-          body: "CatBoost uses gene expression and clinical features to predict stage probabilities. It handles imbalanced data and outputs likelihoods per stage."
-        },
-        {
-          title: "Cox Proportional Hazards Model",
-          body: "The Cox model estimates how variables like tumor size, lymph nodes, and demographics affect survival risk. Outputs hazard ratios and significance levels."
-        },
-        {
-          title: "Random Forest Feature Importance",
-          body: "Random Forest ranks clinical features by how much they improve classification. It captures nonlinear interactions and identifies key predictors in diagnosis."
-        }
-      ];
+        <script>
+          const steps = [
+            {
+              title: "AHP - Analytic Hierarchy Process",
+              body: "AHP ranks genes using t-test, entropy, Wilcoxon, ROC, and SNR. Scores are computed with eigenvectors from pairwise comparison matrices to identify strong biomarkers."
+            },
+            {
+              title: "CatBoost Classifier",
+              body: "CatBoost uses gene expression and clinical features to predict stage probabilities. It handles imbalanced data and outputs likelihoods per stage."
+            },
+            {
+              title: "Cox Proportional Hazards Model",
+              body: "The Cox model estimates how variables like tumor size, lymph nodes, and demographics affect survival risk. Outputs hazard ratios and significance levels."
+            },
+            {
+              title: "Random Forest Feature Importance",
+              body: "Random Forest ranks clinical features by how much they improve classification. It captures nonlinear interactions and identifies key predictors in diagnosis."
+            }
+          ];
 
-      let current = 0;
-      const stepper = document.getElementById("stepper");
-      const prev = document.getElementById("prev-btn");
-      const next = document.getElementById("next-btn");
+          let current = 0;
+          const stepper = document.getElementById("stepper");
+          const prev = document.getElementById("prev-btn");
+          const next = document.getElementById("next-btn");
 
-      function updateStepper(index) {
-        stepper.style.opacity = 0;
-        setTimeout(() => {
-          stepper.innerHTML = `
-            <h3>${steps[index].title}</h3>
-            <p>${steps[index].body}</p>
-          `;
-          stepper.style.opacity = 1;
-        }, 200);
+          function updateStepper(index) {
+            stepper.style.opacity = 0;
+            setTimeout(() => {
+              stepper.innerHTML = `
+                <h3>${steps[index].title}</h3>
+                <p>${steps[index].body}</p>
+              `;
+              stepper.style.opacity = 1;
+            }, 200);
 
-        prev.disabled = index === 0;
-        next.disabled = index === steps.length - 1;
+            prev.disabled = index === 0;
+            next.disabled = index === steps.length - 1;
 
-        prev.style.backgroundColor = prev.disabled ? '#eee' : '#663399';
-        prev.style.color = prev.disabled ? '#aaa' : '#fff';
+            prev.style.backgroundColor = prev.disabled ? '#eee' : '#663399';
+            prev.style.color = prev.disabled ? '#aaa' : '#fff';
 
-        next.style.backgroundColor = next.disabled ? '#eee' : '#663399';
-        next.style.color = next.disabled ? '#aaa' : '#fff';
-      }
+            next.style.backgroundColor = next.disabled ? '#eee' : '#663399';
+            next.style.color = next.disabled ? '#aaa' : '#fff';
+          }
 
-      prev.addEventListener("click", () => {
-        if (current > 0) {
-          current--;
-          updateStepper(current);
-        }
-      });
+          prev.addEventListener("click", () => {
+            if (current > 0) {
+              current--;
+              updateStepper(current);
+            }
+          });
 
-      next.addEventListener("click", () => {
-        if (current < steps.length - 1) {
-          current++;
-          updateStepper(current);
-        }
-      });
+          next.addEventListener("click", () => {
+            if (current < steps.length - 1) {
+              current++;
+              updateStepper(current);
+            }
+          });
 
-      // Initialize
-      updateStepper(0);
-    </script>
-    ''')
-
+          // Initialize
+          updateStepper(0);
+        </script>
+        """
+    )
     return
 
 
