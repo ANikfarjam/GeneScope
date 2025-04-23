@@ -4,7 +4,7 @@ __generated_with = "0.12.2"
 app = marimo.App(width="medium")
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     import marimo as mo
     import pandas as pd
@@ -56,7 +56,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     def multimodal_learning_columns():
         return mo.md("""
@@ -152,6 +152,115 @@ def _(mo):
 
     multimodal_learning_columns()
     return (multimodal_learning_columns,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        Sun's paper recommends using Deep Learning Model for each sub dataset and use late fussion to combine result of each model. Different data may have different feature representation, and directly
+        combining the three sources of data as an input of a DNN
+        model may not be efficien. How ever after training and evaluating the performance of the model if needed we might incorporate allignment by incorporating shared encoding layeres between our two model if necessury for fine tuning. 
+
+        Thecombined output of each model based ona linear aggregation is calculated as: 
+
+        $$
+        o_{DNNMD} = \alpha \cdot o_{DNN\text{-}Clinical} + \beta \cdot o_{DNN\text{-}Expr}
+        $$
+
+        subject to:
+
+        $$
+        \alpha + \beta = 1,\quad \alpha \geq 0,\quad \beta \geq 0
+        $$
+
+        where $\alpha$ and $\beta$ are the weight of each model.
+
+        For performance evaluation, we plot receiver operating
+        characteristic (ROC) curve, which shows the interplay
+        between sensitivity and 1-specificity by varying a decision
+        threshold, and computes the AUC. The evaluation metric,
+        Sensitivity (Sn), Specificity (Sp), Accuracy (Acc), Precision
+        (Pre) and Matthew’s correlation coefficient (Mcc) are also
+        used for performance evaluation and are defined in the following equations:
+
+        ### Multiclass Classification Metrics
+
+        For each class \( i \), we compute metrics using a one-vs-rest strategy:
+
+        ---
+
+        #### 1. Sensitivity (Recall), \( Sn_i \)
+
+        $$
+        Sn_i = \frac{TP_i}{TP_i + FN_i}
+        $$
+
+        Measures how well the model correctly identifies instances of class \( i \).
+
+        ---
+
+        #### 2. Precision, \( Pre_i \)
+
+        $$
+        Pre_i = \frac{TP_i}{TP_i + FP_i}
+        $$
+
+        Out of all predictions for class \( i \), how many were actually class \( i \).
+
+        ---
+
+        #### 3. Accuracy (Overall)
+
+        $$
+        Acc = \frac{\text{Total correct predictions}}{\text{Total samples}}
+        $$
+
+        Percentage of all correctly classified samples across all classes.
+
+        ---
+
+        #### 4. Matthews Correlation Coefficient (MCC, Multiclass)
+
+        The generalized MCC formula for multiclass:
+
+        $$
+        Mcc = \frac{c \cdot s - \sum_k p_k t_k}
+        {\sqrt{(s^2 - \sum_k p_k^2)(s^2 - \sum_k t_k^2)}}
+        $$
+
+        Where:  
+        - \( c = \sum_k TP_k \) (total correct predictions)  
+        - \( p_k \) = predicted count for class \( k \)  
+        - \( t_k \) = true count for class \( k \)  
+        - \( s = \sum_k p_k = \sum_k t_k \)
+
+        ---
+
+        #### 5. Specificity, \( Sp_i \)
+
+        $$
+        Sp_i = \frac{TN_i}{TN_i + FP_i}
+        $$
+
+        Measures how well the model correctly identifies instances **not** belonging to class \( i \).
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ###<span style="color:brown">Experimental Design</span>
+
+        Following the direction of the article, we are going to use DNN/MLP for each model: 
+
+
+        """
+    )
+    return
 
 
 if __name__ == "__main__":
