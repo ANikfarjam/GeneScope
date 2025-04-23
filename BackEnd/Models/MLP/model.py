@@ -12,30 +12,17 @@ from tensorflow.keras.layers import Dense, Dropout, Input
 from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
 
 
-df = pd.read_csv('/content/fina_Stage_unaugmented.csv', low_memory=False)
+df = pd.read_csv('fina_Stage_unaugmented.csv', low_memory=False)
 df = df.drop_duplicates(subset='Samples')
 df = df.dropna(subset=['Stage'])
 
 y = df['Stage']
 
 drop_cols = [
-    'Samples', 'Stage', 'vital_status', 'submitter_id', 'barcode',
-    'sample_id', 'sample', 'sample_submitter_id', 'patient', 'paper_patient',
-    'diagnosis_id', 'bcr_patient_barcode',  
-    'paper_age_at_initial_pathologic_diagnosis', 'paper_days_to_birth',
-    'paper_pathologic_stage', 'ajcc_pathologic_n', 'ajcc_pathologic_t',
-    'ajcc_pathologic_m', 'year_of_diagnosis', 'treatments', 'Unnamed: 0',
-    'paper_days_to_last_followup', 'days_to_collection', 'demographic_id',
-    'initial_weight', 'days_to_birth', 'pathology_report_uuid',
-    'age_at_diagnosis', 'age_at_index', 'method_of_diagnosis',
-    'sites_of_involvement', 'primary_diagnosis', 'morphology',
-    'paper_PARADIGM.Clusters', 'paper_Mutation.Clusters', 'paper_CNV.Clusters',
-    'paper_BRCA_Subtype_PAM50', 'paper_miRNA.Clusters', 'paper_DNA.Methylation.Clusters',
-    'paper_Included_in_previous_marker_papers', 'paper_mRNA.Clusters',
-    'ethnicity', 'preservation_method', 'race', 'laterality',
-    'paper_vital_status', 'oct_embedded', 'prior_malignancy',
-    'synchronous_malignancy', 'age_is_obfuscated', 'prior_treatment',
-    'tissue_or_organ_of_origin', 'icd_10_code'
+    'site_of_resection_or_biopsy', 'tumor_descriptor', 'sample_type_id', 'definition', 'primary_site',
+    'name', 'disease_type', 'shortLetterCode', 'sample_type', 'project_id', 'classification_of_tumor',
+    'specimen_type', 'state', 'is_ffpe', 'tissue_type', 'composition', 'paper_Tumor.Type', 'gender',
+    'days_to_diagnosis', 'releasable', 'diagnosis_is_primary_disease', 'released'
 ]
 X = df.drop(columns=[col for col in drop_cols if col in df.columns])
 X = X.select_dtypes(include=[np.number])
