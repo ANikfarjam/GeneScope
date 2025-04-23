@@ -3,36 +3,20 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 import joblib
-import os
 
 predict_bp = Blueprint('predict_bp', __name__)
 
-# Load model and preprocessing tools once
+# Load model and pipeline
+model = tf.keras.models.load_model("C:/Users/pc/Desktop/projects/GeneScope/BackEnd/Models/MLP/brca_model_with_clinical.keras")
+pipeline = joblib.load("C:/Users/pc/Desktop/projects/GeneScope/BackEnd/Models/MLP/pipeline_with_pca.save")
+label_encoder = joblib.load("C:/Users/pc/Desktop/projects/GeneScope/BackEnd/Models/MLP/label_encoder.save")
+expected_columns = joblib.load("C:/Users/pc/Desktop/projects/GeneScope/BackEnd/Models/MLP/expected_columns.save")
 
-model = tf.keras.models.load_model("./Models/MLP/brca_NN_vanila_another.keras", compile=False)
-scaler = joblib.load("./Models/MLP/scaler.save")
-pca = joblib.load("./Models/MLP/pca.save")
-label_encoder = joblib.load("./Models/MLP/label_encoder.save")
-
-
-# Drop columns function (must match training)
 DROP_COLS = [
-    'Samples', 'Stage', 'vital_status', 'submitter_id', 'barcode',
-    'sample_id', 'sample', 'sample_submitter_id', 'patient', 'paper_patient',
-    'diagnosis_id', 'bcr_patient_barcode', 'paper_age_at_initial_pathologic_diagnosis',
-    'paper_days_to_birth', 'paper_pathologic_stage', 'ajcc_pathologic_n',
-    'ajcc_pathologic_t', 'ajcc_pathologic_m', 'year_of_diagnosis', 'treatments',
-    'Unnamed: 0', 'paper_days_to_last_followup', 'days_to_collection',
-    'demographic_id', 'initial_weight', 'days_to_birth', 'pathology_report_uuid',
-    'age_at_diagnosis', 'age_at_index', 'method_of_diagnosis',
-    'sites_of_involvement', 'primary_diagnosis', 'morphology',
-    'paper_PARADIGM.Clusters', 'paper_Mutation.Clusters', 'paper_CNV.Clusters',
-    'paper_BRCA_Subtype_PAM50', 'paper_miRNA.Clusters', 'paper_DNA.Methylation.Clusters',
-    'paper_Included_in_previous_marker_papers', 'paper_mRNA.Clusters',
-    'ethnicity', 'preservation_method', 'race', 'laterality',
-    'paper_vital_status', 'oct_embedded', 'prior_malignancy',
-    'synchronous_malignancy', 'age_is_obfuscated', 'prior_treatment',
-    'tissue_or_organ_of_origin', 'icd_10_code'
+    'site_of_resection_or_biopsy', 'tumor_descriptor', 'sample_type_id', 'definition', 'primary_site',
+    'name', 'disease_type', 'shortLetterCode', 'sample_type', 'project_id', 'classification_of_tumor',
+    'specimen_type', 'state', 'is_ffpe', 'tissue_type', 'composition', 'paper_Tumor.Type', 'gender',
+    'days_to_diagnosis', 'releasable', 'diagnosis_is_primary_disease', 'released'
 ]
 
 @predict_bp.route('/api/predict-stage', methods=['POST'])
@@ -40,17 +24,28 @@ def predict_stage():
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
 
-    file = request.files['file']
     try:
+        file = request.files['file']
         df = pd.read_csv(file)
+
+        # Drop irrelevant columns
         df = df.drop(columns=[col for col in DROP_COLS if col in df.columns])
-        df = df.select_dtypes(include=[np.number])
-        df = df.dropna(axis=1)
 
-        sample_scaled = scaler.transform(df)
-        sample_pca = pca.transform(sample_scaled)
+        # Ensure only expected columns are used
+        df = df[[col for col in expected_columns if col in df.columns]]
 
-        prediction = model.predict(sample_pca)
+        # Replace infs and drop missing
+        df.replace([np.inf, -np.inf], np.nan, inplace=True)
+        df.dropna(inplace=True)
+
+        if df.empty:
+            return jsonify({'error': 'Input data is empty after cleaning'}), 400
+
+        # Apply full preprocessing pipeline (scaling, encoding, PCA)
+        X_transformed = pipeline.transform(df)
+
+        # Predict
+        prediction = model.predict(X_transformed)
         predicted_class = np.argmax(prediction, axis=1)[0]
         predicted_stage = label_encoder.classes_[predicted_class]
 
@@ -58,5 +53,6 @@ def predict_stage():
             'predicted_stage': predicted_stage,
             'probabilities': prediction.tolist()
         })
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
