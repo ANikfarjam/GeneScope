@@ -3,22 +3,19 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 import joblib
-
+import os
 predict_bp = Blueprint('predict_bp', __name__)
 
 # Load model and preprocessing tools
-model = tf.keras.models.load_model(
-    r"C:\Users\khakh\Desktop\projects\AAAgeneScope2\GeneScope\BackEnd\Models\MLP\vanilla_nn_brca_model.keras"
-)
-scaler = joblib.load(
-    r"C:\Users\khakh\Desktop\projects\AAAgeneScope2\GeneScope\BackEnd\Models\MLP\scaler.save"
-)
-pca = joblib.load(
-    r"C:\Users\khakh\Desktop\projects\AAAgeneScope2\GeneScope\BackEnd\Models\MLP\pca.save"
-)
-label_encoder = joblib.load(
-    r"C:\Users\khakh\Desktop\projects\AAAgeneScope2\GeneScope\BackEnd\Models\MLP\label_encoder.save"
-)
+MLP_DIR = os.path.join("Models", "MLP")
+
+# Load the actual Keras model file
+model = tf.keras.models.load_model(os.path.join(MLP_DIR, "vanilla_nn_brca_model.keras"))
+
+# Load preprocessing tools
+scaler = joblib.load(os.path.join(MLP_DIR, "scaler.save"))
+pca = joblib.load(os.path.join(MLP_DIR, "pca.save"))
+label_encoder = joblib.load(os.path.join(MLP_DIR, "label_encoder.save"))
 @predict_bp.route('/api/predict-stage', methods=['POST'])
 def predict_stage():
     if 'file' not in request.files:

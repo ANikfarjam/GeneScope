@@ -3,96 +3,86 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.decomposition import PCA
-from sklearn.metrics import classification_report
-from sklearn.utils.class_weight import compute_class_weight
 from imblearn.over_sampling import SMOTE
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Input
-from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
+from tensorflow.keras.callbacks import EarlyStopping
+import joblib  # ← NEW
 
-
+# Load and clean
 df = pd.read_csv('fina_Stage_unaugmented.csv', low_memory=False)
 df = df.drop_duplicates(subset='Samples')
 df = df.dropna(subset=['Stage'])
 
-y = df['Stage']
-
+# Drop unnecessary metadata
 drop_cols = [
-    'site_of_resection_or_biopsy', 'tumor_descriptor', 'sample_type_id', 'definition', 'primary_site',
-    'name', 'disease_type', 'shortLetterCode', 'sample_type', 'project_id', 'classification_of_tumor',
-    'specimen_type', 'state', 'is_ffpe', 'tissue_type', 'composition', 'paper_Tumor.Type', 'gender',
-    'days_to_diagnosis', 'releasable', 'diagnosis_is_primary_disease', 'released'
+    'Samples', 'submitter_id', 'barcode', 'Unnamed: 0', 'sample_id',
+    'sample', 'sample_submitter_id', 'patient', 'paper_patient',
+    'diagnosis_id', 'bcr_patient_barcode', 'pathology_report_uuid',
+    'treatments', 'releasable', 'released', 'paper_vital_status',
+    'paper_Included_in_previous_marker_papers'
 ]
-X = df.drop(columns=[col for col in drop_cols if col in df.columns])
+df = df.drop(columns=[col for col in drop_cols if col in df.columns], errors='ignore')
+
+# Keep only numerical features + drop NaNs
+y = df['Stage']
+X = df.drop(columns=['Stage'])
 X = X.select_dtypes(include=[np.number])
 X.replace([np.inf, -np.inf], np.nan, inplace=True)
 X.dropna(inplace=True)
 y = y.loc[X.index]
 
-
-# Label Encoding Standardize + PCA
+# Encode labels
 label_encoder = LabelEncoder()
 y_encoded = label_encoder.fit_transform(y)
+num_classes = len(np.unique(y_encoded))
 
+# Save label encoder
+joblib.dump(label_encoder, "label_encoder.save")
+
+# Scale + PCA
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
+joblib.dump(scaler, "scaler.save")  # ← NEW
 
 pca = PCA(n_components=0.95, random_state=42)
 X_pca = pca.fit_transform(X_scaled)
+joblib.dump(pca, "pca.save")  # ← NEW
 
-
-smote = SMOTE(random_state=42,  k_neighbors=1)
+# SMOTE
+smote = SMOTE(random_state=42, k_neighbors=1)
 X_resampled, y_resampled = smote.fit_resample(X_pca, y_encoded)
 
-num_classes = len(np.unique(y_resampled))
+# One-hot target
 y_onehot = tf.keras.utils.to_categorical(y_resampled, num_classes=num_classes)
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X_resampled, y_onehot, test_size=0.2, random_state=42
-)
+# Split
+X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_onehot, test_size=0.2, random_state=42)
 
+# ✅ Vanilla NN Model
 model = Sequential([
     Input(shape=(X_train.shape[1],)),
     Dense(128, activation='relu'),
     Dropout(0.3),
     Dense(64, activation='relu'),
-    Dropout(0.2),
     Dense(num_classes, activation='softmax')
 ])
-
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-callbacks = [
-    ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3),
-    EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
-]
-
+# Training
 history = model.fit(
     X_train, y_train,
     epochs=30,
     batch_size=32,
     validation_split=0.2,
-    callbacks=callbacks,
+    callbacks=[EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)],
     verbose=1
 )
 
+# Evaluate
 loss, acc = model.evaluate(X_test, y_test)
-print(f"\nTest Accuracy: {acc:.4f}")
+print(f"\n✅ Test Accuracy: {acc:.4f}")
 
-y_pred = model.predict(X_test)
-y_pred_classes = np.argmax(y_pred, axis=1)
-y_true_classes = np.argmax(y_test, axis=1)
-
-print("\nClassification Report:\n")
-present_labels = np.unique(y_true_classes)
-present_class_names = label_encoder.classes_[present_labels].astype(str)
-
-print(classification_report(
-    y_true_classes, y_pred_classes,
-    labels=present_labels,
-    target_names=present_class_names
-))
-
-model.save_weights("brca_stage_model_smote_pca.weights.h5")
-print("Weights saved!")
+# Save the full model
+model.save("vanilla_nn_brca_model.keras")
