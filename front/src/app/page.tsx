@@ -99,31 +99,16 @@ export default function Home() {
       <ParticleBackground />
       <div className="max-w-4xl text-center">
         <h1 className="text-4xl font-bold mb-4" data-aos="fade-right">
-          Breast Cancer Classification
+          GeneScope at a Glance
         </h1>
         <div
           className="text-lg mb-8 h-32 w-full overflow-hidden relative text-left pt-2 "
           data-aos="fade-right"
         >
           <Typer
-            text="GeneScope is an AI-powered dashboard that leverages deep learning models to provide prognosis and analytical insights based on patients' gene expression data. 
-  By analyzing complex biological patterns, it predicts cancer progression, assesses risk levels, and offers data-driven recommendations. 
+            text="GeneScope is an AI-powered platform designed to improve breast cancer prognosis through a unique blend of deep learning, clinical insight, and natural interaction. Our mission is simple but bold: to make breast cancer detection smarter, more personalized and more understandable for everyone.
   "
           />
-        </div>
-        <div
-          className="mt-12 text-left shadow-lg p-4 inset-shadow-xs bg-white"
-          data-aos="fade-up"
-        >
-          GeneScope goes beyond static analysis it combines clinical features
-          like tumor size, lymph node involvement, and age with gene expression
-          data to deliver accurate stage predictions using advanced deep
-          learning techniques. The platform also features an intelligent chatbot
-          powered by LangChain and Pinecone, enabling users to explore complex
-          cancer related questions interactively. Whether you&apos;re a medical
-          professional, researcher, or curious learner, GeneScope offers an
-          intuitive way to visualize data, understand risk, and uncover
-          meaningful patterns in cancer biology.
         </div>
 
         <div className="mt-12 shadow-lg p-4 inset-shadow-xs bg-white">
@@ -135,14 +120,21 @@ export default function Home() {
           </h2>
 
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <motion.div
-              className="w-full md:w-1/2 p-2 "
-              data-aos="fade-right"
-              whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
-              transition={{ duration: 0.2 }}
+            <a
+              href="https://breast-cancer.ca/diag-ratngs/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full md:w-1/2"
             >
-              <Bar data={casualtiesData} options={{ responsive: true }} />
-            </motion.div>
+              <motion.div
+                className="p-2"
+                data-aos="fade-right"
+                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
+                transition={{ duration: 0.2 }}
+              >
+                <Bar data={casualtiesData} options={{ responsive: true }} />
+              </motion.div>
+            </a>
 
             <motion.div
               className="w-full md:w-1/2 text-left p-2"
@@ -161,7 +153,6 @@ export default function Home() {
             </motion.div>
           </div>
         </div>
-        {/* sadddddddddddddddddddddddddddddddd*/}
         <div className="mt-12 shadow-lg p-4 inset-shadow-xs bg-white">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <motion.div
@@ -189,7 +180,31 @@ export default function Home() {
             </motion.div>
           </div>
         </div>
-        {/* sadddddddddddddddddddddddddddddddd*/}
+        <motion.div
+          className="bg-white rounded-lg shadow-md p-6 md:p-10 my-10 text-left"
+          data-aos="fade-up"
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="text-2xl font-bold mb-4 text-black-700 text-center">
+            Talk to the Science
+          </h2>
+          <p className="text-lg mb-4">
+            GeneScope analyzes both gene expression and clinical data using
+            cutting-edge deep learning models to predict cancer stages, identify
+            biomarkers, and highlight patterns that may go unnoticed in
+            traditional methods. GeneScope isn’t just about machine learning.
+            It’s about making that learning accessible, explainable, and
+            actionable. Through an intelligent assistant, a transparent model,
+            and a deep respect for human variation, we’re helping people
+            understand breast cancer on a level never seen before.
+          </p>
+
+          <p className="text-lg"></p>
+        </motion.div>
+
         {/* Separate Section for Three Navigation Cards */}
         <div className="mt-12 p-4 ">
           <h2
@@ -209,9 +224,10 @@ export default function Home() {
                 transition={{ duration: 0.2 }}
               >
                 <FaChartBar className="text-5xl text-blue-600 mb-3" />
-                <h2 className="text-lg font-semibold">Dashboard</h2>
+                <h2 className="text-lg font-semibold">chatbot</h2>
                 <p className="text-sm text-gray-600 mt-2">
-                  View and analyze gene expression trends.
+                  powered by our staging model for fast, data-backed cancer
+                  answers
                 </p>
               </motion.div>
             </Link>
