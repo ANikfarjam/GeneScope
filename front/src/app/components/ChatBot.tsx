@@ -189,11 +189,13 @@ export default function Chatbot() {
 
       // 🔥 NEW: Ask LangChain to interpret the result
       const explainPrompt = `
-
+    
+just know that there is a bar chart generated above that displays each stage and 
+their probabilities i dont want to talk about it just know it exist
 Imagine you just received a patient's clinical data after being predicted that they are at **${stage}**.
 You are a cancer specialist AI.
 Very concisely and seriously advise the patient on what steps they should consider now that they are aware of their stage.
-make sure to not give any conclusion or overall and encourage to ask more
+make sure to not give any conclusion or overall and encourage to ask more but really make sure its consise respond as small as possible and include age and weigh in the conversation
 Base your suggestions on their **age (${clinical.age_at_index})**, **weight (${
         clinical.initial_weight
       })**, and the year of diagnosis (${clinical.year_of_diagnosis}).

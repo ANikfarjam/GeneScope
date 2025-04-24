@@ -2,7 +2,7 @@
 
 import Sidebar from "../components/sideBar";
 import Chatbot from "../components/ChatBot";
-
+import { useState, useEffect } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -30,44 +30,28 @@ ChartJS.register(
 );
 
 export default function Dashboard() {
-  //const [chartData] = useState({
-  //  labels: ["January", "February", "March", "April", "May"],
-  //  datasets: [
-  //    {
-  //      label: "Sales ($)",
-  //      data: [1200, 1900, 3000, 2500, 2800],
-  //      backgroundColor: ["rgba(255, 99, 132, 0.5)"],
-  //      borderColor: ["rgba(255, 99, 132, 1)"],
-  //      borderWidth: 1,
-  //    },
-  //  ],
-  //});
-
-  //// Chart options
-  //const options = {
-  //  responsive: true,
-  //  plugins: {
-  //    legend: {
-  //      display: true,
-  //    },
-  //    title: {
-  //      display: true,
-  //    },
-  //  },
-  //};
+  const [showSidebar, setShowSidebar] = useState<boolean>(true);
+  //used only so sidebar wont effect the chat interface
+  //if window gets smaller
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 868px)");
+    setShowSidebar(mediaQuery.matches);
+    const handleResize = (e: MediaQueryListEvent) => {
+      setShowSidebar(e.matches);
+    };
+    mediaQuery.addEventListener("change", handleResize);
+    return () => {
+      mediaQuery.removeEventListener("change", handleResize);
+    };
+  }, []);
 
   return (
     <div className="flex">
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Dashboard Content */}
+      {showSidebar && <Sidebar />}
       <div className="flex-1 min-h-screen bg-gray-100 p-6 ml-16 md:ml-64 transition-all duration-300">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Dashboard</h1>
-
- 
-
-        {/* Chatbot Section */}
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
+          Dashboard
+        </h1>
         <div className="mt-10">
           <Chatbot />
         </div>
