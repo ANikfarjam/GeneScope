@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Typer from "./Typer";
-import { BounceLoader } from "react-spinners";
+import { ScaleLoader } from "react-spinners";
 import { FiSend, FiPlus, FiMoreHorizontal } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -41,6 +41,7 @@ interface Message {
   chartData?: ChartData<"bar" | "line" | "pie">;
 }
 
+//for personalizing the chatbot (TODO)
 //interface User {
 //  username: string;
 //  email: string;
@@ -62,8 +63,9 @@ export default function Chatbot() {
 
     return () => clearTimeout(timer);
   }, []);
-  //const [user, setUser] = useState<User | null>(null);
 
+  //personalizing chatbot (TODO)
+  //const [user, setUser] = useState<User | null>(null);
   //useEffect(() => {
   //  const storedUser = localStorage.getItem("user");
   //  if (storedUser) {
@@ -75,51 +77,6 @@ export default function Chatbot() {
     localStorage.setItem("chatHistory", JSON.stringify(messages));
   }, [messages]);
 
-  //const extractChartData = (input: string) => {
-  //  const words = input.split(/\s+/); // Split input by spaces
-  //  const labels: string[] = [];
-  //  const data: number[] = [];
-  //
-  //  let lastLabel = "Label"; // Default label
-  //  words.forEach((word) => {
-  //    const num = parseFloat(word);
-  //    if (!isNaN(num)) {
-  //      data.push(num);
-  //      labels.push(lastLabel);
-  //    } else {
-  //      lastLabel = word; // Assume a non-number word is a label
-  //    }
-  //  });
-  //
-  //  if (data.length === 0) {
-  //    return null; // No valid data found
-  //  }
-  //
-  //  return {
-  //    labels: labels.length ? labels : ["A", "B", "C", "D"],
-  //    datasets: [
-  //      {
-  //        label: "User Data",
-  //        data: data,
-  //        backgroundColor: [
-  //          "rgba(255, 99, 132, 0.5)",
-  //          "rgba(54, 162, 235, 0.5)",
-  //          "rgba(255, 206, 86, 0.5)",
-  //          "rgba(75, 192, 192, 0.5)",
-  //          "rgba(153, 102, 255, 0.5)",
-  //        ],
-  //        borderColor: [
-  //          "rgba(255, 99, 132, 1)",
-  //          "rgba(54, 162, 235, 1)",
-  //          "rgba(255, 206, 86, 1)",
-  //          "rgba(75, 192, 192, 1)",
-  //          "rgba(153, 102, 255, 1)",
-  //        ],
-  //        borderWidth: 1,
-  //      },
-  //    ],
-  //  };
-  //};
   const handleCsvSubmit = async () => {
     if (!csvFile) return;
 
@@ -160,10 +117,7 @@ export default function Chatbot() {
 
       const messageContent = `
   🧪 Prediction Complete:
-  - Stage: ${stage}
-  - Age: ${clinical.age_at_index}
-  - Weight: ${clinical.initial_weight}
-  - Year Diagnosed: ${clinical.year_of_diagnosis}`;
+  - Stage: ${stage}`;
 
       const chartData: ChartData<"bar"> = {
         labels: stageLabels,
@@ -187,9 +141,11 @@ export default function Chatbot() {
 
       setMessages((prev) => [...prev, chartMessage]);
 
-      // 🔥 NEW: Ask LangChain to interpret the result
-      const explainPrompt = `
-    
+      //prompt that is being send directly to langchain
+      //since its not related to reading documents or graph it directly give the data
+      //to openAI API
+
+      const explainPrompt = ` 
 just know that there is a bar chart generated above that displays each stage and 
 their probabilities i dont want to talk about it just know it exist
 Imagine you just received a patient's clinical data after being predicted that they are at **${stage}**.
@@ -225,12 +181,17 @@ Base your suggestions on their **age (${clinical.age_at_index})**, **weight (${
 
       const resData = await res.json();
 
-      const followupMessage: Message = {
-        role: "assistant",
-        content: resData.result,
-      };
+      if (resData.result) {
+        const followupMessage: Message = {
+          role: "assistant",
+          content:
+            typeof resData.result === "string"
+              ? resData.result
+              : JSON.stringify(resData.result),
+        };
 
-      setMessages((prev) => [...prev, followupMessage]);
+        setMessages((prev) => [...prev, followupMessage]);
+      }
     } catch (err) {
       console.error("CSV prediction error:", err);
       window.alert(
@@ -299,7 +260,6 @@ Base your suggestions on their **age (${clinical.age_at_index})**, **weight (${
         Chatbot
       </h2>
 
-      {/* Chat Messages Container */}
       <div className="flex-1 overflow-y-auto border rounded-lg p-4 bg-gray-100 space-y-3 shadow-inner">
         <div className="flex justify-start">
           <div className="px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[80%] bg-white text-gray-900 border border-gray-300">
@@ -331,7 +291,7 @@ Base your suggestions on their **age (${clinical.age_at_index})**, **weight (${
 
                   <button
                     onClick={handleCsvSubmit}
-                    className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    className="px-4 py-1 bg-pink-600 text-white rounded transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-pink-500 hover:text-black"
                   >
                     Continue
                   </button>
@@ -388,7 +348,7 @@ Base your suggestions on their **age (${clinical.age_at_index})**, **weight (${
         ))}
         {loading && (
           <div className="flex justify-center mt-2">
-            <BounceLoader color="#2563eb" size={30} />
+            <ScaleLoader color="rgba(217, 35, 124, 0.4)" />
           </div>
         )}
       </div>
