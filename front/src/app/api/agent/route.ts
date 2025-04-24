@@ -202,7 +202,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ result: "No valid tool action was triggered." });
+    const fallbackResponse = await chatModel.invoke([
+      { role: "user", content: prompt },
+    ]);
+    return NextResponse.json({ result: fallbackResponse.content });
   } catch (error) {
     console.error("LangChain error:", error);
     return NextResponse.json(

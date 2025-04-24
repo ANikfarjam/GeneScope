@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Typer from "./Typer";
-import { BounceLoader } from "react-spinners";
+import { ScaleLoader } from "react-spinners";
 import { FiSend, FiPlus, FiMoreHorizontal } from "react-icons/fi";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -41,6 +41,7 @@ interface Message {
   chartData?: ChartData<"bar" | "line" | "pie">;
 }
 
+//for personalizing the chatbot (TODO)
 //interface User {
 //  username: string;
 //  email: string;
@@ -50,6 +51,7 @@ export default function Chatbot() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
 
   const [showCsvPrompt, setShowCsvPrompt] = useState(false);
 
@@ -61,8 +63,9 @@ export default function Chatbot() {
 
     return () => clearTimeout(timer);
   }, []);
-  //const [user, setUser] = useState<User | null>(null);
 
+  //personalizing chatbot (TODO)
+  //const [user, setUser] = useState<User | null>(null);
   //useEffect(() => {
   //  const storedUser = localStorage.getItem("user");
   //  if (storedUser) {
@@ -74,51 +77,130 @@ export default function Chatbot() {
     localStorage.setItem("chatHistory", JSON.stringify(messages));
   }, [messages]);
 
-  //const extractChartData = (input: string) => {
-  //  const words = input.split(/\s+/); // Split input by spaces
-  //  const labels: string[] = [];
-  //  const data: number[] = [];
-  //
-  //  let lastLabel = "Label"; // Default label
-  //  words.forEach((word) => {
-  //    const num = parseFloat(word);
-  //    if (!isNaN(num)) {
-  //      data.push(num);
-  //      labels.push(lastLabel);
-  //    } else {
-  //      lastLabel = word; // Assume a non-number word is a label
-  //    }
-  //  });
-  //
-  //  if (data.length === 0) {
-  //    return null; // No valid data found
-  //  }
-  //
-  //  return {
-  //    labels: labels.length ? labels : ["A", "B", "C", "D"],
-  //    datasets: [
-  //      {
-  //        label: "User Data",
-  //        data: data,
-  //        backgroundColor: [
-  //          "rgba(255, 99, 132, 0.5)",
-  //          "rgba(54, 162, 235, 0.5)",
-  //          "rgba(255, 206, 86, 0.5)",
-  //          "rgba(75, 192, 192, 0.5)",
-  //          "rgba(153, 102, 255, 0.5)",
-  //        ],
-  //        borderColor: [
-  //          "rgba(255, 99, 132, 1)",
-  //          "rgba(54, 162, 235, 1)",
-  //          "rgba(255, 206, 86, 1)",
-  //          "rgba(75, 192, 192, 1)",
-  //          "rgba(153, 102, 255, 1)",
-  //        ],
-  //        borderWidth: 1,
-  //      },
-  //    ],
-  //  };
-  //};
+  const handleCsvSubmit = async () => {
+    if (!csvFile) return;
+
+    const formData = new FormData();
+    formData.append("file", csvFile);
+
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://127.0.0.1:5000/api/predict-stage", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("API not connected");
+      }
+
+      const data = await response.json();
+
+      const stage = data.predicted_stage;
+      const probs: number[] = data.probabilities;
+      const clinical = data.clinical_info;
+
+      const stageLabels = [
+        "Stage 0",
+        "Stage I",
+        "Stage IA",
+        "Stage IB",
+        "Stage II",
+        "Stage IIA",
+        "Stage IIB",
+        "Stage IIIA",
+        "Stage IIIB",
+        "Stage IIIC",
+        "Stage IV",
+      ];
+
+      const messageContent = `
+  🧪 Prediction Complete:
+  - Stage: ${stage}`;
+
+      const chartData: ChartData<"bar"> = {
+        labels: stageLabels,
+        datasets: [
+          {
+            label: "Prediction Probabilities",
+            data: probs,
+            backgroundColor: "rgba(54, 162, 235, 0.5)",
+            borderColor: "rgba(54, 162, 235, 1)",
+            borderWidth: 1,
+          },
+        ],
+      };
+
+      const chartMessage: Message = {
+        role: "assistant",
+        content: messageContent,
+        chartType: "bar",
+        chartData,
+      };
+
+      setMessages((prev) => [...prev, chartMessage]);
+
+      //prompt that is being send directly to langchain
+      //since its not related to reading documents or graph it directly give the data
+      //to openAI API
+
+      const explainPrompt = ` 
+just know that there is a bar chart generated above that displays each stage and 
+their probabilities i dont want to talk about it just know it exist
+Imagine you just received a patient's clinical data after being predicted that they are at **${stage}**.
+You are a cancer specialist AI.
+Very concisely and seriously advise the patient on what steps they should consider now that they are aware of their stage.
+make sure to not give any conclusion or overall and encourage to ask more but really make sure its consise respond as small as possible and include age and weigh in the conversation
+Base your suggestions on their **age (${clinical.age_at_index})**, **weight (${
+        clinical.initial_weight
+      })**, and the year of diagnosis (${clinical.year_of_diagnosis}).
+ 
+  The top 3 probabilities are:
+  - ${stageLabels[probs.indexOf(Math.max(...probs))]}: ${(
+        Math.max(...probs) * 100
+      ).toFixed(2)}%
+  - ${stageLabels[probs.indexOf([...probs].sort((a, b) => b - a)[1])]}: ${(
+        [...probs].sort((a, b) => b - a)[1] * 100
+      ).toFixed(2)}%
+  - ${stageLabels[probs.indexOf([...probs].sort((a, b) => b - a)[2])]}: ${(
+        [...probs].sort((a, b) => b - a)[2] * 100
+      ).toFixed(2)}%
+  
+  The patient is ${clinical.age_at_index} years old and was diagnosed in ${
+        clinical.year_of_diagnosis
+      }.
+  Please explain what this might mean from a clinical or risk perspective.
+  `;
+
+      const res = await fetch("/api/agent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: explainPrompt }),
+      });
+
+      const resData = await res.json();
+
+      if (resData.result) {
+        const followupMessage: Message = {
+          role: "assistant",
+          content:
+            typeof resData.result === "string"
+              ? resData.result
+              : JSON.stringify(resData.result),
+        };
+
+        setMessages((prev) => [...prev, followupMessage]);
+      }
+    } catch (err) {
+      console.error("CSV prediction error:", err);
+      window.alert(
+        "🚨 Could not connect to the model API. Please make sure the Flask server is running."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -178,7 +260,6 @@ export default function Chatbot() {
         Chatbot
       </h2>
 
-      {/* Chat Messages Container */}
       <div className="flex-1 overflow-y-auto border rounded-lg p-4 bg-gray-100 space-y-3 shadow-inner">
         <div className="flex justify-start">
           <div className="px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[80%] bg-white text-gray-900 border border-gray-300">
@@ -190,9 +271,8 @@ export default function Chatbot() {
           <>
             <div className="flex justify-start">
               <div className="px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[80%] bg-white text-gray-900 border border-gray-300 space-y-2">
-                <Typer text="🧬 Would you like to use our model for prognosis? Please upload your CSV file here and press Continue." />
+                <Typer text="🧬 Would you like to use our model for cancer staging prediction? Please upload your CSV file here and press Continue." />
                 <div className="flex items-center space-x-3">
-                  {/* Custom File Upload */}
                   <label className="px-3 py-1 bg-gray-200 text-gray-800 rounded cursor-pointer hover:bg-gray-300 transition">
                     Choose CSV
                     <input
@@ -201,20 +281,17 @@ export default function Chatbot() {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
+                          setCsvFile(file);
                           console.log("Uploaded file:", file.name);
-                          // Store in state if needed
                         }
                       }}
                       className="hidden"
                     />
                   </label>
 
-                  {/* Continue Button */}
                   <button
-                    onClick={() => {
-                      console.log("Continue button clicked");
-                    }}
-                    className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    onClick={handleCsvSubmit}
+                    className="px-4 py-1 bg-pink-600 text-white rounded transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-pink-500 hover:text-black"
                   >
                     Continue
                   </button>
@@ -271,7 +348,7 @@ export default function Chatbot() {
         ))}
         {loading && (
           <div className="flex justify-center mt-2">
-            <BounceLoader color="#2563eb" size={30} />
+            <ScaleLoader color="rgba(217, 35, 124, 0.4)" />
           </div>
         )}
       </div>
