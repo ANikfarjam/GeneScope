@@ -12,7 +12,7 @@ const Typer = ({ text }: TyperProps) => {
   const [displayText, setDisplayText] = useState("");
 
   useEffect(() => {
-    if (!text || typeof window === "undefined") return; // ✅ guard for undefined text
+    if (!text || typeof window === "undefined") return;
     let index = 0;
     setDisplayText("");
 
@@ -23,7 +23,7 @@ const Typer = ({ text }: TyperProps) => {
       } else {
         clearInterval(interval);
       }
-    }, 10);
+    }, 0.1);
 
     return () => clearInterval(interval);
   }, [text]);

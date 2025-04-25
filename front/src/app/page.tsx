@@ -9,7 +9,7 @@ import { Chart, registerables } from "chart.js";
 import Typer from "./components/Typer";
 import { motion } from "framer-motion"; // Import Framer Motion
 import Link from "next/link";
-import { FaChartBar, FaSearch, FaClipboardList } from "react-icons/fa";
+import { FaSearch, FaClipboardList, FaComment } from "react-icons/fa";
 
 Chart.register(...registerables);
 
@@ -105,20 +105,10 @@ export default function Home() {
           className="text-lg mb-8 h-32 w-full overflow-hidden relative text-left pt-2 "
           data-aos="fade-right"
         >
-          <Typer
-            text="GeneScope is an AI-powered platform designed to improve breast cancer prognosis through a unique blend of deep learning, clinical insight, and natural interaction. Our mission is simple but bold: to make breast cancer detection smarter, more personalized and more understandable for everyone.
-  "
-          />
+          <Typer text="We’re on a mission to make breast cancer analysis smarter, more personal, and easier to understand. GeneScope combines powerful deep learning with real clinical and genetic data to predict cancer stages, spotlight key biomarkers, and uncover hidden patterns in the fight against breast cancer. But here’s the best part you can actually talk to it!" />
         </div>
 
-        <div className="mt-12 shadow-lg p-4 inset-shadow-xs bg-white">
-          <h2
-            className="text-2xl font-bold mb-6 text-center "
-            data-aos="fade-up"
-          >
-            The Impact of Breast Cancer
-          </h2>
-
+        <div className="mt-12 shadow-md p-4 inset-shadow-xs bg-white">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <a
               href="https://breast-cancer.ca/diag-ratngs/"
@@ -143,17 +133,19 @@ export default function Home() {
               transition={{ duration: 0.2 }}
             >
               <p className="text-lg">
-                In 2015, an estimated 231,840 new invasive breast cancer cases
-                were reported in the U.S., with the highest incidence in
-                individuals aged 50-69. While cases in younger individuals were
-                lower, early detection remains critical for improving outcomes.
-                Most cases occur in older adults, reinforcing the need for
-                routine screening and timely intervention to reduce mortality.
+                Breast cancer remains one of the most commonly diagnosed cancers
+                worldwide, with the majority of cases found in individuals aged
+                50 to 69. While younger cases are less frequent, they often
+                present more aggressively making early detection critical at
+                every age. Yet, nearly 1 in 3 cases are still diagnosed only
+                after the cancer has begun to spread. This underscores the
+                urgent need for better screening tools, smarter diagnostics, and
+                more personalized insight. That’s where GeneScope steps in.
               </p>
             </motion.div>
           </div>
         </div>
-        <div className="mt-12 shadow-lg p-4 inset-shadow-xs bg-white">
+        <div className="mt-12 shadow-md p-4 inset-shadow-xs bg-white">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <motion.div
               className="w-full md:w-1/2 p-2 "
@@ -180,50 +172,56 @@ export default function Home() {
             </motion.div>
           </div>
         </div>
+
         <motion.div
-          className="bg-white rounded-lg shadow-md p-6 md:p-10 my-10 text-left"
+          className="bg-white shadow-md p-6 md:p-8 my-10 text-left"
           data-aos="fade-up"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-2xl font-bold mb-4 text-black-700 text-center">
+          <h2 className="text-2xl font-bold mb-6 text-center ">
             Talk to the Science
           </h2>
           <p className="text-lg mb-4">
-            GeneScope analyzes both gene expression and clinical data using
+            This project analyzes both gene expression and clinical data using
             cutting-edge deep learning models to predict cancer stages, identify
             biomarkers, and highlight patterns that may go unnoticed in
             traditional methods. GeneScope isn’t just about machine learning.
             It’s about making that learning accessible, explainable, and
             actionable. Through an intelligent assistant, a transparent model,
             and a deep respect for human variation, we’re helping people
-            understand breast cancer on a level never seen before.
+            understand breast cancer on a level never seen before. Whether
+            you're a researcher, a doctor, or just curious, GeneScope invites
+            you to ask questions and get answers powered by real science. With
+            our intelligent chatbot, built using LangChain and OpenAI, we’re
+            turning complex data into accessible conversations so that everyone
+            can better understand, explore, and take action in the world of
+            cancer care.
           </p>
 
           <p className="text-lg"></p>
         </motion.div>
 
-        {/* Separate Section for Three Navigation Cards */}
         <div className="mt-12 p-4 ">
           <h2
             className="text-2xl font-bold mb-6 text-center"
             data-aos="fade-up"
           >
-            Explore More
+            Dive Deeper
           </h2>
 
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white ">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white">
             {/* Dashboard Card */}
             <Link href="/dashboard" className="w-full md:w-1/3">
               <motion.div
-                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer  "
+                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
                 data-aos="fade-right"
                 whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
                 transition={{ duration: 0.2 }}
               >
-                <FaChartBar className="text-5xl text-blue-600 mb-3" />
+                <FaComment className="text-5xl text-blue-300 mb-3 mx-auto" />
                 <h2 className="text-lg font-semibold">chatbot</h2>
                 <p className="text-sm text-gray-600 mt-2">
                   powered by our staging model for fast, data-backed cancer
@@ -233,14 +231,14 @@ export default function Home() {
             </Link>
 
             {/* Major Findings Card */}
-            <Link href="/major-finding" className="w-full md:w-1/3">
+            <Link href="/majorfindings" className="w-full md:w-1/3">
               <motion.div
-                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer "
+                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
                 data-aos="fade-up"
                 whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
                 transition={{ duration: 0.2 }}
               >
-                <FaSearch className="text-5xl text-green-600 mb-3" />
+                <FaSearch className="text-5xl text-green-600 mb-3 mx-auto" />
                 <h2 className="text-lg font-semibold">Major Findings</h2>
                 <p className="text-sm text-gray-600 mt-2">
                   Discover key insights from our research.
@@ -256,7 +254,7 @@ export default function Home() {
                 whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
                 transition={{ duration: 0.2 }}
               >
-                <FaClipboardList className="text-5xl text-red-600 mb-3" />
+                <FaClipboardList className="text-5xl text-red-600 mb-3 mx-auto" />
                 <h2 className="text-lg font-semibold">Project Objective</h2>
                 <p className="text-sm text-gray-600 mt-2">
                   Learn about the goals and scope of our study.

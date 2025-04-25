@@ -102,7 +102,6 @@ export default function Chatbot() {
       const clinical = data.clinical_info;
 
       const stageLabels = [
-        "Stage 0",
         "Stage I",
         "Stage IA",
         "Stage IB",
@@ -255,12 +254,12 @@ Base your suggestions on their **age (${clinical.age_at_index})**, **weight (${
   !msg.content.includes("![") && <Typer text={msg.content} />}
 */
   return (
-    <div className="p-6 w-full h-[800px] max-w-[1050px] mx-auto text-black flex flex-col bg-transparent shadow-none border-none">
+    <div className="px-6 pt-6 w-full h-[80%] min-h-[690px] max-h-[690px] max-w-[1050px] mx-auto text-black flex flex-col bg-transparent shadow-none border-none overflow-hidden">
       <h2 className="text-2xl font-bold text-gray-800 text-center mb-4 hidden">
         Chatbot
       </h2>
 
-      <div className="flex-1 overflow-y-auto border rounded-lg p-4 bg-gray-100 space-y-3 shadow-inner">
+      <div className="flex-1 min-h-0 overflow-y-auto border rounded-lg p-4 bg-gray-100 space-y-3 shadow-inner">
         <div className="flex justify-start">
           <div className="px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[80%] bg-white text-gray-900 border border-gray-300">
             <Typer text="👋 Hi there! I'm GeneScope. Ask me about breast cancer, genetics, or let me show you a chart!" />
