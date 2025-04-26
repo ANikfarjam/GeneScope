@@ -4,144 +4,187 @@ __generated_with = "0.11.12"
 app = marimo.App(width="medium")
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     import marimo as mo
     return (mo,)
 
 
-@app.cell
-def _(mo):
-    # Define slider without marks
-    slider = mo.ui.slider(
-        start=0,
-        stop=3,
-        step=1,
-        value=0,
-        label="Select Analysis Model"
-    )
-
-    # Manual mapping for label display
-    model_labels = ["AHP", "CatBoost", "Cox Hazard Model", "Random Forest"]
-    return model_labels, slider
-
-
-@app.cell(hide_code=True)
-def _(mo, model_labels, slider):
-    # Markdown blocks per model
-    descriptions = {
-        0: mo.md("""
-    ### 🧠 Analytic Hierarchy Process (AHP)
-    AHP ranks genes using multiple statistical methods (t-test, Entropy, Wilcoxon, ROC, SNR), combining them through pairwise comparison matrices and eigenvector-based scoring to identify key biomarkers in breast cancer progression.
-    """),
-
-        1: mo.md("""
-    ### 🚀 CatBoost Classifier
-    CatBoost is a gradient boosting model that learns the likelihood of a patient being diagnosed at a specific cancer stage using gene expression and clinical features. It handles class imbalance and delivers calibrated stage probabilities.
-    """),
-
-        2: mo.md("""
-    ### 🧬 Cox Proportional Hazards Model
-    The Cox model estimates the impact of clinical and molecular features on patient survival risk. It outputs hazard ratios and identifies statistically significant factors affecting prognosis (like metastasis, age, lymph nodes).
-    """),
-
-        3: mo.md("""
-    ### 🌲 Random Forest
-    This ensemble method ranks the most important clinical features by their influence on cancer classification. It’s robust against overfitting and captures nonlinear patterns in demographic and clinical data.
-    """)
-    }
-
-    # Display current label + markdown
-    mo.vstack([
-        mo.md(f"### 🔬 Breast Cancer Model Analysis: {model_labels[slider.value]}"),
-        descriptions[slider.value]
-    ])
-    return (descriptions,)
-
-
 @app.cell(hide_code=True)
 def _(mo):
-
-    mo.md('''
-    <div style="font-family:sans-serif;">
-      <h2>Breast Cancer Analysis Walkthrough</h2>
-  
-      <div id="stepper" style="background: #f7f7f7; padding: 20px; border-left: 4px solid #663399; border-radius: 8px; min-height: 160px; margin-bottom: 15px; transition: opacity 0.3s ease-in-out;">
-        <h3>AHP - Analytic Hierarchy Process</h3>
-        <p>AHP ranks genes using t-test, entropy, Wilcoxon, ROC, and SNR. Scores are computed with eigenvectors from pairwise comparison matrices to identify strong biomarkers.</p>
-      </div>
-
-      <div style="display: flex; justify-content: space-between;">
-        <button id="prev-btn" style="padding: 10px 20px; background-color: #ccc; border: none; border-radius: 6px; font-weight: bold; color: #333;">← Previous</button>
-        <button id="next-btn" style="padding: 10px 20px; background-color: #663399; color: white; border: none; border-radius: 6px; font-weight: bold;">Next →</button>
-      </div>
-    </div>
-
-    <script>
-      const steps = [
-        {
-          title: "AHP - Analytic Hierarchy Process",
-          body: "AHP ranks genes using t-test, entropy, Wilcoxon, ROC, and SNR. Scores are computed with eigenvectors from pairwise comparison matrices to identify strong biomarkers."
-        },
-        {
-          title: "CatBoost Classifier",
-          body: "CatBoost uses gene expression and clinical features to predict stage probabilities. It handles imbalanced data and outputs likelihoods per stage."
-        },
-        {
-          title: "Cox Proportional Hazards Model",
-          body: "The Cox model estimates how variables like tumor size, lymph nodes, and demographics affect survival risk. Outputs hazard ratios and significance levels."
-        },
-        {
-          title: "Random Forest Feature Importance",
-          body: "Random Forest ranks clinical features by how much they improve classification. It captures nonlinear interactions and identifies key predictors in diagnosis."
-        }
-      ];
-
-      let current = 0;
-      const stepper = document.getElementById("stepper");
-      const prev = document.getElementById("prev-btn");
-      const next = document.getElementById("next-btn");
-
-      function updateStepper(index) {
-        stepper.style.opacity = 0;
-        setTimeout(() => {
-          stepper.innerHTML = `
-            <h3>${steps[index].title}</h3>
-            <p>${steps[index].body}</p>
-          `;
-          stepper.style.opacity = 1;
-        }, 200);
-
-        prev.disabled = index === 0;
-        next.disabled = index === steps.length - 1;
-
-        prev.style.backgroundColor = prev.disabled ? '#eee' : '#663399';
-        prev.style.color = prev.disabled ? '#aaa' : '#fff';
-
-        next.style.backgroundColor = next.disabled ? '#eee' : '#663399';
-        next.style.color = next.disabled ? '#aaa' : '#fff';
-      }
-
-      prev.addEventListener("click", () => {
-        if (current > 0) {
-          current--;
-          updateStepper(current);
-        }
-      });
-
-      next.addEventListener("click", () => {
-        if (current < steps.length - 1) {
-          current++;
-          updateStepper(current);
-        }
-      });
-
-      // Initialize
-      updateStepper(0);
-    </script>
-    ''')
-
+    mo.md(r"""#<span style="color: brown">Summery of Analysis Used in GeneScope's Researches</span>""")
     return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    import anywidget
+    import traitlets
+
+    class ShowAnalysis(anywidget.AnyWidget):
+        current_step = traitlets.Int(0).tag(sync=True)
+    
+        _esm = """
+        export function render({ model, el }) {
+            const container = document.createElement("div");
+            container.classList.add("walkthrough");
+
+            const stepper = document.createElement("div");
+            stepper.classList.add("stepper");
+            container.appendChild(stepper);
+
+            const indicators = document.createElement("div");
+            indicators.classList.add("step-indicators");
+            container.appendChild(indicators);
+
+            const nav = document.createElement("div");
+            nav.classList.add("navigation");
+
+            const prev = document.createElement("button");
+            prev.classList.add("prev-btn");
+            prev.textContent = "← Previous";
+            nav.appendChild(prev);
+
+            const next = document.createElement("button");
+            next.classList.add("next-btn");
+            next.textContent = "Next →";
+            nav.appendChild(next);
+
+            container.appendChild(nav);
+            el.appendChild(container);
+
+            const steps = [
+                {
+                    title: "AHP - Analytic Hierarchy Process",
+                    body: "AHP ranks genes using t-test, entropy, Wilcoxon, ROC, and SNR. Scores are computed with eigenvectors from pairwise comparison matrices to identify strong biomarkers."
+                },
+                {
+                    title: "CatBoost Classifier",
+                    body: "CatBoost uses gene expression and clinical features to predict stage probabilities. It handles imbalanced data and outputs likelihoods per stage."
+                },
+                {
+                    title: "Cox Proportional Hazards Model",
+                    body: "The Cox model estimates how variables like tumor size, lymph nodes, and demographics affect survival risk. Outputs hazard ratios and significance levels."
+                },
+                {
+                    title: "Random Forest Feature Importance",
+                    body: "Random Forest ranks clinical features by how much they improve classification. It captures nonlinear interactions and identifies key predictors in diagnosis."
+                }
+            ];
+
+            function renderIndicators(current) {
+                indicators.innerHTML = steps.map((_, idx) => `
+                    <span class="dot ${idx === current ? 'active' : ''}"></span>
+                `).join('');
+            }
+
+            function updateStepper(current) {
+                stepper.style.opacity = 0;
+                setTimeout(() => {
+                    stepper.innerHTML = `
+                        <h3>${steps[current].title}</h3>
+                        <p>${steps[current].body}</p>
+                    `;
+                    stepper.style.opacity = 1;
+                }, 200);
+
+                prev.disabled = current === 0;
+                next.disabled = current === steps.length - 1;
+
+                prev.classList.toggle("disabled", prev.disabled);
+                next.classList.toggle("disabled", next.disabled);
+
+                renderIndicators(current);
+            }
+
+            model.on("change:current_step", () => {
+                updateStepper(model.get("current_step"));
+            });
+
+            prev.addEventListener("click", () => {
+                if (model.get("current_step") > 0) {
+                    model.set("current_step", model.get("current_step") - 1);
+                    model.save_changes();
+                }
+            });
+
+            next.addEventListener("click", () => {
+                if (model.get("current_step") < steps.length - 1) {
+                    model.set("current_step", model.get("current_step") + 1);
+                    model.save_changes();
+                }
+            });
+
+            updateStepper(model.get("current_step"));
+        }
+
+        export default { render };
+        """
+
+        _css = """
+        .walkthrough {
+            font-family: sans-serif;
+            max-width: 700px;
+            margin: auto;
+        }
+        .stepper {
+            background: #f7f7f7;
+            padding: 20px;
+            border-left: 4px solid #663399;
+            border-radius: 8px;
+            min-height: 160px;
+            margin-bottom: 15px;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .step-indicators {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .dot {
+            height: 12px;
+            width: 12px;
+            margin: 0 5px;
+            background-color: #ccc;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+        .dot.active {
+            background-color: #663399;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+        }
+        .prev-btn, .next-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .prev-btn {
+            background-color: #eee;
+            color: #aaa;
+        }
+        .prev-btn:not(.disabled) {
+            background-color: #663399;
+            color: #fff;
+        }
+        .next-btn {
+            background-color: #663399;
+            color: white;
+        }
+        .next-btn.disabled {
+            background-color: #eee;
+            color: #aaa;
+        }
+        """
+
+    # Initialize properly in Marimo
+    show_analysis = mo.ui.anywidget(ShowAnalysis())
+    show_analysis
+
+    return ShowAnalysis, anywidget, show_analysis, traitlets
 
 
 @app.cell(hide_code=True)
@@ -274,6 +317,12 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
+    mo.md(r"""##<span style="color:brown">Data Expoler</span>""")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
     mo.md("""We implemented this data exploration tools for user to explore our data and provide ability to gain some insight vrom the visuals:""")
     return
 
@@ -288,7 +337,7 @@ def _():
     return ahp_df, pd, stage_df
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(stage_df):
     valid_stages = stage_df['Stage'].value_counts()
     valid_stages = valid_stages[valid_stages >= 14].index
