@@ -228,10 +228,6 @@ export default function Chatbot() {
   !msg.content.includes("http") &&
   !msg.content.includes("![") && <Typer text={msg.content} />}
 */
-  const handleResetCsv = () => {
-    setCsvFile(null);
-    setPredictionDone(false);
-  };
 
   return (
     <div className="px-6 pt-6 w-full h-[80%] min-h-[690px] max-h-[690px] max-w-[1050px] mx-auto text-black flex flex-col bg-transparent shadow-none border-none overflow-hidden">

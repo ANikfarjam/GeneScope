@@ -1,6 +1,6 @@
 "use client";
 import ParticleBackground from "./components/ParticleBackground";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { Bar } from "react-chartjs-2";
@@ -111,8 +111,10 @@ export default function Home() {
           />
         </div>
         <div className="mt-12 p-4 ">
+          <h1 className="text-4xl font-bold mb-4" data-aos="fade-right">
+            Our tools{" "}
+          </h1>
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white">
-            {/* Dashboard Card */}
             <Link href="/dashboard" className="w-full md:w-1/3">
               <motion.div
                 className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
@@ -242,17 +244,17 @@ export default function Home() {
             This project analyzes both gene expression and clinical data using
             cutting-edge deep learning models to predict cancer stages, identify
             biomarkers, and highlight patterns that may go unnoticed in
-            traditional methods. GeneScope isn’t just about machine learning.
-            It’s about making that learning accessible, explainable, and
-            actionable. Through an intelligent assistant, a transparent model,
-            and a deep respect for human variation, we’re helping people
-            understand breast cancer on a level never seen before. Whether
-            you're a researcher, a doctor, or just curious, GeneScope invites
-            you to ask questions and get answers powered by real science. With
-            our intelligent chatbot, built using LangChain and OpenAI, we’re
-            turning complex data into accessible conversations so that everyone
-            can better understand, explore, and take action in the world of
-            cancer care.
+            traditional methods. GeneScope isn&apos;t just about machine
+            learning. It&apos;s about making that learning accessible,
+            explainable, and actionable. Through an intelligent assistant, a
+            transparent model, and a deep respect for human variation,
+            we&apos;re helping people understand breast cancer on a level never
+            seen before. Whether you&apos;re a researcher, a doctor, or just
+            curious, GeneScope invites you to ask questions and get answers
+            powered by real science. With our intelligent chatbot, built using
+            LangChain and OpenAI, we’re turning complex data into accessible
+            conversations so that everyone can better understand, explore, and
+            take action in the world of cancer care.
           </p>
 
           <p className="text-lg"></p>
