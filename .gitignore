@@ -10,3 +10,8 @@ data/
 /BackEnd/Storage/
 .env
 __pycache__
+/BackEnd/Models/DMM/catboost_mlp_fussion/nas_gene_model/
+/BackEnd/Models/DMM/catboost_mlp_fussion/nas_fusion_model/
+/BackEnd/Models/DMM/LateFusion/best_models1/
+/BackEnd/Models/DMM/LateFusion/nas_clinical_model/
+/BackEnd/Models/DMM/LateFusion/nas_gene_model/
