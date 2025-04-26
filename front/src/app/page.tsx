@@ -1,6 +1,6 @@
 "use client";
 import ParticleBackground from "./components/ParticleBackground";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { Bar } from "react-chartjs-2";
@@ -10,7 +10,6 @@ import Typer from "./components/Typer";
 import { motion } from "framer-motion"; // Import Framer Motion
 import Link from "next/link";
 import { FaSearch, FaClipboardList, FaComment } from "react-icons/fa";
-
 Chart.register(...registerables);
 
 export default function Home() {
@@ -94,6 +93,7 @@ export default function Home() {
       },
     },
   } as const;
+
   return (
     <main className="flex flex-col items-center justify-center min-h-screen  text-black p-6 pt-40 z-2 ">
       <ParticleBackground />
@@ -102,12 +102,66 @@ export default function Home() {
           GeneScope at a Glance
         </h1>
         <div
-          className="text-lg mb-8 h-32 w-full overflow-hidden relative text-left pt-2 "
+          className="text-lg h-60 w-full overflow-hidden relative text-left pt-2 mar mb-3"
           data-aos="fade-right"
         >
-          <Typer text="We’re on a mission to make breast cancer analysis smarter, more personal, and easier to understand. GeneScope combines powerful deep learning with real clinical and genetic data to predict cancer stages, spotlight key biomarkers, and uncover hidden patterns in the fight against breast cancer. But here’s the best part you can actually talk to it!" />
+          <Typer
+            text="We’re on a mission to make breast cancer analysis smarter, more personal, and easier to understand. GeneScope combines powerful deep learning with real clinical and genetic data to predict cancer stages, spotlight key biomarkers, and uncover hidden patterns in the fight against breast cancer. But here’s the best part you can actually talk to it!
+            Our chatbot isn’t just conversational it performs staging predictions too, giving you fast, data-backed answers. Dive into our major findings to see what we’ve uncovered, and learn about our project objectives to understand the bigger picture."
+          />
         </div>
+        <div className="mt-12 p-4 ">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white">
+            {/* Dashboard Card */}
+            <Link href="/dashboard" className="w-full md:w-1/3">
+              <motion.div
+                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
+                data-aos="fade-right"
+                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
+                transition={{ duration: 0.2 }}
+              >
+                <FaComment className="text-5xl text-blue-300 mb-3 mx-auto" />
+                <h2 className="text-lg font-semibold">chatbot</h2>
+                <p className="text-sm text-gray-600 mt-2">
+                  powered by our staging model for fast, data-backed cancer
+                  answers
+                </p>
+              </motion.div>
+            </Link>
 
+            {/* Major Findings Card */}
+            <Link href="/majorfindings" className="w-full md:w-1/3">
+              <motion.div
+                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
+                data-aos="fade-up"
+                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
+                transition={{ duration: 0.2 }}
+              >
+                <FaSearch className="text-5xl text-green-600 mb-3 mx-auto" />
+                <h2 className="text-lg font-semibold">Major Findings</h2>
+                <p className="text-sm text-gray-600 mt-2">
+                  Discover key insights from our research.
+                </p>
+              </motion.div>
+            </Link>
+
+            {/* Project Objective Card */}
+            <Link href="/project-objective" className="w-full md:w-1/3">
+              <motion.div
+                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
+                data-aos="fade-left"
+                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
+                transition={{ duration: 0.2 }}
+              >
+                <FaClipboardList className="text-5xl text-red-600 mb-3 mx-auto" />
+                <h2 className="text-lg font-semibold">Project Objective</h2>
+                <p className="text-sm text-gray-600 mt-2">
+                  Learn about the goals and scope of our study.
+                </p>
+              </motion.div>
+            </Link>
+          </div>
+        </div>
         <div className="mt-12 shadow-md p-4 inset-shadow-xs bg-white">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <a
@@ -203,66 +257,6 @@ export default function Home() {
 
           <p className="text-lg"></p>
         </motion.div>
-
-        <div className="mt-12 p-4 ">
-          <h2
-            className="text-2xl font-bold mb-6 text-center"
-            data-aos="fade-up"
-          >
-            Dive Deeper
-          </h2>
-
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white">
-            {/* Dashboard Card */}
-            <Link href="/dashboard" className="w-full md:w-1/3">
-              <motion.div
-                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
-                data-aos="fade-right"
-                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
-                transition={{ duration: 0.2 }}
-              >
-                <FaComment className="text-5xl text-blue-300 mb-3 mx-auto" />
-                <h2 className="text-lg font-semibold">chatbot</h2>
-                <p className="text-sm text-gray-600 mt-2">
-                  powered by our staging model for fast, data-backed cancer
-                  answers
-                </p>
-              </motion.div>
-            </Link>
-
-            {/* Major Findings Card */}
-            <Link href="/majorfindings" className="w-full md:w-1/3">
-              <motion.div
-                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
-                data-aos="fade-up"
-                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
-                transition={{ duration: 0.2 }}
-              >
-                <FaSearch className="text-5xl text-green-600 mb-3 mx-auto" />
-                <h2 className="text-lg font-semibold">Major Findings</h2>
-                <p className="text-sm text-gray-600 mt-2">
-                  Discover key insights from our research.
-                </p>
-              </motion.div>
-            </Link>
-
-            {/* Project Objective Card */}
-            <Link href="/project-objective" className="w-full md:w-1/3">
-              <motion.div
-                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
-                data-aos="fade-left"
-                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
-                transition={{ duration: 0.2 }}
-              >
-                <FaClipboardList className="text-5xl text-red-600 mb-3 mx-auto" />
-                <h2 className="text-lg font-semibold">Project Objective</h2>
-                <p className="text-sm text-gray-600 mt-2">
-                  Learn about the goals and scope of our study.
-                </p>
-              </motion.div>
-            </Link>
-          </div>
-        </div>
 
         {/* Card Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
