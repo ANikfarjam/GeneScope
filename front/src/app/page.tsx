@@ -9,7 +9,7 @@ import { Chart, registerables } from "chart.js";
 import Typer from "./components/Typer";
 import { motion } from "framer-motion"; // Import Framer Motion
 import Link from "next/link";
-import { FaSearch, FaClipboardList, FaComment } from "react-icons/fa";
+import { FaSearch, FaChartLine, FaComment } from "react-icons/fa";
 Chart.register(...registerables);
 
 export default function Home() {
@@ -102,7 +102,7 @@ export default function Home() {
           GeneScope at a Glance
         </h1>
         <div
-          className="text-lg h-60 w-full overflow-hidden relative text-left pt-2 mar mb-3"
+          className="text-lg h-60 w-full overflow-hidden relative text-left pt-2 mar mb-1"
           data-aos="fade-right"
         >
           <Typer
@@ -111,19 +111,19 @@ export default function Home() {
           />
         </div>
         <div className="mt-12 p-4 ">
-          <h1 className="text-4xl font-bold mb-4" data-aos="fade-right">
+          <h1 className="text-2xl font-bold mb-4" data-aos="fade-right">
             Our tools{" "}
           </h1>
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white">
             <Link href="/dashboard" className="w-full md:w-1/3">
               <motion.div
-                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
+                className="group p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
                 data-aos="fade-right"
                 whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
                 transition={{ duration: 0.2 }}
               >
-                <FaComment className="text-5xl text-blue-300 mb-3 mx-auto" />
-                <h2 className="text-lg font-semibold">chatbot</h2>
+                <FaComment className="text-5xl text-blue-300 group-hover:text-blue-500 transition-colors duration-600 mb-3 mx-auto" />
+                <h2 className="text-lg font-semibold">Chatbot</h2>
                 <p className="text-sm text-gray-600 mt-2">
                   powered by our staging model for fast, data-backed cancer
                   answers
@@ -131,34 +131,32 @@ export default function Home() {
               </motion.div>
             </Link>
 
-            {/* Major Findings Card */}
-            <Link href="/majorfindings" className="w-full md:w-1/3">
-              <motion.div
-                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
-                data-aos="fade-up"
-                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
-                transition={{ duration: 0.2 }}
-              >
-                <FaSearch className="text-5xl text-green-600 mb-3 mx-auto" />
-                <h2 className="text-lg font-semibold">Major Findings</h2>
-                <p className="text-sm text-gray-600 mt-2">
-                  Discover key insights from our research.
-                </p>
-              </motion.div>
-            </Link>
-
-            {/* Project Objective Card */}
             <Link href="/project-objective" className="w-full md:w-1/3">
               <motion.div
-                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
+                className="group p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
                 data-aos="fade-left"
                 whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
                 transition={{ duration: 0.2 }}
               >
-                <FaClipboardList className="text-5xl text-red-600 mb-3 mx-auto" />
-                <h2 className="text-lg font-semibold">Project Objective</h2>
+                <FaChartLine className="text-5xl text-orange-300 group-hover:text-orange-500 transition-colors duration-600 mb-3 mx-auto" />
+                <h2 className="text-lg font-semibold">Summary Analysis</h2>
                 <p className="text-sm text-gray-600 mt-2">
                   Learn about the goals and scope of our study.
+                </p>
+              </motion.div>
+            </Link>
+
+            <Link href="/majorfindings" className="w-full md:w-1/3">
+              <motion.div
+                className="group p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
+                data-aos="fade-up"
+                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
+                transition={{ duration: 0.2 }}
+              >
+                <FaSearch className="text-5xl text-green-300 group-hover:text-green-500 transition-colors duration-900 mb-3 mx-auto" />
+                <h2 className="text-lg font-semibold">Major Findings</h2>
+                <p className="text-sm text-gray-600 mt-2">
+                  Discover key insights from our research.
                 </p>
               </motion.div>
             </Link>
