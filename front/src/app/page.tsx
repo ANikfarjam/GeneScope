@@ -19,24 +19,72 @@ export default function Home() {
 
   const cardData = [
     {
-      title: "What is Breast Cancer?",
-      description:
-        "Breast cancer is a disease in which cells in the breast grow uncontrollably. Early detection through advanced techniques can help in better treatment.",
+      title: "Deep Learning in Action",
+      description: (
+        <>
+          Our deep learning models find hidden patterns in breast cancer
+          progression that traditional methods may miss.{" "}
+          <a
+            href="https://www.nature.com/articles/s41591-020-0801-2"
+            target="_blank"
+            className="text-blue-500 underline"
+          >
+            Learn more
+          </a>
+          .
+        </>
+      ),
     },
     {
-      title: "Machine Learning in Detection",
-      description:
-        "ML models analyze medical data, including histopathology images, to classify benign and malignant cases.",
+      title: "Advanced Machine Learning Techniques",
+      description: (
+        <>
+          We use AHP for gene ranking, CatBoost for stage prediction, and Cox
+          models for survival analysis.{" "}
+          <a
+            href="https://en.wikipedia.org/wiki/CatBoost"
+            target="_blank"
+            className="text-blue-500 underline"
+          >
+            Learn more
+          </a>
+          .
+        </>
+      ),
     },
     {
-      title: "How It Works",
-      description:
-        "Our AI model processes medical imaging or gene expression data and provides a classification result.",
+      title: "Biomarkers and Prognosis",
+      description: (
+        <>
+          GeneScope identifies key biomarkers and studies how clinical factors
+          impact cancer outcomes.{" "}
+          <a
+            href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6499220/"
+            target="_blank"
+            className="text-blue-500 underline"
+          >
+            Learn more
+          </a>
+          .
+        </>
+      ),
     },
     {
-      title: "Early Detection Saves Lives",
-      description:
-        "Identifying breast cancer at an early stage significantly increases treatment success rates.",
+      title: "Talk to the Science",
+      description: (
+        <>
+          Our chatbot, powered by LangChain and OpenAI, answers your questions
+          and explains predictions in simple language.{" "}
+          <a
+            href="https://www.langchain.dev/"
+            target="_blank"
+            className="text-blue-500 underline"
+          >
+            Learn more
+          </a>
+          .
+        </>
+      ),
     },
   ];
 
@@ -102,7 +150,7 @@ export default function Home() {
           GeneScope at a Glance
         </h1>
         <div
-          className="text-lg h-60 w-full overflow-hidden relative text-left pt-2 mar mb-1"
+          className="text-lg min-h-[170px]  w-full overflow-hidden relative text-left mt-6 mar "
           data-aos="fade-right"
         >
           <Typer
@@ -228,7 +276,7 @@ export default function Home() {
         </div>
 
         <motion.div
-          className="bg-white shadow-md p-6 md:p-8 my-10 text-left"
+          className="bg-white shadow-md px-5 py-2 my-10 text-left"
           data-aos="fade-up"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -239,33 +287,31 @@ export default function Home() {
             Talk to the Science
           </h2>
           <p className="text-lg mb-4">
-            This project analyzes both gene expression and clinical data using
-            cutting-edge deep learning models to predict cancer stages, identify
-            biomarkers, and highlight patterns that may go unnoticed in
-            traditional methods. GeneScope isn&apos;t just about machine
-            learning. It&apos;s about making that learning accessible,
-            explainable, and actionable. Through an intelligent assistant, a
-            transparent model, and a deep respect for human variation,
-            we&apos;re helping people understand breast cancer on a level never
-            seen before. Whether you&apos;re a researcher, a doctor, or just
-            curious, GeneScope invites you to ask questions and get answers
-            powered by real science. With our intelligent chatbot, built using
-            LangChain and OpenAI, we’re turning complex data into accessible
-            conversations so that everyone can better understand, explore, and
-            take action in the world of cancer care.
+            GeneScope uses real genetic and clinical data to better understand
+            and predict breast cancer. We apply smart machine learning
+            techniques like deep learning, CatBoost, AHP, and Cox models to
+            study how genes and patient factors like age, tumor size, race, and
+            ethnicity affect cancer. Our goal is to find important warning signs
+            (biomarkers), predict cancer stages, and reveal hidden patterns that
+            older methods might miss. But GeneScope isn&apos;t just about data
+            and models it&apos;s about making science easy to explore. With our
+            intelligent chatbot, powered by LangChain and OpenAI, anyone can ask
+            questions and get real, science-backed answers to better understand,
+            detect, and fight breast cancer.
           </p>
 
           <p className="text-lg"></p>
         </motion.div>
-
-        {/* Card Section */}
+        <h1 className="text-2xl font-bold mb-4" data-aos="fade-right">
+          More information{" "}
+        </h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
           {cardData.map((card, index) => (
             <div
               key={index}
-              className="bg-gray-100 p-6 rounded-lg shadow-md"
+              className="bg-white-100 p-6 rounded-lg shadow-md"
               data-aos="fade-left"
-              data-aos-delay={index * 200} // Staggered effect
+              data-aos-delay={index * 200}
             >
               <h2 className="text-2xl font-semibold">{card.title}</h2>
               <p className="mt-2">{card.description}</p>
