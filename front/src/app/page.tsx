@@ -20,71 +20,27 @@ export default function Home() {
   const cardData = [
     {
       title: "Deep Learning in Action",
-      description: (
-        <>
-          Our deep learning models find hidden patterns in breast cancer
-          progression that traditional methods may miss.{" "}
-          <a
-            href="https://www.nature.com/articles/s41591-020-0801-2"
-            target="_blank"
-            className="text-blue-500 underline"
-          >
-            Learn more
-          </a>
-          .
-        </>
-      ),
+      description:
+        "Our deep learning models find hidden patterns in breast cancer progression that traditional methods may miss.",
+      link: "https://www.nature.com/articles/s41591-020-0801-2",
     },
     {
       title: "Advanced Machine Learning Techniques",
-      description: (
-        <>
-          We use AHP for gene ranking, CatBoost for stage prediction, and Cox
-          models for survival analysis.{" "}
-          <a
-            href="https://en.wikipedia.org/wiki/CatBoost"
-            target="_blank"
-            className="text-blue-500 underline"
-          >
-            Learn more
-          </a>
-          .
-        </>
-      ),
+      description:
+        "We use AHP for gene ranking, CatBoost for stage prediction, and Cox models for survival analysis.",
+      link: "https://en.wikipedia.org/wiki/CatBoost",
     },
     {
       title: "Biomarkers and Prognosis",
-      description: (
-        <>
-          GeneScope identifies key biomarkers and studies how clinical factors
-          impact cancer outcomes.{" "}
-          <a
-            href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6499220/"
-            target="_blank"
-            className="text-blue-500 underline"
-          >
-            Learn more
-          </a>
-          .
-        </>
-      ),
+      description:
+        "GeneScope identifies key biomarkers and studies how clinical factors impact cancer outcomes.",
+      link: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6499220/",
     },
     {
       title: "Talk to the Science",
-      description: (
-        <>
-          Our chatbot, powered by LangChain and OpenAI, answers your questions
-          and explains predictions in simple language.{" "}
-          <a
-            href="https://www.langchain.dev/"
-            target="_blank"
-            className="text-blue-500 underline"
-          >
-            Learn more
-          </a>
-          .
-        </>
-      ),
+      description:
+        "Our chatbot, powered by LangChain and OpenAI, answers your questions and explains predictions in simple language.",
+      link: "https://www.langchain.dev/",
     },
   ];
 
@@ -309,12 +265,21 @@ export default function Home() {
           {cardData.map((card, index) => (
             <div
               key={index}
-              className="bg-white-100 p-6 rounded-lg shadow-md"
+              className="bg-white  p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
               data-aos="fade-left"
               data-aos-delay={index * 200}
             >
               <h2 className="text-2xl font-semibold">{card.title}</h2>
               <p className="mt-2">{card.description}</p>
+              <div className="mt-4">
+                <a
+                  href={card.link}
+                  target="_blank"
+                  className="text-blue-500 hover:underline font-semibold"
+                >
+                  Learn more →
+                </a>
+              </div>
             </div>
           ))}
         </div>

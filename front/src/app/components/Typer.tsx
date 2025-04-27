@@ -6,27 +6,38 @@ import remarkGfm from "remark-gfm";
 
 interface TyperProps {
   text?: string; // Make text optional
+  speed?: number; // Optional: milliseconds per character (default 30ms)
 }
 
-const Typer = ({ text }: TyperProps) => {
+const Typer = ({ text, speed = 5 }: TyperProps) => {
   const [displayText, setDisplayText] = useState("");
 
   useEffect(() => {
     if (!text || typeof window === "undefined") return;
     let index = 0;
+    let lastTime = performance.now();
     setDisplayText("");
 
-    const interval = setInterval(() => {
-      if (index < text.length) {
-        setDisplayText(text.slice(0, index + 1));
-        index++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 0.1);
+    const step = (now: number) => {
+      const elapsed = now - lastTime;
 
-    return () => clearInterval(interval);
-  }, [text]);
+      if (elapsed >= speed) {
+        if (index < text.length) {
+          setDisplayText(text.slice(0, index + 1));
+          index++;
+          lastTime = now;
+        }
+      }
+
+      if (index < text.length) {
+        requestAnimationFrame(step);
+      }
+    };
+
+    const animationId = requestAnimationFrame(step);
+
+    return () => cancelAnimationFrame(animationId);
+  }, [text, speed]);
 
   return (
     <div className="prose max-w-none prose-lg">
