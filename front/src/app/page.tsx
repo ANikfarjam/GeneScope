@@ -297,7 +297,7 @@ export default function Home() {
               data-aos="fade-left"
               data-aos-delay={index * 200}
             >
-              <h2 className="text-1xl font-semibold">{card.title}</h2>
+              <h2 className="text-xl font-semibold">{card.title}</h2>
               <p className="mt-2, text-left">{card.description}</p>
               <div className="mt-4">
                 <a
