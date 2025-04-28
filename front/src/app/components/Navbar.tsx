@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -38,32 +39,39 @@ const Navbar = () => {
 
   return (
     <nav className="bg-white shadow-md fixed w-full z-50 top-0 left-0">
-      <div className="max-w-6xl mx-auto px-6">
-        <div className="flex justify-between items-center py-4">
-          <Link href="/" className="text-2xl font-bold text-pink-600">
-            GeneScope
-          </Link>
+      <div className="mx-auto px-6">
+        <div className="flex justify-between items-center py-4 relative">
+          {/* Left: Logo */}
+          <div className="flex-shrink-0">
+            <Link href="/" className="text-2xl font-bold text-pink-600">
+              GeneScope
+            </Link>
+          </div>
 
-          <div className="hidden md:flex space-x-6 items-center">
+          {/* Center: Navigation Links */}
+          <div className="absolute left-1/2 transform -translate-x-1/2 hidden md:flex space-x-6 items-center">
             <Link
               href="/analyticalmethod"
-              className="text-gray-700 hover:text-pink-500"
+              className="relative text-gray-700 hover:text-pink-500 after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 hover:after:w-full after:bg-pink-500 after:transition-all after:duration-300"
             >
               Analytical Methods
             </Link>
             <Link
               href="/majorfindings"
-              className="text-gray-700 hover:text-pink-500"
+              className="relative text-gray-700 hover:text-pink-500 after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 hover:after:w-full after:bg-pink-500 after:transition-all after:duration-300"
             >
               Major Finding
             </Link>
             <Link
               href="/projectobjective"
-              className="text-gray-700 hover:text-pink-500"
+              className="relative text-gray-700 hover:text-pink-500 after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 hover:after:w-full after:bg-pink-500 after:transition-all after:duration-300"
             >
               Project Objective
             </Link>
+          </div>
 
+          {/* Right: User Menu or Login */}
+          <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <div className="relative" ref={dropdownRef}>
                 <Image
@@ -99,6 +107,7 @@ const Navbar = () => {
             )}
           </div>
 
+          {/* Mobile toggle */}
           <button
             className="md:hidden text-gray-700 focus:outline-none"
             onClick={() => setIsOpen(!isOpen)}

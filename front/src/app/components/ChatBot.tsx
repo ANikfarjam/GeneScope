@@ -52,6 +52,7 @@ export default function Chatbot() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [predictionDone, setPredictionDone] = useState(false);
 
   const [showCsvPrompt, setShowCsvPrompt] = useState(false);
 
@@ -96,13 +97,11 @@ export default function Chatbot() {
       }
 
       const data = await response.json();
-
       const stage = data.predicted_stage;
       const probs: number[] = data.probabilities;
       const clinical = data.clinical_info;
 
       const stageLabels = [
-        "Stage 0",
         "Stage I",
         "Stage IA",
         "Stage IB",
@@ -115,63 +114,35 @@ export default function Chatbot() {
         "Stage IV",
       ];
 
-      const messageContent = `
-  🧪 Prediction Complete:
-  - Stage: ${stage}`;
-
-      const chartData: ChartData<"bar"> = {
-        labels: stageLabels,
-        datasets: [
-          {
-            label: "Prediction Probabilities",
-            data: probs,
-            backgroundColor: "rgba(54, 162, 235, 0.5)",
-            borderColor: "rgba(54, 162, 235, 1)",
-            borderWidth: 1,
-          },
-        ],
-      };
-
       const chartMessage: Message = {
         role: "assistant",
-        content: messageContent,
+        content: `🧪 Prediction Complete:\n- Stage: ${stage}`,
         chartType: "bar",
-        chartData,
+        chartData: {
+          labels: stageLabels,
+          datasets: [
+            {
+              label: "Prediction Probabilities",
+              data: probs,
+              backgroundColor: "rgba(54, 162, 235, 0.5)",
+              borderColor: "rgba(54, 162, 235, 1)",
+              borderWidth: 1,
+            },
+          ],
+        },
       };
 
       setMessages((prev) => [...prev, chartMessage]);
 
-      //prompt that is being send directly to langchain
-      //since its not related to reading documents or graph it directly give the data
-      //to openAI API
-
-      const explainPrompt = ` 
-just know that there is a bar chart generated above that displays each stage and 
-their probabilities i dont want to talk about it just know it exist
-Imagine you just received a patient's clinical data after being predicted that they are at **${stage}**.
-You are a cancer specialist AI.
-Very concisely and seriously advise the patient on what steps they should consider now that they are aware of their stage.
-make sure to not give any conclusion or overall and encourage to ask more but really make sure its consise respond as small as possible and include age and weigh in the conversation
-Base your suggestions on their **age (${clinical.age_at_index})**, **weight (${
-        clinical.initial_weight
-      })**, and the year of diagnosis (${clinical.year_of_diagnosis}).
- 
-  The top 3 probabilities are:
-  - ${stageLabels[probs.indexOf(Math.max(...probs))]}: ${(
-        Math.max(...probs) * 100
-      ).toFixed(2)}%
-  - ${stageLabels[probs.indexOf([...probs].sort((a, b) => b - a)[1])]}: ${(
-        [...probs].sort((a, b) => b - a)[1] * 100
-      ).toFixed(2)}%
-  - ${stageLabels[probs.indexOf([...probs].sort((a, b) => b - a)[2])]}: ${(
-        [...probs].sort((a, b) => b - a)[2] * 100
-      ).toFixed(2)}%
-  
-  The patient is ${clinical.age_at_index} years old and was diagnosed in ${
-        clinical.year_of_diagnosis
-      }.
-  Please explain what this might mean from a clinical or risk perspective.
-  `;
+      // 🧠 Ask LangChain for serious advice based on clinical data
+      const explainPrompt = `
+  just know that there is a bar chart generated above that displays each stage and their probabilities i dont want to talk about it just know it exist.
+  Imagine you just received a patient's clinical data after being predicted that they are at **${stage}**.
+  You are a cancer specialist AI.
+  Very concisely and seriously advise the patient on what steps they should consider now that they are aware of their stage.
+  Make sure to not give any conclusion or overall and encourage to ask more questions, but really make sure it’s a concise response and include age and weight in the conversation.
+  Base your suggestions on their **age (${clinical.age_at_index})**, **weight (${clinical.initial_weight})**, and the year of diagnosis (${clinical.year_of_diagnosis}).
+      `;
 
       const res = await fetch("/api/agent", {
         method: "POST",
@@ -189,9 +160,12 @@ Base your suggestions on their **age (${clinical.age_at_index})**, **weight (${
               ? resData.result
               : JSON.stringify(resData.result),
         };
-
         setMessages((prev) => [...prev, followupMessage]);
       }
+
+      setTimeout(() => {
+        setPredictionDone(true);
+      }, 3000);
     } catch (err) {
       console.error("CSV prediction error:", err);
       window.alert(
@@ -254,51 +228,54 @@ Base your suggestions on their **age (${clinical.age_at_index})**, **weight (${
   !msg.content.includes("http") &&
   !msg.content.includes("![") && <Typer text={msg.content} />}
 */
+
   return (
-    <div className="p-6 w-full h-[800px] max-w-[1050px] mx-auto text-black flex flex-col bg-transparent shadow-none border-none">
+    <div className="px-6 pt-6 w-full h-[90%] min-h-[690px] max-h-[890px] max-w-[1300px] mx-auto text-black flex flex-col bg-transparent shadow-none border-none overflow-hidden">
       <h2 className="text-2xl font-bold text-gray-800 text-center mb-4 hidden">
         Chatbot
       </h2>
 
-      <div className="flex-1 overflow-y-auto border rounded-lg p-4 bg-gray-100 space-y-3 shadow-inner">
+      <div className="flex-1 min-h-0 overflow-y-auto border rounded-lg p-4 bg-gray-100 space-y-3 shadow-inner">
         <div className="flex justify-start">
-          <div className="px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[80%] bg-white text-gray-900 border border-gray-300">
+          <div className="px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[800px] bg-white text-gray-900 border border-gray-300">
             <Typer text="👋 Hi there! I'm GeneScope. Ask me about breast cancer, genetics, or let me show you a chart!" />
           </div>
         </div>
 
         {showCsvPrompt && (
-          <>
-            <div className="flex justify-start">
-              <div className="px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[80%] bg-white text-gray-900 border border-gray-300 space-y-2">
-                <Typer text="🧬 Would you like to use our model for cancer staging prediction? Please upload your CSV file here and press Continue." />
-                <div className="flex items-center space-x-3">
-                  <label className="px-3 py-1 bg-gray-200 text-gray-800 rounded cursor-pointer hover:bg-gray-300 transition">
-                    Choose CSV
-                    <input
-                      type="file"
-                      accept=".csv"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          setCsvFile(file);
-                          console.log("Uploaded file:", file.name);
-                        }
-                      }}
-                      className="hidden"
-                    />
-                  </label>
+          <div className="flex justify-start">
+            <div className="px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[800px] bg-white text-gray-900 border border-gray-300 space-y-2">
+              <Typer text="🧬 Would you like to use our model for cancer staging prediction? Please upload your CSV file here and press Continue." />
+              <div className="flex items-center space-x-3">
+                <label className="px-3 py-1 bg-gray-200 text-gray-800 rounded cursor-pointer hover:bg-gray-300 transition">
+                  Choose CSV
+                  <input
+                    type="file"
+                    accept=".csv"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setCsvFile(file);
+                        console.log("Uploaded file:", file.name);
+                      }
+                    }}
+                    className="hidden"
+                  />
+                </label>
 
-                  <button
-                    onClick={handleCsvSubmit}
-                    className="px-4 py-1 bg-pink-600 text-white rounded transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-pink-500 hover:text-black"
-                  >
-                    Continue
-                  </button>
-                </div>
+                <button
+                  onClick={() => {
+                    handleCsvSubmit();
+                    setCsvFile(null); // <--- Reset the file after submitting
+                    setPredictionDone(false); // <--- Hide the 'Try another' box again
+                  }}
+                  className="px-4 py-1 bg-pink-600 text-white rounded transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-pink-500 hover:text-black"
+                >
+                  Continue
+                </button>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {messages.map((msg, index) => (
@@ -309,7 +286,7 @@ Base your suggestions on their **age (${clinical.age_at_index})**, **weight (${
             }`}
           >
             <div
-              className={`px-4 py-2 rounded-xl   text-sm max-w-[80%] ${
+              className={`px-4 py-2 rounded-xl   text-sm max-w-[800px] ${
                 msg.role === "user"
                   ? "bg-blue-500 text-white rounded-tr-none"
                   : "bg-white rounded-tl-none text-gray-900 border border-gray-300 "
@@ -351,8 +328,43 @@ Base your suggestions on their **age (${clinical.age_at_index})**, **weight (${
             <ScaleLoader color="rgba(217, 35, 124, 0.4)" />
           </div>
         )}
+        {/* 🔥 New Try Another CSV Button */}
+        {predictionDone && (
+          <div className="flex justify-start">
+            <div className="px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[800px] bg-white text-gray-900 border border-gray-300 space-y-2">
+              <Typer text="🔁 Would you like to try another CSV? Please upload a new one and press Continue." />
+              <div className="flex items-center space-x-3">
+                <label className="px-3 py-1 bg-gray-200 text-gray-800 rounded cursor-pointer hover:bg-gray-300 transition">
+                  Choose CSV
+                  <input
+                    type="file"
+                    accept=".csv"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setCsvFile(file);
+                        console.log("Uploaded new file:", file.name);
+                      }
+                    }}
+                    className="hidden"
+                  />
+                </label>
+
+                <button
+                  onClick={() => {
+                    handleCsvSubmit();
+                    setPredictionDone(false);
+                  }}
+                  className="px-4 py-1 bg-pink-600 text-white rounded transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-pink-500 hover:text-black"
+                >
+                  Continue
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-      <div className="mt-4 flex items-center bg-white border border-gray-300 rounded-full p-2 shadow-md mx-auto ">
+      <div className=" w-[60%] min-w-[400px] h-[60px]  mt-4 flex items-center bg-white border border-gray-300 rounded-[22px] p-2 shadow-md mx-auto ">
         <button className="p-2 text-gray-500 hover:text-gray-700 transition">
           <FiPlus size={20} />
         </button>
