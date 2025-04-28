@@ -353,7 +353,7 @@ export default function Chatbot() {
                 <button
                   onClick={() => {
                     handleCsvSubmit();
-                    setPredictionDone(false); // 🧠 reset after uploading new one
+                    setPredictionDone(false);
                   }}
                   className="px-4 py-1 bg-pink-600 text-white rounded transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-pink-500 hover:text-black"
                 >
@@ -364,7 +364,7 @@ export default function Chatbot() {
           </div>
         )}
       </div>
-      <div className="mt-4 flex items-center bg-white border border-gray-300 rounded-full p-2 shadow-md mx-auto ">
+      <div className=" w-[60%] min-w-[400px] h-[60px]  mt-4 flex items-center bg-white border border-gray-300 rounded-[22px] p-2 shadow-md mx-auto ">
         <button className="p-2 text-gray-500 hover:text-gray-700 transition">
           <FiPlus size={20} />
         </button>
