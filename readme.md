@@ -1,5 +1,7 @@
 # GeneScope
 
+<img src="project_insites/readme_intro.png" alt="Gene Into" width="800" />
+
 GeneScope is a full-stack platform for analyzing gene expression patterns and clinical data to predict breast cancer stages, highlight key biomarkers, and support prognosis insights.  
 It combines powerful machine learning models, a clean web dashboard, and an intelligent chatbot to make complex biological data understandable and actionable.
 
