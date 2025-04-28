@@ -267,11 +267,18 @@ export default function Home() {
             GeneScope analyzes both gene expression and clinical data using
             cutting-edge deep learning models to predict cancer stages, identify
             biomarkers, and highlight patterns that may go unnoticed in
-            traditional methods. GeneScope isn’t just about machine learning.
-            It’s about making that learning accessible, explainable, and
-            actionable. Through an intelligent assistant, a transparent model,
-            and a deep respect for human variation, we’re helping people
-            understand breast cancer on a level never seen before.
+            traditional methods. Unlike traditional studies that rely only on
+            basic statistics, GeneScope combines gene-level biological analysis
+            with powerful machine learning, including CatBoost, deep learning,
+            and a modified Analytic Hierarchy Process (AHP) for more reliable
+            predictions. By examining how genes behave differently across ages,
+            ethnicities, and tumor characteristics, we ensure that predictions
+            are not one-size-fits-all, but personalized for every individual.
+            Our models are trained to discover hidden biomarkers, assess patient
+            risks, and unlock new insights into breast cancer progression.
+            Through an intelligent assistant, a transparent model, and a deep
+            respect for human variation, we’re helping people understand breast
+            cancer on a level never seen before.
           </p>
 
           <p className="text-lg"></p>
