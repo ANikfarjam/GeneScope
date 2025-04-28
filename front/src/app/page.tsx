@@ -9,7 +9,8 @@ import { Chart, registerables } from "chart.js";
 import Typer from "./components/Typer";
 import { motion } from "framer-motion"; // Import Framer Motion
 import Link from "next/link";
-import { FaSearch, FaChartLine, FaComment } from "react-icons/fa";
+import { FaRegCommentDots, FaSearch, FaChartLine } from "react-icons/fa";
+
 Chart.register(...registerables);
 
 export default function Home() {
@@ -19,28 +20,40 @@ export default function Home() {
 
   const cardData = [
     {
-      title: "Deep Learning in Action",
+      title: "Machine Learning Models",
       description:
-        "Our deep learning models find hidden patterns in breast cancer progression that traditional methods may miss.",
-      link: "https://www.nature.com/articles/s41591-020-0801-2",
+        "Learn how CatBoost and Cox Proportional Hazards models help predict cancer stages and survival risks.",
+      link: "https://catboost.ai/",
     },
     {
-      title: "Advanced Machine Learning Techniques",
+      title: "Clinical Risk Factors",
       description:
-        "We use AHP for gene ranking, CatBoost for stage prediction, and Cox models for survival analysis.",
-      link: "https://en.wikipedia.org/wiki/CatBoost",
+        "Understand how patient traits like tumor size, lymph node involvement, age, and ethnicity influence cancer outcomes.",
+      link: "https://www.cancer.gov/about-cancer/diagnosis-staging/prognosis",
     },
     {
-      title: "Biomarkers and Prognosis",
+      title: "miRNA Discoveries",
       description:
-        "GeneScope identifies key biomarkers and studies how clinical factors impact cancer outcomes.",
-      link: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6499220/",
+        "Discover how small RNA molecules (miRNAs) can act as powerful biomarkers for breast cancer progression.",
+      link: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4267179/", // Reliable NCBI article
     },
     {
-      title: "Talk to the Science",
+      title: "Health Disparity Insights",
       description:
-        "Our chatbot, powered by LangChain and OpenAI, answers your questions and explains predictions in simple language.",
-      link: "https://www.langchain.dev/",
+        "Dive into how breast cancer progression differs across race and age groups, highlighting disparities in outcomes.",
+      link: "https://www.cdc.gov/cancer/breast/statistics/race.htm",
+    },
+    {
+      title: "Our Modified AHP Method",
+      description:
+        "Learn about our custom version of the Analytic Hierarchy Process for ranking important genes in breast cancer research.",
+      link: "https://en.wikipedia.org/wiki/Analytic_hierarchy_process", // About original AHP, modified version is your innovation
+    },
+    {
+      title: "Science You Can Talk To",
+      description:
+        "See how our LangChain and OpenAI-powered chatbot makes complex science easy to understand and explore.",
+      link: "https://www.langchain.dev/", // Reliable source for LangChain
     },
   ];
 
@@ -97,7 +110,6 @@ export default function Home() {
       },
     },
   } as const;
-
   return (
     <main className="flex flex-col items-center justify-center min-h-screen  text-black p-6 pt-40 z-2 ">
       <ParticleBackground />
@@ -106,67 +118,20 @@ export default function Home() {
           GeneScope at a Glance
         </h1>
         <div
-          className="text-lg min-h-[170px]  w-full overflow-hidden relative text-left mt-6 mar "
+          className="text-lg mb-8 min-h-[190px] w-full overflow-hidden relative text-left pt-2 "
           data-aos="fade-right"
         >
-          <Typer
-            text="We’re on a mission to make breast cancer analysis smarter, more personal, and easier to understand. GeneScope combines powerful deep learning with real clinical and genetic data to predict cancer stages, spotlight key biomarkers, and uncover hidden patterns in the fight against breast cancer. But here’s the best part you can actually talk to it!
-            Our chatbot isn’t just conversational it performs staging predictions too, giving you fast, data-backed answers. Dive into our major findings to see what we’ve uncovered, and learn about our project objectives to understand the bigger picture."
-          />
+          <Typer text="We’re on a mission to make breast cancer analysis smarter, more personal, and easier to understand. GeneScope combines powerful deep learning with real clinical and genetic data to predict cancer stages, spotlight key biomarkers, and uncover hidden patterns in the fight against breast cancer. But here’s the best part you can actually talk to it! Our chatbot isn’t just conversational it performs staging predictions too, giving you fast, data-backed answers. Dive into our major findings to see what we’ve uncovered, and learn about our project objectives to understand the bigger picture." />
         </div>
-        <div className="mt-12 p-4 ">
-          <h1 className="text-2xl font-bold mb-4" data-aos="fade-right">
-            Our tools{" "}
-          </h1>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white">
-            <Link href="/dashboard" className="w-full md:w-1/3">
-              <motion.div
-                className="group p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
-                data-aos="fade-right"
-                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
-                transition={{ duration: 0.2 }}
-              >
-                <FaComment className="text-5xl text-blue-300 group-hover:text-blue-500 transition-colors duration-600 mb-3 mx-auto" />
-                <h2 className="text-lg font-semibold">Chatbot</h2>
-                <p className="text-sm text-gray-600 mt-2">
-                  powered by our staging model for fast, data-backed cancer
-                  answers
-                </p>
-              </motion.div>
-            </Link>
 
-            <Link href="/project-objective" className="w-full md:w-1/3">
-              <motion.div
-                className="group p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
-                data-aos="fade-left"
-                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
-                transition={{ duration: 0.2 }}
-              >
-                <FaChartLine className="text-5xl text-orange-300 group-hover:text-orange-500 transition-colors duration-600 mb-3 mx-auto" />
-                <h2 className="text-lg font-semibold">Summary Analysis</h2>
-                <p className="text-sm text-gray-600 mt-2">
-                  Learn about the goals and scope of our study.
-                </p>
-              </motion.div>
-            </Link>
+        <div className="mt-12 shadow-lg p-4 inset-shadow-xs bg-white">
+          <h2
+            className="text-2xl font-bold mb-6 text-center "
+            data-aos="fade-up"
+          >
+            The Impact of Breast Cancer
+          </h2>
 
-            <Link href="/majorfindings" className="w-full md:w-1/3">
-              <motion.div
-                className="group p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
-                data-aos="fade-up"
-                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
-                transition={{ duration: 0.2 }}
-              >
-                <FaSearch className="text-5xl text-green-300 group-hover:text-green-500 transition-colors duration-900 mb-3 mx-auto" />
-                <h2 className="text-lg font-semibold">Major Findings</h2>
-                <p className="text-sm text-gray-600 mt-2">
-                  Discover key insights from our research.
-                </p>
-              </motion.div>
-            </Link>
-          </div>
-        </div>
-        <div className="mt-12 shadow-md p-4 inset-shadow-xs bg-white">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <a
               href="https://breast-cancer.ca/diag-ratngs/"
@@ -191,19 +156,17 @@ export default function Home() {
               transition={{ duration: 0.2 }}
             >
               <p className="text-lg">
-                Breast cancer remains one of the most commonly diagnosed cancers
-                worldwide, with the majority of cases found in individuals aged
-                50 to 69. While younger cases are less frequent, they often
-                present more aggressively making early detection critical at
-                every age. Yet, nearly 1 in 3 cases are still diagnosed only
-                after the cancer has begun to spread. This underscores the
-                urgent need for better screening tools, smarter diagnostics, and
-                more personalized insight. That’s where GeneScope steps in.
+                In 2015, an estimated 231,840 new invasive breast cancer cases
+                were reported in the U.S., with the highest incidence in
+                individuals aged 50-69. While cases in younger individuals were
+                lower, early detection remains critical for improving outcomes.
+                Most cases occur in older adults, reinforcing the need for
+                routine screening and timely intervention to reduce mortality.
               </p>
             </motion.div>
           </div>
         </div>
-        <div className="mt-12 shadow-md p-4 inset-shadow-xs bg-white">
+        <div className="mt-12 shadow-lg p-4 inset-shadow-xs bg-white">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <motion.div
               className="w-full md:w-1/2 p-2 "
@@ -230,47 +193,109 @@ export default function Home() {
             </motion.div>
           </div>
         </div>
-
         <motion.div
-          className="bg-white shadow-md px-5 py-2 my-10 text-left"
+          className="bg-white  shadow-md p-4 md:p-4 my-10 text-left"
           data-aos="fade-up"
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <h2 className="text-2xl font-bold mb-6 text-center ">
+          <h2 className="text-2xl font-bold mb-4 text-black-700 text-center">
             Talk to the Science
           </h2>
           <p className="text-lg mb-4">
-            GeneScope uses real genetic and clinical data to better understand
-            and predict breast cancer. We apply smart machine learning
-            techniques like deep learning, CatBoost, AHP, and Cox models to
-            study how genes and patient factors like age, tumor size, race, and
-            ethnicity affect cancer. Our goal is to find important warning signs
-            (biomarkers), predict cancer stages, and reveal hidden patterns that
-            older methods might miss. But GeneScope isn&apos;t just about data
-            and models it&apos;s about making science easy to explore. With our
-            intelligent chatbot, powered by LangChain and OpenAI, anyone can ask
-            questions and get real, science-backed answers to better understand,
-            detect, and fight breast cancer.
+            GeneScope analyzes both gene expression and clinical data using
+            cutting-edge deep learning models to predict cancer stages, identify
+            biomarkers, and highlight patterns that may go unnoticed in
+            traditional methods. GeneScope isn’t just about machine learning.
+            It’s about making that learning accessible, explainable, and
+            actionable. Through an intelligent assistant, a transparent model,
+            and a deep respect for human variation, we’re helping people
+            understand breast cancer on a level never seen before.
           </p>
 
           <p className="text-lg"></p>
         </motion.div>
-        <h1 className="text-2xl font-bold mb-4" data-aos="fade-right">
-          More information{" "}
-        </h1>
+
+        {/* Separate Section for Three Navigation Cards */}
+        <div className="mt-12 p-4 ">
+          <h2
+            className="text-2xl font-bold mb-6 text-center"
+            data-aos="fade-up"
+          >
+            Explore More
+          </h2>
+
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white ">
+            {/* Dashboard Card */}
+            <Link href="/dashboard" className="w-full md:w-1/3">
+              <motion.div
+                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
+                data-aos="fade-right"
+                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="flex flex-col items-center group transition-all duration-2000 ease-in-out">
+                  <FaRegCommentDots className="text-5xl text-blue-300 mb-3 group-hover:text-blue-600 transition-colors duration-2000" />
+                  <h2 className="text-lg font-semibold">Chatbot</h2>
+                  <p className="text-sm text-gray-600 mt-2">
+                    powered by our staging model for fast, data-backed cancer
+                    answers
+                  </p>
+                </div>
+              </motion.div>
+            </Link>
+
+            {/* Major Findings Card */}
+            <Link href="/major-finding" className="w-full md:w-1/3">
+              <motion.div
+                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
+                data-aos="fade-up"
+                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="flex flex-col items-center group transition-all duration-2000 ease-in-out">
+                  <FaSearch className="text-5xl text-green-300 mb-3 group-hover:text-green-600 transition-colors duration-2000" />
+                  <h2 className="text-lg font-semibold">Major Findings</h2>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Discover key insights from our research.
+                  </p>
+                </div>
+              </motion.div>
+            </Link>
+
+            {/* Project Objective Card */}
+            <Link href="/project-objective" className="w-full md:w-1/3">
+              <motion.div
+                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
+                data-aos="fade-left"
+                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="flex flex-col items-center group transition-all duration-2000 ease-in-out">
+                  <FaChartLine className="text-5xl text-orange-300 mb-3 group-hover:text-orange-500 transition-colors duration-2000" />
+                  <h2 className="text-lg font-semibold">Summary Analysis</h2>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Learn about the goals and scope of our study.
+                  </p>
+                </div>
+              </motion.div>
+            </Link>
+          </div>
+        </div>
+
+        {/* Card Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
           {cardData.map((card, index) => (
             <div
               key={index}
-              className="bg-white  p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+              className="bg-white p-6 rounded-lg shadow-md"
               data-aos="fade-left"
               data-aos-delay={index * 200}
             >
               <h2 className="text-2xl font-semibold">{card.title}</h2>
-              <p className="mt-2">{card.description}</p>
+              <p className="mt-2, text-left">{card.description}</p>
               <div className="mt-4">
                 <a
                   href={card.link}

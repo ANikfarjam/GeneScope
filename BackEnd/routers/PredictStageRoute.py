@@ -9,10 +9,7 @@ predict_bp = Blueprint('predict_bp', __name__)
 # Load model and preprocessing tools
 MLP_DIR = os.path.join("Models", "MLP")
 
-# Load the actual Keras model file
 model = tf.keras.models.load_model(os.path.join(MLP_DIR, "vanilla_nn_brca_model.keras"))
-
-# Load preprocessing tools
 scaler = joblib.load(os.path.join(MLP_DIR, "scaler.save"))
 pca = joblib.load(os.path.join(MLP_DIR, "pca.save"))
 label_encoder = joblib.load(os.path.join(MLP_DIR, "label_encoder.save"))
@@ -25,13 +22,11 @@ def predict_stage():
         file = request.files['file']
         df = pd.read_csv(file)
 
-        # Extract key clinical features (before filtering)
         clinical_info = df[[
             'year_of_diagnosis',
             'age_at_index', 'initial_weight'
         ]].iloc[0].to_dict()
 
-        # Drop non-numeric columns for model input
         df = df.select_dtypes(include=[np.number])
         df.replace([np.inf, -np.inf], np.nan, inplace=True)
         df.dropna(inplace=True)
@@ -39,11 +34,9 @@ def predict_stage():
         if df.empty:
             return jsonify({'error': 'Input data is empty after cleaning'}), 400
 
-        # Preprocess
         X_scaled = scaler.transform(df)
         X_pca = pca.transform(X_scaled)
 
-        # Predict
         prediction = model.predict(X_pca)
         pred_index = np.argmax(prediction, axis=1)[0]
         pred_stage = label_encoder.classes_[pred_index]
