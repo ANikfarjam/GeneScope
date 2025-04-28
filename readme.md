@@ -2,8 +2,7 @@
 
 <img src="project_insites/readme_intro.png" alt="Gene Into" width="800" />
 
-GeneScope is a full-stack platform for analyzing gene expression patterns and clinical data to predict breast cancer stages, highlight key biomarkers, and support prognosis insights.  
-It combines powerful machine learning models, a clean web dashboard, and an intelligent chatbot to make complex biological data understandable and actionable.
+GeneScope is a full-stack platform for analyzing gene expression patterns and clinical data to predict breast cancer stages and identify key biomarkers. It combines powerful machine learning models, statistical analysis, a clean web dashboard, and an intelligent chatbot to make complex biological data understandable and actionable for prognosis research and gene importance discovery.
 
 ## Project Structure
 
@@ -80,7 +79,7 @@ The frontend will be available at [http://localhost:3000](http://localhost:3000)
 ## Technologies Used
 
 - Frontend: Next.js, React, TailwindCSS, Chart.js
-- Backend: Flask, TensorFlow/Keras, Pandas, Scikit-learn
+- Backend: Flask, Marimo, TensorFlow/Keras, Pandas, Scikit-learn
 - Other: Docker-ready for cloud deployment (GCP)
 
 ## Acknowledgements
