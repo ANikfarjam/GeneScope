@@ -39,7 +39,7 @@ GENESCOPE
 
 ### Backend (Flask)
 
-```
+```bash
 cd BackEnd
 python GeneScopeServer.py
 ```
