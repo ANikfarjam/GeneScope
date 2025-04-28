@@ -144,13 +144,12 @@ export default function Home() {
                   <FaRegCommentDots className="text-5xl text-blue-300 mb-3 group-hover:text-blue-600 transition-colors duration-2000" />
                   <h2 className="text-lg font-semibold">Chatbot</h2>
                   <p className="text-sm text-gray-600 mt-2">
-                    powered by our staging model for fast, data-backed cancer
-                    answers
+                    powered by our staging model for cancer answers
                   </p>
                 </div>
               </motion.div>
             </Link>
-            <Link href="/project-objective" className="w-full md:w-1/3">
+            <Link href="/projectobjective" className="w-full md:w-1/3">
               <motion.div
                 className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
                 data-aos="fade-left"
@@ -166,7 +165,7 @@ export default function Home() {
                 </div>
               </motion.div>
             </Link>
-            <Link href="/major-finding" className="w-full md:w-1/3">
+            <Link href="/majorfinding" className="w-full md:w-1/3">
               <motion.div
                 className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
                 data-aos="fade-up"
@@ -298,7 +297,7 @@ export default function Home() {
               data-aos="fade-left"
               data-aos-delay={index * 200}
             >
-              <h2 className="text-2xl font-semibold">{card.title}</h2>
+              <h2 className="text-1xl font-semibold">{card.title}</h2>
               <p className="mt-2, text-left">{card.description}</p>
               <div className="mt-4">
                 <a
