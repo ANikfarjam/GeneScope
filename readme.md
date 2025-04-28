@@ -75,8 +75,6 @@ npm run dev
 
 The frontend will be available at [http://localhost:3000](http://localhost:3000).
 
----
-
 ## Technologies Used
 
 - Frontend: Next.js, React, TailwindCSS, Chart.js
@@ -88,12 +86,8 @@ The frontend will be available at [http://localhost:3000](http://localhost:3000)
 - TCGA (The Cancer Genome Atlas) for public gene expression and clinical datasets
 - Open-source libraries and research in biomedical machine learning
 
----
-
 ## Future Enhancements
 
 - Enhanced chatbot capabilities (summarizing research papers)
 - Expanded dataset support for multi-cancer analysis
 - Cloud-based deployment with automated scaling
-
----
