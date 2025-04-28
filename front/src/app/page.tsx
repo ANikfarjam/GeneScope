@@ -7,7 +7,7 @@ import { Bar } from "react-chartjs-2";
 import { Doughnut } from "react-chartjs-2";
 import { Chart, registerables } from "chart.js";
 import Typer from "./components/Typer";
-import { motion } from "framer-motion"; // Import Framer Motion
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { FaRegCommentDots, FaSearch, FaChartLine } from "react-icons/fa";
 
@@ -123,15 +123,74 @@ export default function Home() {
         >
           <Typer text="We’re on a mission to make breast cancer analysis smarter, more personal, and easier to understand. GeneScope combines powerful deep learning with real clinical and genetic data to predict cancer stages, spotlight key biomarkers, and uncover hidden patterns in the fight against breast cancer. But here’s the best part you can actually talk to it! Our chatbot isn’t just conversational it performs staging predictions too, giving you fast, data-backed answers. Dive into our major findings to see what we’ve uncovered, and learn about our project objectives to understand the bigger picture." />
         </div>
-
-        <div className="mt-12 shadow-lg p-4 inset-shadow-xs bg-white">
+        <div className="mt-9 p-4 ">
           <h2
-            className="text-2xl font-bold mb-6 text-center "
+            className="text-2xl font-bold mb-6 text-center"
             data-aos="fade-up"
           >
-            The Impact of Breast Cancer
+            Our Tools
           </h2>
 
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white ">
+            {/* Dashboard Card */}
+            <Link href="/dashboard" className="w-full md:w-1/3">
+              <motion.div
+                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
+                data-aos="fade-right"
+                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="flex flex-col items-center group transition-all duration-2000 ease-in-out">
+                  <FaRegCommentDots className="text-5xl text-blue-300 mb-3 group-hover:text-blue-600 transition-colors duration-2000" />
+                  <h2 className="text-lg font-semibold">Chatbot</h2>
+                  <p className="text-sm text-gray-600 mt-2">
+                    powered by our staging model for fast, data-backed cancer
+                    answers
+                  </p>
+                </div>
+              </motion.div>
+            </Link>
+            <Link href="/project-objective" className="w-full md:w-1/3">
+              <motion.div
+                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
+                data-aos="fade-left"
+                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="flex flex-col items-center group transition-all duration-2000 ease-in-out">
+                  <FaChartLine className="text-5xl text-orange-300 mb-3 group-hover:text-orange-500 transition-colors duration-2000" />
+                  <h2 className="text-lg font-semibold">Summary Analysis</h2>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Learn about the goals and scope of our study.
+                  </p>
+                </div>
+              </motion.div>
+            </Link>
+            <Link href="/major-finding" className="w-full md:w-1/3">
+              <motion.div
+                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
+                data-aos="fade-up"
+                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
+                transition={{ duration: 0.2 }}
+              >
+                <div className="flex flex-col items-center group transition-all duration-2000 ease-in-out">
+                  <FaSearch className="text-5xl text-green-300 mb-3 group-hover:text-green-600 transition-colors duration-2000" />
+                  <h2 className="text-lg font-semibold">Major Findings</h2>
+                  <p className="text-sm text-gray-600 mt-2">
+                    Discover key insights from our research.
+                  </p>
+                </div>
+              </motion.div>
+            </Link>
+          </div>
+        </div>
+        <h2
+          className="text-2xl font-bold mb-6 text-center mt-12"
+          data-aos="fade-up"
+        >
+          The Impact of Breast Cancer
+        </h2>
+        <div className=" shadow-lg p-4 inset-shadow-xs bg-white">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <a
               href="https://breast-cancer.ca/diag-ratngs/"
@@ -218,75 +277,13 @@ export default function Home() {
           <p className="text-lg"></p>
         </motion.div>
 
-        {/* Separate Section for Three Navigation Cards */}
-        <div className="mt-12 p-4 ">
-          <h2
-            className="text-2xl font-bold mb-6 text-center"
-            data-aos="fade-up"
-          >
-            Explore More
-          </h2>
-
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white ">
-            {/* Dashboard Card */}
-            <Link href="/dashboard" className="w-full md:w-1/3">
-              <motion.div
-                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
-                data-aos="fade-right"
-                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="flex flex-col items-center group transition-all duration-2000 ease-in-out">
-                  <FaRegCommentDots className="text-5xl text-blue-300 mb-3 group-hover:text-blue-600 transition-colors duration-2000" />
-                  <h2 className="text-lg font-semibold">Chatbot</h2>
-                  <p className="text-sm text-gray-600 mt-2">
-                    powered by our staging model for fast, data-backed cancer
-                    answers
-                  </p>
-                </div>
-              </motion.div>
-            </Link>
-
-            {/* Major Findings Card */}
-            <Link href="/major-finding" className="w-full md:w-1/3">
-              <motion.div
-                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
-                data-aos="fade-up"
-                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="flex flex-col items-center group transition-all duration-2000 ease-in-out">
-                  <FaSearch className="text-5xl text-green-300 mb-3 group-hover:text-green-600 transition-colors duration-2000" />
-                  <h2 className="text-lg font-semibold">Major Findings</h2>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Discover key insights from our research.
-                  </p>
-                </div>
-              </motion.div>
-            </Link>
-
-            {/* Project Objective Card */}
-            <Link href="/project-objective" className="w-full md:w-1/3">
-              <motion.div
-                className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
-                data-aos="fade-left"
-                whileHover={{ boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)" }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className="flex flex-col items-center group transition-all duration-2000 ease-in-out">
-                  <FaChartLine className="text-5xl text-orange-300 mb-3 group-hover:text-orange-500 transition-colors duration-2000" />
-                  <h2 className="text-lg font-semibold">Summary Analysis</h2>
-                  <p className="text-sm text-gray-600 mt-2">
-                    Learn about the goals and scope of our study.
-                  </p>
-                </div>
-              </motion.div>
-            </Link>
-          </div>
-        </div>
-
-        {/* Card Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <h2
+          className="text-2xl font-bold mb-6 text-center mt-8"
+          data-aos="fade-up"
+        >
+          More Information
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
           {cardData.map((card, index) => (
             <div
               key={index}
