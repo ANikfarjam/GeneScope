@@ -1,3 +1,4 @@
+//src/app/lib/embedAndStore.ts
 import { Pinecone } from "@pinecone-database/pinecone";
 
 let client: Pinecone | null = null;
