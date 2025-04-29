@@ -23,7 +23,7 @@ def _(mo):
 
     class ShowAnalysis(anywidget.AnyWidget):
         current_step = traitlets.Int(0).tag(sync=True)
-    
+
         _esm = """
         export function render({ model, el }) {
             const container = document.createElement("div");
@@ -183,7 +183,6 @@ def _(mo):
     # Initialize properly in Marimo
     show_analysis = mo.ui.anywidget(ShowAnalysis())
     show_analysis
-
     return ShowAnalysis, anywidget, show_analysis, traitlets
 
 
@@ -248,7 +247,7 @@ def _(mo):
 
 
     # Define the icon HTML (e.g., an image tag)
-    with open("chip.png", "rb") as image_file:
+    with open("./img/chip.png", "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
 
     data_uri = f"data:image/png;base64,{encoded_string}"
@@ -264,7 +263,7 @@ def _(mo):
         path="/ml"
     )
     # Define the icon HTML (e.g., an image tag)
-    with open("exploratory-analysis.png", "rb") as image_file:
+    with open("./img/exploratory-analysis.png", "rb") as image_file:
         encoded_string2 = base64.b64encode(image_file.read()).decode('utf-8')
     data_uri2 = f"data:image/png;base64,{encoded_string2}"
     icon_ml2 = f'<img src="{data_uri2}" alt="EDA Icon">'
@@ -276,7 +275,7 @@ def _(mo):
         path="/eda"
     )
     # Define the icon HTML (e.g., an image tag)
-    with open("monitor.png", "rb") as image_file:
+    with open("./img/monitor.png", "rb") as image_file:
         encoded_string3 = base64.b64encode(image_file.read()).decode('utf-8')
     data_uri3 = f"data:image/png;base64,{encoded_string3}"
     icon_ml3 = f'<img src="{data_uri3}" alt="EDA Icon">'

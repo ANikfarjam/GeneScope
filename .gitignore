@@ -4,10 +4,11 @@ data/
 *.soft
 *.npy
 *.pkl
-/BackEnd/Marimo_server/media/
+/BackEnd/media/
 /BackEnd/Marimo_server/FB/
 /BackEnd/Marimo_server/assets/
 /BackEnd/Storage/
+/ExploretoryData/
 .env
 __pycache__
 /BackEnd/Models/DMM/catboost_mlp_fussion/nas_gene_model/

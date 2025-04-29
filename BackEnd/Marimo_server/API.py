@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import marimo
 from fastapi.responses import RedirectResponse
 
@@ -11,13 +12,22 @@ server = (
     .with_app(path="/ml", root="MLs.py")
 )
 
-# Create the FastAPI app and mount the Marimo server
+# Create the FastAPI app
 app = FastAPI()
 
-# Mount the multi-app Marimo server at root
+# --- Add CORS middleware ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
+
+# Mount the Marimo server
 app.mount("/", server.build())
 
 # Run it
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="localhost", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
