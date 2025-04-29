@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
         .join("\n\n");
 
       const summarizationPrompt = `
-You are a GeneScope assistant. Based on the following research findings, answer the user's query concisely, professionally, and based only on the research.
+You are a GeneScope assistant. Based on the following research findings, answer the user's query concisely, professionally, and based only on the research and target general audience unless they ask to go more specific.
 
 User's Question:
 "${prompt}"

@@ -134,7 +134,7 @@ export default function Chatbot() {
 
       setMessages((prev) => [...prev, chartMessage]);
 
-      // 🧠 Ask LangChain for serious advice based on clinical data
+      // Ask LangChain for serious advice based on clinical data
       const explainPrompt = `
   just know that there is a bar chart generated above that displays each stage and their probabilities i dont want to talk about it just know it exist.
   Imagine you just received a patient's clinical data after being predicted that they are at **${stage}**.
@@ -169,7 +169,7 @@ export default function Chatbot() {
     } catch (err) {
       console.error("CSV prediction error:", err);
       window.alert(
-        "🚨 Could not connect to the model API. Please make sure the Flask server is running."
+        "Could not connect to the model API. Please make sure the Flask server is running."
       );
     } finally {
       setLoading(false);
