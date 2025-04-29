@@ -149,7 +149,7 @@ export default function Home() {
                 </div>
               </motion.div>
             </Link>
-            <Link href="/projectobjective" className="w-full md:w-1/3">
+            <Link href="/summaryanalysis" className="w-full md:w-1/3">
               <motion.div
                 className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
                 data-aos="fade-left"
@@ -165,7 +165,7 @@ export default function Home() {
                 </div>
               </motion.div>
             </Link>
-            <Link href="/majorfinding" className="w-full md:w-1/3">
+            <Link href="/majorfindings" className="w-full md:w-1/3">
               <motion.div
                 className="p-6 bg-white rounded-lg shadow-md text-center cursor-pointer"
                 data-aos="fade-up"
