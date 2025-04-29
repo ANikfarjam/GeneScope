@@ -7,14 +7,17 @@ app = marimo.App(width="medium")
 @app.cell
 def _():
     import marimo as mo
-    return (mo,)
-
+    import io
+    import numpy as np
+    import scipy.stats as stats
+    import plotly.graph_objects as go
+    return go, io, mo, np, stats
 
 @app.cell
-def _(mo):
-    mo.md("""Author: Ashkan Nikfarjam""")
-    return
-
+def _():
+    import plotly.io as pio
+    pio.renderers.default = "iframe_connected"
+    return (pio,)
 
 @app.cell(hide_code=True)
 def _(mo):
@@ -24,7 +27,9 @@ def _(mo):
 
         ### <span style='color:brown'>Objective:</span>
 
-        Breast cancer is the most frequently diagnosed cancer in women and remains one of the leading causes of cancer-related deaths worldwide. It typically originates from the epithelial cells lining the milk ducts or lobules responsible for milk production and transport. GeneScope aims to investigate breast cancer biomarkers and patient prognosis by building a predictive model for cancer stage classification. Our approach integrates gene expression data with key clinical variables such as tumor size, lymph node involvement, and patient demographics. Unlike many prior studies that rely heavily on traditional statistical models,such as t-tests, entropy based scoring, or Hidden Markov Models. We combine statistical methods with modern machine learning techniques to create a more robust and data-driven framework. Specifically, we employ a modified Analytic Hierarchy Process (AHP) for gene ranking, use CatBoost to estimate stage probabilities, and implement deep learning models to capture more subtle and complex patterns in the data. Through this multi-faceted approach, we aim to improve classification accuracy and deepen understanding of the clinical and molecular dynamics of breast cancer progression.
+        By training a deep learning model, optimized through the backpropagation algorithm, we are aimong to further analyze biomarkers and prognoses. Cancer biomarkers are biological indicators, such as genes, proteins, or other substances, that can reveal important details about a person's cancer. We are particularly interested in exploring whether the model can help identify genes that are more susceptible to cancer, causing mutations (<span style='color:brown'>indicating the bio markers</span>). For prognosis, we are intrested to how factors such as tumor size, the number of regional lymph nodes affected, distant metastasis, and patient demographics—such as age, ethnicity and race, play a critical role in cancer progression and patient outcomes(<span style='color:brown'>Prognosis</span>).
+
+
 
         ### <span style="color:brown">Data Source</span>
 
@@ -36,7 +41,7 @@ def _(mo):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.center(mo.image(src="TCGAcancerTypes.png",caption="The Cancer Types available in TCGA database. This image is from the TCGA officcial website!", width=500,  height=400))
+    mo.center(mo.image(src="./img/TCGAcancerTypes.png",caption="The Cancer Types available in TCGA database. This image is from the TCGA officcial website!", width=500,  height=400))
     return
 
 
@@ -49,10 +54,22 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
+        """
+        <span style="color:brown">Data Collection Challenges</span>
+
+        Collecting data for our cancer study turned out to be much harder than we expected. Cancer is such a complex and heterogeneous disease that finding enough consistent data was a real challenge. We often ran into two major problems. Sometimes the datasets we found were high quality but only had around 200 samples — not nearly enough for the kind of deep analysis we wanted to do. Other times, even when more data was available, the methods used for gene extraction and normalization were completely different from one study to another. That made it impossible to simply combine multiple datasets without risking serious errors. Overall, getting a large, clean, and consistent dataset proved to be one of the biggest challenges in our project.
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
         r"""
         ## <span style="color: brown">Expression Collection Methods: 
 
-        Next-Generation Sequencing (NGS) is a high-throughput method for sequencing DNA by following a series of steps. First, in library preparation, the genome is fragmented into smaller pieces, and short adapter sequences are attached to both ends, forming a DNA library. Next, in bridge amplification, these fragments are hybridized to a solid surface and undergo multiple amplification cycles, creating clusters of identical DNA fragments. In sequencing, fluorescently labeled nucleotides are incorporated into the DNA strands, and a camera captures the emitted signals to determine the sequence of each fragment through multiple sequencing cycles. Finally, in alignment and data analysis, the short DNA reads are aligned to a reference genome, overlapping regions are assembled into contigs, and the final sequence is reconstructed. This efficient and scalable technique is widely used in genomic research, cancer studies, transcriptomics, and personalized medicine.
+        The gene expressoions have been extracted using **Next-Generation Sequencing (NGS)**, a high-throughput method for sequencing DNA by following a series of steps. First, in library preparation, the genome is fragmented into smaller pieces, and short adapter sequences are attached to both ends, forming a DNA library. Next, in bridge amplification, these fragments are hybridized to a solid surface and undergo multiple amplification cycles, creating clusters of identical DNA fragments. In sequencing, fluorescently labeled nucleotides are incorporated into the DNA strands, and a camera captures the emitted signals to determine the sequence of each fragment through multiple sequencing cycles. Finally, in alignment and data analysis, the short DNA reads are aligned to a reference genome, overlapping regions are assembled into contigs, and the final sequence is reconstructed. This efficient and scalable technique is widely used in genomic research and cancer studies.
         """
     )
     return
@@ -96,9 +113,11 @@ def _(mo):
 def _(mo):
     mo.md(
         """
-        ### <span style="color: brown">Data Files in GSE62944
+        # <span style="color: brown">Data Extraction and EDA</span>
+        ### <span style="color: brown">Supplementary Data Files in GSE62944</span>
 
-        These are the available suplementory file for this geo dataset that we can use for labaling and creating our data set in csv format and furthermore creating Test/Train/Val data: 
+        The publisher of dataset provided the following supplementary files for extracting and labling gene exoressions.
+
 
         | Supplementary file | Discription |File type/resource |
         |--------------------|------|--------------------|
@@ -119,7 +138,7 @@ def _(mo):
         r"""
         <span style="color: brown">1. EDA for 24 cancer type file</span>
 
-        This suplementary files was refresing each patient sample id to their related diagnosed cancer. and it had 1119 sample for breawt cancer.
+        This suplementary files referances each patient sample id to their related diagnosed cancer. and it had 1119 breast cancer samples(Healthy and Melignant). We seporated all the breast cancer's related samples and later used it to label our gene expressions.
 
         **Note:** this data set labels breast cancer as BRCA and its nor related to the supressor gene BRCA.
         """
@@ -156,7 +175,7 @@ def _():
 
 @app.cell(hide_code=True)
 def _(create_supl_df):
-    cancerBRCA_type_df, data, cType_count= create_supl_df('../../data/SuplementoryFiles/TCGA_24_CancerType_Samples.txt', 'BRCA')
+    cancerBRCA_type_df, data, cType_count= create_supl_df('./data/SuplementoryFiles/TCGA_24_CancerType_Samples.txt', 'BRCA')
 
     cancer_descriptions_list = [
         "Breast Cancer - A malignant tumor that develops from breast cells.",
@@ -191,10 +210,12 @@ def _(create_supl_df):
 
 @app.cell(hide_code=True)
 def _(cType_count, mo):
-    mo.ui.tabs({
-        'Cancers Count': mo.ui.table(cType_count),
-        'Extraction Method': mo.hstack([
-            mo.ui.code_editor(f"""
+    mo.tabs(
+        tabs={
+            'Cancers Count': mo.ui.table(cType_count),
+            'Extraction Method': mo.vstack([
+                mo.ui.code_editor(
+                    """
     def create_supl_df(source, cancerType):
         \"\"\"
         This function creates a data frame from a supplementary file.
@@ -206,7 +227,7 @@ def _(cType_count, mo):
         with open(source, 'r') as file:
             data = [line.split('\\t') for line in file.readlines()]
 
-        data_dic = {{"Samples": [], "CancerType": []}}
+        data_dic = {"Samples": [], "CancerType": []}
         for line in data:
             data_dic['Samples'].append(line[0])
             data_dic['CancerType'].append(line[1])
@@ -215,9 +236,13 @@ def _(cType_count, mo):
         cancer_type_df['CancerType'] = cancer_type_df['CancerType'].str.strip()
         cType_count = cancer_type_df.CancerType.value_counts()
         cancer_type_df = cancer_type_df[cancer_type_df['CancerType'] == cancerType]
-        return cancer_type_df, data, cType_count  
-            """),
-            mo.ui.code_editor(f"""
+        return cancer_type_df, data, cType_count
+                    """,
+                    language="python",
+                    max_height=400  # optional: sets height so it scrolls if big
+                ),
+                mo.ui.code_editor(
+                    """
     cancerBRCA_type_df, data, cType_count = create_supl_df(
         'TCGA_24_CancerType_Samples.txt', 'BRCA'
     )
@@ -251,10 +276,13 @@ def _(cType_count, mo):
 
     cType_count = cType_count.to_frame()
     cType_count['Description'] = cancer_descriptions_list
-            """)
-        ])
-    })
-
+                    """,
+                    language="python",
+                    max_height=400  
+                )
+            ])
+        }
+    )
     return
 
 
@@ -262,25 +290,21 @@ def _(cType_count, mo):
 def _(mo):
     mo.md(
         r"""
-        <span style="color: brown"> 2. the Normal_CancerType_Samples</spam>
+        <span style="color: brown"> 2. the Normal_CancerType_Samples and Malignant_CancerType_Samples</spam>
 
-        This text file list each normal samples respectively! lets take a look
+        These text file are used to seporate and lable healtyh and cancerous sample ID. Later they are used to create healthy and cancerus gene expression datasets.
         """
     )
     return
 
 
-@app.cell
-def _(create_supl_df):
-    Normal_Sample_gene,_,_ = create_supl_df('../../data/SuplementoryFiles/TCGA_Normal_CancerType_Samples .txt','BRCA')
-    Normal_Sample_gene
-    return (Normal_Sample_gene,)
+@app.cell(hide_code=True)
+def _(create_supl_df, mo):
+    Normal_Sample_gene,_,_ = create_supl_df('./data/SuplementoryFiles/TCGA_Normal_CancerType_Samples .txt','BRCA')
+    melignent_df, _, _=create_supl_df('./data/SuplementoryFiles/TCGA_20_CancerType_Samples.txt', 'BRCA')
 
-
-@app.cell
-def _(mo):
-    mo.md(r"""As we can see there are 113 normal cancer samples where i might do [%60, %20, %20] distribution for train test and val datasets witch would be [67, 23, 23] samples for healthy dataset!""")
-    return
+    mo.tabs({'Benine Samples': mo.ui.table(Normal_Sample_gene), 'Melignanr Samples':mo.ui.table(melignent_df)})
+    return Normal_Sample_gene, melignent_df
 
 
 @app.cell(hide_code=True)
@@ -295,20 +319,13 @@ def _(mo):
     return
 
 
-@app.cell
-def _(create_supl_df):
-    melignent_df, _, _=create_supl_df('../../data/SuplementoryFiles/TCGA_20_CancerType_Samples.txt', 'BRCA')
-    melignent_df
-    return (melignent_df,)
-
-
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
         # <span style='color: brown'>Raw Gene Expression Data</sapn>
 
-        now that we have all the samples data for healthy and cancerous data GSE62944_RAW.tar data.
+        After extracting all the refrencing and maping of all the sample IDs, we can leverage them to create healthy and cancerous data_set.
 
         | File Name | Sample ID | Date | Platform | Condition | File Type | Use|
         |-----------|----------|------|----------|-----------|-----------|-----------|
@@ -321,20 +338,24 @@ def _(mo):
         | GSM1697009_06_01_15_TCGA_24.normal_Rsubread_FeatureCounts.txt | GSM1697009 | 06_01_15 | TCGA | Normal | FeatureCounts | |
         | GSM1697009_06_01_15_TCGA_24.normal_Rsubread_FPKM.txt | GSM1697009 | 06_01_15 | TCGA | Normal | FPKM | |
         | GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt | GSM1697009 | 06_01_15 | TCGA | Normal | TPM | ✅ |
-
-        Since the gene expressions are in text format I need to as well extract the gene expression matrix parsing through data!
         """
     )
     return
 
 
-@app.cell
-def _(pd):
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md("""We extracter the gene expressions from the **Normal Samples from GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt** and **Samples from GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt** for both benine and cancerous datasets.""")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo, pd):
+    extraction_function = f"""
     def get_samples_df(source, sample_list):
-        """
-            this function takes in the file source and sample list of BRCA
-            then return the data frame that contains the all the genes and related benign and melignant samples
-        """
+
+            #this function takes in the file source and sample list of BRCA
+            #then return the data frame that contains the all the genes and related benign and melignant samples
         with open(source, 'r') as file:
             extracted_data = [line.strip().split("\t") for line in file]
         df=pd.DataFrame(extracted_data)
@@ -353,72 +374,47 @@ def _(pd):
         df=df.set_index(df.columns[0])
         df=df.loc[:,sample_list]
         return df
-    return (get_samples_df,)
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""###1. Normal Samples from GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt:""")
-    return
-
-
-@app.cell
-def _(Normal_Sample_gene, get_samples_df):
-    healthy_dataSet = get_samples_df('../../data/GSE62944_RAW/GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt',Normal_Sample_gene['Samples'].to_list())
+    """
+    helthy_code = f"""
+    healthy_dataSet = get_samples_df('GSE62944_RAW/GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt',Normal_Sample_gene['Samples'].to_list())
     healthy_dataSet=healthy_dataSet.T
     healthy_dataSet=healthy_dataSet.astype(float)
-    # healthy_dataSet.to_csv('../../data/ModelDataSets/helthyExpressions.csv')
-    return (healthy_dataSet,)
-
-
-@app.cell
-def _(healthy_dataSet, mo):
-    mo.ui.table(healthy_dataSet)
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        r"""
-        ###2. Melignant samples Samples from GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt:
-
-        Now we are doing the same thing for toumor samples!
-        """
-    )
-    return
-
-
-@app.cell
-def _(pd):
     """
-    df1 =get_samples_df('../../data/GSE62944_RAW/GSM1536837_06_01_15_TCGA_24.tumor_Rsubread_TPM.txt', cancerBRCA_type_df['Samples'].to_list())
+    cancer_code = f"""
+    df1 =get_samples_df('/GSE62944_RAW/GSM1536837_06_01_15_TCGA_24.tumor_Rsubread_TPM.txt', cancerBRCA_type_df['Samples'].to_list())
     df2 =get_samples_df('../../data/GSE62944_RAW/GSM1536837_06_01_15_TCGA_24.tumor_Rsubread_TPM.txt', melignent_df['Samples'].to_list())
     cancer_dataSet = pd.concat([df1.T,df2.T],ignore_index=False)
+    """
+    helthy_code = f"""
+    healthy_dataSet = get_samples_df('/GSE62944_RAW/GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt',Normal_Sample_gene['Samples'].to_list())
+    healthy_dataSet=healthy_dataSet.T
+    healthy_dataSet=healthy_dataSet.astype(float)
     cancer_dataSet=cancer_dataSet.astype(float)
     """
-
-    cancer_dataSet = pd.read_csv('../../data/ModelDataSets/cancerExpressions.csv')
-    return (cancer_dataSet,)
-
-
-@app.cell
-def _(cancer_dataSet, mo):
+    healthy_dataSet = pd.read_csv('./data/helthyExpressions.csv')
+    cancer_dataSet = pd.read_csv('./data/cancerExpressions.csv')
     cancer_dataSet.rename(columns={'Unnamed: 0':'Samples'}, inplace=True)
-    mo.ui.table(cancer_dataSet)
-    return
 
+    extraction_tab = mo.vstack([
+        mo.ui.code_editor(extraction_function),
+        mo.ui.code_editor(helthy_code),
+        mo.ui.code_editor(cancer_code)
+    ])
 
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        """
-        It seams like we have 2,200 samples and for the model training using 60,20,20 distribution. We are going to have [1321, 350, 350] sample distribution for test train and val dataset!
-
-        As we can see how the expression of the same top 300 genes in the same order deffer significantly.
-        """
+    # --- Assemble the tabs ---
+    mo.tabs({
+        "Healthy Gene Expression": mo.ui.table(healthy_dataSet),
+        "Malignant Gene Expression": mo.ui.table(cancer_dataSet),
+        "Extraction Method": extraction_tab
+    })
+    return (
+        cancer_code,
+        cancer_dataSet,
+        extraction_function,
+        extraction_tab,
+        healthy_dataSet,
+        helthy_code,
     )
-    return
 
 
 @app.cell(hide_code=True)
@@ -435,12 +431,12 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(io, mo, pd):
-    with open('../../data/SuplementoryFiles/GSE62944_01_27_15_TCGA_20_420_Clinical_Variables_7706_Samples.txt', 'r') as file:
-        exractedData1=[line.split('\t') for line in file.readlines()]
-    with open('../../data/SuplementoryFiles/GSE62944_06_01_15_TCGA_24_548_Clinical_Variables_9264_Samples.txt', 'r') as file:
-        exractedData2=[line.split('\t') for line in file.readlines()]
+    extraction_code = f"""with open('GSE62944_01_27_15_TCGA_20_420_Clinical_Variables_7706_Samples.txt', 'r') as file:
+        exractedData1 = [line.split('\\t') for line in file.readlines()]
+    with open('GSE62944_06_01_15_TCGA_24_548_Clinical_Variables_9264_Samples.txt', 'r') as file:
+        exractedData2 = [line.split('\\t') for line in file.readlines()]
 
     # Convert to DataFrames
     df1 = pd.DataFrame(exractedData1)
@@ -457,32 +453,35 @@ def _(io, mo, pd):
     concat_df.columns = concat_df.iloc[0]
     concat_df = concat_df.drop(0)  # Remove the first row
 
-    #remove nan colomns
+    # Remove NaN columns
     concat_df = concat_df.loc[:, ~concat_df.columns.isna()]
 
     # Rename index column
     if '' in concat_df.columns:
-        concat_df.rename(columns={'': 'Samples'}, inplace=True)
+        concat_df.rename(columns={{'': 'Samples'}}, inplace=True)
+
     # Capture df.info() output
+    info_buf = io.StringIO()
+    concat_df.info(verbose=True, show_counts=True, buf=info_buf)
+    """
+
+    # Load pre-processed DataFrame for display
+    concat_df = pd.read_csv('./AHPresults/initial_clinical_df.csv')
+
+    # Capture df.info() output separately (you missed this)
     info_buf = io.StringIO()
     concat_df.info(verbose=True, show_counts=True, buf=info_buf)
     info_str = info_buf.getvalue()
 
-    # Now pass tabs correctly
-    mo.ui.tabs({
+    # Build Marimo UI
+    cl_tabs = mo.tabs({
         'Data': mo.ui.table(concat_df),
-        'Info': mo.md(f"```\n{info_str}\n```")
+        'Info': mo.md(f"```\n{info_str}\n```"),
+        'Extraction': mo.ui.code_editor(extraction_code, language="python")
     })
-    return (
-        concat_df,
-        df1,
-        df2,
-        exractedData1,
-        exractedData2,
-        file,
-        info_buf,
-        info_str,
-    )
+
+    cl_tabs
+    return cl_tabs, concat_df, extraction_code, info_buf, info_str
 
 
 @app.cell
@@ -498,22 +497,16 @@ def _(cancer_dataSet, concat_df, info_str, mo):
 
     BRCA_CV = concat_df[concat_df['Samples'].isin(cancerBRCAList)].copy()
     # BRCA_CV.drop(columns='index', inplace=True)
-    mo.ui.tabs({
+    mo.tabs({
         'Data': mo.ui.table(BRCA_CV),
-        'Info': mo.md(f"```\n{info_str}\n```")
+        'Info': mo.md(f"`\n{info_str}\n`")
     })
     return BRCA_CV, cancerBRCAList
 
 
-@app.cell
-def _():
-    #BRCA_CV.to_csv('clinicalDF.csv', index=False)
-    return
-
-
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""By over looking of the columns of this dataset we can see that the data can be used for the following analysis:""")
+    mo.md(r"""By over looking of the columns of this dataset columns we initially thout the data can be used for the following analysis.""")
     return
 
 
@@ -624,7 +617,7 @@ def _(mo, pd):
     ])
 
     # Create tabs using a dictionary
-    tabs = mo.ui.tabs({
+    tabs = mo.tabs({
         "Patient Demographics & History": patient_demographics_table,
         "Tumor Characteristics & Diagnosis": tumor_characteristics_table,
         "Cancer Staging":cancer_staging_table,
@@ -653,104 +646,208 @@ def _(mo):
     return
 
 
-@app.cell
-def _(BRCA_CV):
-    import numpy as np
-    # value_dic={}
-    # for col in BRCA_CV.columns:
-    #     value_dic[col] = BRCA_CV[col].value_counts()
-    # value_dic
-    new_brca_df = BRCA_CV.copy()
-    new_brca_df.replace("NA", np.nan, inplace=True)
-    new_brca_df.info(verbose=True, show_counts=True)
-    return new_brca_df, np
-
-
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         """
-        As we can see lot of unprovided values for these clinical varuables and also there is no logical way to replace these NaN values usin inputation or using mean beacuse its either string or each of these values in biology are not inputable because the symantical meaning it has. 
+        **Issues with the clinical data provided by the publisher of this dataset.**
 
-        For Cleaning up we are going to drop columns [189:]. How ever these three columns are going to leh us alot to label our gene expressions for staging and prepare the data for our deep learning model. 
-
-         | Column | Variable | non Null count | Dtype |
-         |--------|----------|----------------|-------|
-         | 64 | clinical_M | 994 non-null | object |
-         | 65 | clinical_N | 994 non-null | object |
-         | 66 | clinical_T | 994 non-null | object |
+        * Lot of columns have more that %80 NaN values.
+        * Even after droping all the NaN collumns and rows we notice there were lot of Not Available values in our data. Proving that the clinical data was not filled up properly
+        * After converting thos Not available rows to NaN we found out the clinical data of this data source is not sufficient enough to help us do any further analysis.
+        * There was not proper labling for cancer stages.
         """
     )
     return
 
 
-@app.cell
-def _(mo):
-    mo.md("""###<span style="color: brown">Labaling Data:</span>""")
-    return
+@app.cell(hide_code=True)
+def _(BRCA_CV, melignent_df, np, pd):
+    from io import StringIO
+
+    # --- Initial Dataset ---
+    new_brca_df = BRCA_CV.copy()
+
+    # --- Utility functions ---
+    def get_value_counts_table(df):
+        """Return a long table of (column, value, count) for value_counts across all columns."""
+        records = []
+        for col in df.columns:
+            counts = df[col].value_counts(dropna=False)
+            for val, count in counts.items():
+                records.append({
+                    "Column": col,
+                    "Value": val,
+                    "Count": count
+                })
+        return pd.DataFrame(records)
+
+    def get_info_str(df):
+        """Capture df.info() output as a string."""
+        buffer = StringIO()
+        df.info(buf=buffer, verbose=True, show_counts=True)
+        return buffer.getvalue()
+
+    def convert_numeric_columns(df):
+        """Convert columns that look numeric into actual numeric types."""
+        for col in df.columns:
+            try:
+                df[col] = pd.to_numeric(df[col], errors='ignore')
+            except Exception:
+                pass
+        return df
+    # --- Step 1: Original Dataset ---
+    original_info = get_info_str(new_brca_df)
+    original_value_counts = get_value_counts_table(new_brca_df)
+
+    # --- Step 2: Replace "NA" with np.nan ---
+    new_brca_df.replace("NA", np.nan, inplace=True)
+    after_replace_info = get_info_str(new_brca_df)
+    after_replace_value_counts = get_value_counts_table(new_brca_df)
+
+    # --- Step 3: Convert numeric-looking columns ---
+    new_brca_df = convert_numeric_columns(new_brca_df)
+    after_convert_info = get_info_str(new_brca_df)
+    after_convert_value_counts = get_value_counts_table(new_brca_df)
+
+    # --- Step 4: Drop columns after 189th and filter Samples ---
+    droped_Df = new_brca_df.copy()
+    droped_Df = droped_Df.iloc[:, :189]
+    droped_Df = droped_Df[droped_Df['Samples'].isin(melignent_df['Samples'])]
+
+    after_drop_info = get_info_str(droped_Df)
+    after_drop_value_counts = get_value_counts_table(droped_Df)
+
+    # --- Step 5: Create Column Layout Table ---
+    col_list = droped_Df.columns.tolist()
+    total_cells = 21 * 9
+    col_list += [""] * (total_cells - len(col_list))
+    col_array = np.array(col_list).reshape(21, 9)
+    col_table_df = pd.DataFrame(col_array, columns=[f"Col {i+1}" for i in range(9)])
+
+    # --- Step 6: Final Fill NAs ---
+    droped_Df.fillna("Not Available", inplace=True)
+    final_info = get_info_str(droped_Df)
+    final_value_counts = get_value_counts_table(droped_Df)
+    final_value_counts
+    return (
+        StringIO,
+        after_convert_info,
+        after_convert_value_counts,
+        after_drop_info,
+        after_drop_value_counts,
+        after_replace_info,
+        after_replace_value_counts,
+        col_array,
+        col_list,
+        col_table_df,
+        convert_numeric_columns,
+        droped_Df,
+        final_info,
+        final_value_counts,
+        get_info_str,
+        get_value_counts_table,
+        new_brca_df,
+        original_info,
+        original_value_counts,
+        total_cells,
+    )
 
 
 @app.cell(hide_code=True)
-def _(info_str, melignent_df, mo, new_brca_df, np, pd):
-    #drop the Nan colons
-    droped_Df = new_brca_df.copy()
-    droped_Df = droped_Df.iloc[:,:189]
+def _(mo):
+    mo.md(
+        r"""
+        | Step | Cleaning Action | Purpose |
+        |:----|:-----------------|:--------|
+        | **1** | Replace "NA" with np.nannp.nan | Standardize missing values so pandas can detect and handle them correctly. |
+        | **2** | Convert numeric-looking columns to numbers | Fix columns where numbers are stored as text, enabling proper analysis and modeling. |
+        | **3** | Drop columns after the 189th column | Retain only clinically meaningful columns and remove irrelevant features. |
+        | **4** | Keep only malignant samples (melig≠ntdfmelignent_df) | Focus the study specifically on malignant (cancerous) patient cases. |
+        | **5** | Display cleaned column names in a 21×9 grid | Organize and inspect the final set of column names easily for verification. |
 
-    droped_Df = droped_Df[droped_Df['Samples'].isin(melignent_df['Samples'])]
-    # Get column names as a flat list
-    col_list = droped_Df.columns.tolist()
-
-    # Fill the list with empty strings if not exactly 189 (21×9)
-    total_cells = 21 * 9
-    col_list += [""] * (total_cells - len(col_list))
-
-    # Reshape into 21x9
-    col_array = np.array(col_list).reshape(21, 9)
-
-    # Create DataFrame for display
-    col_table_df = pd.DataFrame(col_array, columns=[f"Col {i+1}" for i in range(9)])
-
-    # Show it in the 'columns' tab
-    mo.ui.tabs({
-        'Table': mo.ui.table(droped_Df),
-        'info': mo.md(f"```\n{info_str}\n```"),
-        'columns': mo.ui.table(col_table_df, page_size=10)
-    })
-    return col_array, col_list, col_table_df, droped_Df, total_cells
-
-
-@app.cell
-def _(droped_Df, mo):
-    mo.ui.tabs=(
-        {'1st':{col: droped_Df[col].value_counts() for col in droped_Df.iloc[:,4:100]},
-        '2nd':{col: droped_Df[col].value_counts() for col in droped_Df.iloc[:,101:]}}
+        The following Tabke show why this clinical variable was not usefull. The are many Not Available data Abailable.
+        """
     )
     return
 
 
-@app.cell
-def _(droped_Df):
-    #'clinical_stage', ajcc_staging_edition, tumor_status
-    clinical_MTN = droped_Df[['clinical_M', 'clinical_N', 'clinical_T']].value_counts()
-    stage_ajcc = droped_Df['ajcc_staging_edition'].value_counts()
-    droped_Df['tumor_status'].value_counts()
-    return clinical_MTN, stage_ajcc
+@app.cell(hide_code=True)
+def _(droped_Df, final_info, mo):
+    ext_code = f"""
+    # --- Utility functions ---
+    def get_value_counts_table(df):
+        \"\"\"Return a long table of (column, value, count) for value_counts across all columns.\"\"\"
+        records = []
+        for col in df.columns:
+            counts = df[col].value_counts(dropna=False)
+            for val, count in counts.items():
+                records.append({{
+                    "Column": col,
+                    "Value": val,
+                    "Count": count
+                }})
+        return pd.DataFrame(records)
 
+    def get_info_str(df):
+        \"\"\"Capture df.info() output as a string.\"\"\"
+        buffer = StringIO()
+        df.info(buf=buffer, verbose=True, show_counts=True)
+        return buffer.getvalue()
 
-@app.cell
-def _(droped_Df):
-    droped_Df.fillna("Not Available", inplace=True)
-    droped_Df.info(verbose=True, show_counts=True)
-    return
+    def convert_numeric_columns(df):
+        \"\"\"Convert columns that look numeric into actual numeric types.\"\"\"
+        for col in df.columns:
+            try:
+                df[col] = pd.to_numeric(df[col], errors='ignore')
+            except Exception:
+                pass
+        return df
+
+    # --- Step 1: Original Dataset ---
+    original_info = get_info_str(new_brca_df)
+    original_value_counts = get_value_counts_table(new_brca_df)
+
+    # --- Step 2: Replace "NA" with np.nan ---
+    new_brca_df.replace("NA", np.nan, inplace=True)
+    after_replace_info = get_info_str(new_brca_df)
+    after_replace_value_counts = get_value_counts_table(new_brca_df)
+
+    # --- Step 3: Convert numeric-looking columns ---
+    new_brca_df = convert_numeric_columns(new_brca_df)
+    after_convert_info = get_info_str(new_brca_df)
+    after_convert_value_counts = get_value_counts_table(new_brca_df)
+
+    # --- Step 4: Drop columns after 189th and filter Samples ---
+    dropped_Df = new_brca_df.copy()
+    dropped_Df = dropped_Df.iloc[:, :189]
+    dropped_Df = dropped_Df[dropped_Df['Samples'].isin(melignent_df['Samples'])]
+
+    after_drop_info = get_info_str(dropped_Df)
+    after_drop_value_counts = get_value_counts_table(dropped_Df)
+
+    # --- Step 5: Create Column Layout Table ---
+    col_list = dropped_Df.columns.tolist()
+    total_cells = 21 * 9
+    col_list += [""] * (total_cells - len(col_list))
+    col_array = np.array(col_list).reshape(21, 9)
+    col_table_df = pd.DataFrame(col_array, columns=[f"Col {{i+1}}" for i in range(9)])
+
+    # --- Step 6: Final Fill NAs ---
+    dropped_Df.fillna("Not Available", inplace=True)
+    final_info = get_info_str(dropped_Df)
+    final_value_counts = get_value_counts_table(dropped_Df)
+    """
+
+    mo.tabs({
+        'Data': droped_Df,
+        'Info': mo.md(f"```\n{final_info}\n```"),
+        'Extraction': mo.ui.code_editor(ext_code)
+    })
+    return (ext_code,)
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md("""Now we cleaned up the data frame, its time to lable the samples based on <span style="color:green">M, T, N</span> markers related to breast cancer that we mentioned earlier.""")
-    return
-
-
-@app.cell
 def _(mo):
     mo.md(
         r"""
@@ -814,26 +911,25 @@ def _(mo):
     return
 
 
-@app.cell
-def _(mo, pd):
-    import io
+@app.cell(hide_code=True)
+def _(io, mo, pd):
     # Load dataset
-    other_sup_file = pd.read_csv("head1.csv")
+    other_sup_files = pd.read_csv("head1.csv")
 
     # Capture DataFrame info as a string
     info_buffer = io.StringIO()
-    other_sup_file.info(verbose=True, show_counts=True, buf=info_buffer)
+    other_sup_files.info(verbose=True, show_counts=True, buf=info_buffer)
     info_text = info_buffer.getvalue()
 
     # Create Marimo UI tabs
-    mo.ui.tabs({
-        "DataSet": mo.ui.table(other_sup_file),
+    mo.tabs({
+        "DataSet": mo.ui.table(other_sup_files),
         "Info": mo.ui.code_editor(f"`\n{info_text}\n`")  # Display info in a nicely formatted code block
     })
-    return info_buffer, info_text, io, other_sup_file
+    return info_buffer, info_text, other_sup_files
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         """
@@ -846,26 +942,22 @@ def _(mo):
 
 
 @app.cell
-def _(other_sup_file):
-    # cleaning up
-    ### Step 1: Drop Columns with Too Many Missing Values 
-    threshold = 0.8  # If more than 80% values are missing, drop the column
-
-
-    other_sup_file.dropna(thresh=int(threshold * len(other_sup_file)), axis=1, inplace=True)
-    return (threshold,)
+def _(other_sup_files):
+    thresholds = 0.8
+    other_sup_files.dropna(thresh=int(thresholds * len(other_sup_files)), axis=1, inplace=True)
+    return (thresholds,)
 
 
 @app.cell(hide_code=True)
-def _(io, mo, other_sup_file):
-    other_sup_file.dropna(inplace=True)
+def _(io, mo, other_sup_files):
+    other_sup_files.dropna(inplace=True)
     buffer = io.StringIO()
-    other_sup_file.info(verbose=True, show_counts=True, buf=buffer)
+    other_sup_files.info(verbose=True, show_counts=True, buf=buffer)
     moded_info = buffer.getvalue()  # Store the captured output as a string
 
     # Display tabs correctly
     mo.tabs({
-        "Cleaned Table": mo.ui.table(other_sup_file),
+        "Cleaned Table": mo.ui.table(other_sup_files),
         "Info": mo.ui.code_editor(f"`\n{moded_info}\n`")  # Properly formatted info
     })
     return buffer, moded_info
@@ -873,35 +965,22 @@ def _(io, mo, other_sup_file):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""Now we can count the numer of samples available for each staging""")
+    mo.md(r"""##<span style="color:brown">Number of stages</span>""")
     return
 
 
 @app.cell(hide_code=True)
-def _(other_sup_file):
-    other_sup_file['ajcc_pathologic_stage'].value_counts()
-    return
+def _(pd):
+    stagedata = pd.read_csv('./AHPresults/fina_Stage_unaugmented.csv')
+    stagedata['Stage'].value_counts()
+    return (stagedata,)
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        """
-        Since the number of sample for some stages are not suffitient enough to have datset fo reach individual Type <span style="color: brown">Stage II A, B, ...</span>, we are going to combine each stage. Thus our new stages would be:
-
-        | Stages |||
-        |--------|--------|--------|
-        | Stage I | Stage II | Stage III |
-        """
-    )
-    return
-
-
-@app.cell
 def _(mo):
     mo.md(
         r"""
-        With all stages combined still our data looks inbalanced. Researches sujest that to either adjust the weight during training or perform Data Augmentation (with Biological Knowledge) using techniques called **SMOTE** or **(VAE) or GANs**:
+        Our data looks inbalanced. Researches sujest that to either adjust the weight during training or perform Data Augmentation (with Biological Knowledge) using techniques called **SMOTE** or **(VAE) or GANs**:
 
         ###<span style="color: brown"> Augmentation technique</span>
 
@@ -919,53 +998,23 @@ def _(mo):
 
         Train an HMM on gene expression profiles of the minority classes to generate similar but distinct sequences.
 
-        <span style='color:brown'>Since we have already done the AHP analysis for biomarkers analysis We are going to employ HMM to generate symentically gene expression for minority classes.</span>
+        <span style='color:brown'>Since our data is not time seried, we cant use HMM model.</span>
+
+        Prepared dataset for analysis:
         """
     )
     return
 
 
 @app.cell
-def _(cancer_dataSet, other_sup_file, pd):
-    """
-    creating and saving the stage dfs
-    gender                                     737 non-null    object 
-     45  ethnicity                                  737 non-null    object 
-     46  vital_status
-    """
-    other_sup_file.rename(columns={'ajcc_pathologic_stage':'Stage'}, inplace=True)
-    stages_df = pd.merge(other_sup_file[['barcode', 'Stage', 'age_at_diagnosis', 'gender', 'ethnicity', 'vital_status']], cancer_dataSet, left_on='barcode', right_on='Samples')
-    stages_df.iloc[:,:4].info(verbose=True, show_counts=True)
-    return (stages_df,)
-
-
-@app.cell
-def _(stages_df):
-    stages_df.Stage.value_counts()
+def _(mo, stagedata):
+    mo.ui.table(stagedata)
     return
 
 
-@app.cell
-def _(stages_df):
-    stages_df.drop(columns='barcode', inplace=True)
-    return
-
-
-@app.cell
-def _(stages_df):
-    stages_df.head()
-    return
-
-
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""For final clean up we are going to convert the age from days to year, and our data is ready for visualizatoin and further analysis.""")
-    return
-
-
-@app.cell
-def _():
-    #stages_df.to_csv('./AHPresults/stage_dataSet.csv', index=False)
+    mo.md(r"""##<span style="color:brown"> Corrolation Analysis of age and Cancer</span>""")
     return
 
 
@@ -973,284 +1022,145 @@ def _():
 def _(mo):
     mo.md(
         r"""
-        ### <span style="color: brown">DataSet Clean up Proccess</span>
-        Before diving into model training, we started by preparing the clinical dataset. The target variable we wanted to predict was Stage which refers to the stage of breast cancer for each patient. To get the data into a usable format, we encoded all categorical variables using LabelEncoder, since machine learning models generally require numerical inputs. we also filled in any missing values with the mean of each column — not perfect, but a reasonable starting point for handling gaps in the data. When everything was cleaned up we then split the dataset into training and test sets using an 80/20 split. This gave me a good balance between having enough data to train the model and enough to evaluate it afterward. With that done, we trained a baseline RandomForestClassifier using the default settings (100 trees, no max depth, etc.). This gave me a first look at how well the model could predict cancer stages using all the features, and it set the foundation for deeper analysis.
+        The clinical dataset utilized in this study includes patient demographic variables such as **age**, **race**, and **ethnicity**, alongside **prognostic indicators** including tumor **size** and **lymph node** involvement. The objective of this analysis is to quantify the strength of association between these features and two critical clinical outcomes:
 
-        The initial classification report looked promising. For example, classes like Stage IIA and Stage IIB were predicted quite well, while classes like Stage II and Stage IIIC showed lower performance — probably due to class imbalance or overlap in clinical features. This gave me a sense of which labels were harder for the model to get right and where there might be room to improve.
+        **Cancer Stage**
+
+        **Vital Status (Alive or Deceased)**
+
+        Given the categorical nature of most variables in the dataset, **<span style="color:brown">Cramér's V</span>**
+        was employed to assess the association strength. For continuous variables, such as age at diagnosis, **<span style="color:brown">the Pearson correlation coefficient</span>** was utilized.
+
+        Cramér's V is a normalized measure of association based on the Chi-square statistic, suitable for evaluating relationships between two categorical variables. It produces a value between 0 and 1, where:
+
+        * 0 indicates no association.
+
+        * 1 indicates a perfect association.
+
+        ### Cramér's V Formula
+
+
+        \[
+        V = \sqrt{ \frac{ \chi^2 }{ n \times (k - 1) } }
+        \]
+
+        Where:
+
+        - \( V \) is Cramér's V, the measure of association strength.
+        - \( \chi^2 \) is the Chi-square test statistic computed from the contingency table.
+        - \( n \) is the total number of observations in the dataset.
+        - \( k \) is the smaller number of categories between the two variables compared.
         """
     )
-    return
-
-
-@app.cell
-def _(pd):
-    other_sup_file = pd.read_csv("random_forest\clinical_data.csv")
-    return (other_sup_file,)
-
-
-@app.cell
-def _(other_sup_file):
-    from sklearn.model_selection import train_test_split, GridSearchCV
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.preprocessing import LabelEncoder
-    from sklearn.metrics import classification_report, confusion_matrix
-
-
-    clinical_df = other_sup_file.copy()
-    target = 'Stage'
-    features = clinical_df.columns.drop(target)
-
-    le = LabelEncoder()
-    for col in features:
-        if clinical_df[col].dtype == 'object':  
-            clinical_df[col] = le.fit_transform(clinical_df[col].astype(str))
-
-    X = clinical_df[features].copy()
-    y = clinical_df[target]
-    X.fillna(X.mean(), inplace=True)
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    rf = RandomForestClassifier(n_estimators=100, random_state=42)
-    rf.fit(X_train, y_train)
-
-    # Predict on the testing set
-    y_pred = rf.predict(X_test)
-    print(classification_report(y_test, y_pred, zero_division=1))
-    return (
-        GridSearchCV,
-        LabelEncoder,
-        RandomForestClassifier,
-        X,
-        X_test,
-        X_train,
-        classification_report,
-        clinical_df,
-        col,
-        confusion_matrix,
-        features,
-        le,
-        rf,
-        target,
-        train_test_split,
-        y,
-        y_pred,
-        y_test,
-        y_train,
-    )
-
-
-@app.cell
-def _(mo):
-    mo.md(
-        r"""
-        ### <span style="color: brown">Feature Analysis of Clinical Data</span>
-        With the model trained, I wanted to see which features actually mattered. Random Forests make this easy since they provide feature importance scores out of the box. These scores show how much each variable contributed to reducing uncertainty in the model’s predictions. I sorted the features by importance and created a bar chart of the top 15.
-        """
-    )
-    return
-
-
-@app.cell
-def _(features, mo, np, pd, rf):
-    feature_importances = rf.feature_importances_
-    indices = np.argsort(feature_importances)[::-1]
-    non_zero_indices = [i for i in indices if feature_importances[i] != 0]
-
-    feature_ranking_df = pd.DataFrame({
-        'Feature': [features[i] for i in non_zero_indices],
-        'Importance': [feature_importances[i] for i in non_zero_indices]
-    })
-
-    feature_ranking_df = feature_ranking_df.sort_values(by='Importance', ascending=False)
-    feature_ranking_df.reset_index(drop=True, inplace=True)
-    mo.ui.table(feature_ranking_df)
-    return feature_importances, feature_ranking_df, indices, non_zero_indices
-
-
-@app.cell
-def _(mo):
-    mo.md(r"""From this results we can see that a few features such as `paper_pathologic_stage`, `ajcc_pathologic_n`, and `ajcc_pathologic_t` were by far the most influential. This makes sense because these features are directly related to the clinical staging process. Features like days_to_collection, days_to_last_followup, and treatments also showed up, which might reflect how the progression and treatment timing relate to cancer stage.""")
     return
 
 
 @app.cell(hide_code=True)
-def _(mo):
-    """import matplotlib.pyplot as plt
+def _(go, mo, np, pd, stagedata, stats):
+    def cramers_v(x, y):
+        confusion_matrix = pd.crosstab(x, y)
+        chi2 = stats.chi2_contingency(confusion_matrix, correction=False)[0]
+        n = confusion_matrix.sum().sum()
+        phi2 = chi2 / n
+        r, k = confusion_matrix.shape
+        return np.sqrt(phi2 / min(k-1, r-1))
 
-    top_10_indices = non_zero_indices[:15]
-    plt.figure()
-    plt.title("Top 15 Feature importances")
-    plt.bar(range(len(top_10_indices)), [feature_importances[i] for i in top_10_indices], color="r", align="center")
-    plt.xticks(range(len(top_10_indices)), [features[i] for i in top_10_indices], rotation=90)  # Rotate labels to 45 degrees
-    plt.xlim([-1, len(top_10_indices)])
-    plt.tight_layout() 
-    plt.savefig('./top15..png')
-    """
+    # --------------- Your Data Preparation ---------------
+    corr_df = stagedata[['Stage', 'year_of_diagnosis', 'ajcc_pathologic_t', 'ajcc_pathologic_n',
+                         'ajcc_pathologic_m', 'paper_miRNA.Clusters', 'ethnicity', 'race',
+                         'age_at_diagnosis', 'vital_status']].copy()
 
-    mo.image('./top15..png')
-    return
+    # Encode categorical columns
+    for cols in ['Stage', 'vital_status', 'ethnicity', 'race', 'paper_miRNA.Clusters']:
+        corr_df[cols] = corr_df[cols].astype('category')
 
+    # Drop rows with missing values
+    corr_df = corr_df.dropna()
 
-@app.cell
-def _(mo):
-    mo.md(r"""Visualizing this not only helped with model interpretability, but also gave me a clearer idea of which features were worth keeping for future models. Instead of throwing in the entire dataset, I could now focus on a cleaner and more impactful set of predictors, improving both speed and accuracy.""")
-    return
+    # Now calculate association
+    stage_corr = []
+    vital_corr = []
 
+    featuress = [col for col in corr_df.columns if col not in ['Stage', 'vital_status']]
 
-@app.cell
-def _(mo):
-    mo.md(
-        r"""
-        After identifying the key features, I narrowed down my list to those that had the most impact on the model. I stored them in a list called features_important. This included clinical observations, demographic info, and a few identifiers that surprisingly had predictive power. Using only these features, I retrained the model — but this time, I wanted to do it right.
-        Now instead of using the default settings, I ran a GridSearchCV to find the best combination of hyperparameters. I defined a grid that tested different numbers of trees (n_estimators), maximum depths, split criteria, and whether to use bootstrapping. The grid search ran 5-fold cross-validation on each parameter combination to get the most reliable estimate of performance.
-        """
+    for _col in featuress:
+        if corr_df[_col].dtype.name == 'category' or corr_df[_col].dtype == object:
+            # Use Cramer's V for categorical
+            corr_stage = cramers_v(corr_df['Stage'], corr_df[_col])
+            corr_vital = cramers_v(corr_df['vital_status'], corr_df[_col])
+        else:
+            # Use Pearson correlation for numeric (like age)
+            corr_stage = np.corrcoef(corr_df['Stage'].cat.codes, corr_df[_col])[0, 1]
+            corr_vital = np.corrcoef(corr_df['vital_status'].cat.codes, corr_df[_col])[0, 1]
+
+        stage_corr.append(corr_stage)
+        vital_corr.append(corr_vital)
+
+    # Results DataFrame
+    correlation_results = pd.DataFrame({
+        'Feature': featuress,
+        'Association_with_Stage': stage_corr,
+        'Association_with_Vital_Status': vital_corr
+    }).dropna()
+
+    # --------------- Plot ---------------
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        x=correlation_results['Feature'],
+        y=correlation_results['Association_with_Stage'],
+        name='Association with Stage'
+    ))
+
+    fig.add_trace(go.Bar(
+        x=correlation_results['Feature'],
+        y=correlation_results['Association_with_Vital_Status'],
+        name='Association with Vital Status'
+    ))
+
+    fig.update_layout(
+        barmode='group',
+        title='Feature Associations with Stage and Vital Status (Cramér\'s V and Pearson)',
+        xaxis_title='Features',
+        yaxis_title='Association Strength',
+        width=1000,
+        height=600
     )
-    return
 
-
-@app.cell
-def _(mo):
-    mo.ui.code_editor("""
-    features_important = ['paper_pathologic_stage', 'ajcc_pathologic_n', 'ajcc_pathologic_t', 'days_to_collection', 
-                'paper_days_to_last_followup', 'year_of_diagnosis', 'treatments', 'initial_weight', 'sample_id', 
-                'days_to_birth', 'pathology_report_uuid', 'demographic_id', 'paper_days_to_birth', 'diagnosis_id', 
-                'Unnamed: 0', 'age_at_diagnosis', 'sample_submitter_id', 'paper_patient', 'patient', 
-                'paper_age_at_initial_pathologic_diagnosis', 'bcr_patient_barcode', 'barcode', 'submitter_id', 
-                'sample', 'age_at_index', 'sites_of_involvement', 'paper_PARADIGM.Clusters', 'paper_Mutation.Clusters', 
-                'primary_diagnosis', 'paper_CNV.Clusters', 'paper_BRCA_Subtype_PAM50', 'morphology', 'ajcc_pathologic_m', 
-                'method_of_diagnosis', 'paper_miRNA.Clusters', 'paper_mRNA.Clusters', 'race', 'paper_DNA.Methylation.Clusters', 
-                'laterality', 'ethnicity', 'preservation_method', 'paper_Included_in_previous_marker_papers', 
-                'oct_embedded', 'paper_vital_status', 'vital_status', 'prior_malignancy', 'synchronous_malignancy', 
-                'age_is_obfuscated', 'prior_treatment', 'tissue_or_organ_of_origin', 'icd_10_code']
-
-    param_grid = {
-        'n_estimators': [100, 200, 300],
-        'max_depth': [None, 10, 20, 30],
-        'min_samples_split': [2, 5, 10],
-        'min_samples_leaf': [1, 2, 4],
-        'bootstrap': [True, False]
-    }
-    grid_search = GridSearchCV(estimator=rf, param_grid=param_grid, cv=5, verbose=1, n_jobs=-1)
-    grid_search.fit(X_train, y_train)
-
-    print("best parameters:", grid_search.best_params_)
-    print("best score:", grid_search.best_score_)
-
-    y_pred_grid = grid_search.best_estimator_.predict(X_test)
-    print(classification_report(y_test, y_pred_grid, zero_division=1))
-    """)
-    return
-
-
-@app.cell
-def _(mo):
-    mo.md(
-        r"""
-        This process took longer to run, but it paid off. I ended up with a model that was better tuned to the dataset and less prone to overfitting. Grid search also gave me valuable insight into which settings worked best for this particular problem , whether deeper trees helped or hurt the results, and whether using more estimators led to meaningful improvements.
-
-        The best-performing model used the following parameters:
-
-        - `n_estimators = 100`
-        - `min_samples_split = 5`
-        - `min_samples_leaf = 1`
-        - `bootstrap = False`
-        """
-    )
-    return
-
-
-@app.cell
-def _(
-    LabelEncoder,
-    RandomForestClassifier,
-    classification_report,
-    other_sup_file,
-    train_test_split,
-):
-    selected_brca_features  = ['paper_pathologic_stage', 'ajcc_pathologic_n',
-                          'ajcc_pathologic_t', 'days_to_collection', 
-                          'paper_days_to_last_followup', 'year_of_diagnosis',
-                          'treatments', 'initial_weight', 'sample_id', 
-                          'days_to_birth', 'pathology_report_uuid',
-                          'demographic_id', 'paper_days_to_birth', 'diagnosis_id', 
-                          'Unnamed: 0', 'age_at_diagnosis', 'sample_submitter_id',
-                          'paper_patient', 'patient', 
-                          'paper_age_at_initial_pathologic_diagnosis',
-                          'bcr_patient_barcode', 'barcode', 'submitter_id', 
-                          'sample', 'age_at_index', 'sites_of_involvement',
-                          'paper_PARADIGM.Clusters', 'paper_Mutation.Clusters', 
-                          'primary_diagnosis', 'paper_CNV.Clusters',
-                          'paper_BRCA_Subtype_PAM50', 'morphology',
-                          'ajcc_pathologic_m', 'method_of_diagnosis', 
-                          'paper_miRNA.Clusters','paper_mRNA.Clusters',
-                          'race', 'paper_DNA.Methylation.Clusters', 
-                          'laterality', 'ethnicity', 'preservation_method',
-                          'paper_Included_in_previous_marker_papers', 
-                          'oct_embedded', 'paper_vital_status', 'vital_status',
-                          'prior_malignancy', 'synchronous_malignancy', 
-                          'age_is_obfuscated', 'prior_treatment', 
-                          'tissue_or_organ_of_origin','icd_10_code']
-
-
-    # Load and prepare dataset
-    brca_clinical_df = other_sup_file.copy()
-    brca_target_column = 'Stage'
-    brca_input_features = selected_brca_features
-
-    # Encode categorical variables
-    brca_label_encoder = LabelEncoder()
-    for brca_column in brca_input_features:
-        if brca_clinical_df[brca_column].dtype == 'object':  
-            brca_clinical_df[brca_column] = brca_label_encoder.fit_transform(brca_clinical_df[brca_column].astype(str))
-
-    # Prepare feature and target data
-    brca_X = brca_clinical_df[brca_input_features].copy()
-    brca_y = brca_clinical_df[brca_target_column]
-    brca_X.fillna(brca_X.mean(), inplace=True)
-
-    # Train-test split
-    brca_X_train, brca_X_test, brca_y_train, brca_y_test = train_test_split(brca_X, brca_y, test_size=0.2, random_state=42)
-
-    # Define and train tuned Random Forest model
-    brca_rf_model = RandomForestClassifier(
-        n_estimators=100,
-        min_samples_split=5,
-        min_samples_leaf=1,
-        bootstrap=False,
-        random_state=42
-    )
-    brca_rf_model.fit(brca_X_train, brca_y_train)
-
-    # Evaluate model
-    brca_y_pred = brca_rf_model.predict(brca_X_test)
-    print(classification_report(brca_y_test, brca_y_pred, zero_division=1))
+    mo.ui.plotly(fig)
     return (
-        brca_X,
-        brca_X_test,
-        brca_X_train,
-        brca_clinical_df,
-        brca_column,
-        brca_input_features,
-        brca_label_encoder,
-        brca_rf_model,
-        brca_target_column,
-        brca_y,
-        brca_y_pred,
-        brca_y_test,
-        brca_y_train,
-        selected_brca_features,
+        cols,
+        corr_df,
+        corr_stage,
+        corr_vital,
+        correlation_results,
+        cramers_v,
+        featuress,
+        fig,
+        stage_corr,
+        vital_corr,
     )
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
-        r"""
-        After looking at the new classification report, the final model definitely performs better than the baseline. Accuracy went up slightly from 91% to 93%, which is already a good sign. But more importantly, the model is doing a better job overall especially with the harder-to-predict classes. For example, Stage IIIC improved a lot recall jumped from 0.43 to 0.86, and the F1-score went from 0.60 to 0.92. That’s a huge improvement and shows the model can now catch more of those cases correctly. Other classes like Stage IIA, IIB, and IIIA also stayed strong, with both precision and recall staying high.
+        """
+        ###<span style="color:brown"> Key Observation</span>
 
-        Stage II is still an issue the model got 0 recall again but to be fair, there are only 3 samples, so that’s probably more of a data problem than a model issue. Overall though, the macro and weighted averages for recall and F1-score improved, meaning the model is handling class imbalance better than before. Tuning the parameters and using only the most important features really paid off.
+        The association analysis revealed that tumor characteristics, particularly primary tumor size (ajcc_pathologic_t), regional lymph node involvement (ajcc_pathologic_n), and distant metastasis (ajcc_pathologic_m), exhibit strong associations with both cancer stage and vital status. This result is consistent with clinical expectations, as the extent of tumor spread is a critical determinant of both disease staging and patient survival outcomes.
+
+        Interestingly, demographic variables such as race and ethnicity also demonstrated measurable associations with clinical outcomes. This suggests potential underlying disparities or biological differences that may influence disease progression and survival, warranting further investigation.
+
+        Additionally, age at diagnosis showed both positive and negative associations with the outcomes: while advancing age generally correlated with poorer vital status (increased mortality), it had a weaker or variable relationship with cancer staging. These findings highlight the complex interplay between biological, demographic, and clinical variables in cancer prognosis.
         """
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(corr_df, mo):
+    mo.ui.table(corr_df)
     return
 
 
