@@ -8,7 +8,6 @@
   <img src="https://img.shields.io/badge/Framework-Next.js-black?logo=next.js&style=for-the-badge" />
   <img src="https://img.shields.io/badge/UI-Marimo-blueviolet?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Code%20Quality-B-brightgreen?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Maintained-Yes-blue?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Website-Up-blue?style=for-the-badge" />
 </p>
