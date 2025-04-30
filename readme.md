@@ -80,9 +80,9 @@ The frontend will be available at [http://localhost:3000](http://localhost:3000)
 
 ## Technologies Used
 
-- Frontend: Next.js, React, TailwindCSS, Chart.js
+- Frontend: Next.js, React, TailwindCSS, Chart.js, OpenAI API, langchain
 - Backend: Flask, Marimo, TensorFlow/Keras, Pandas, Scikit-learn
-- Other: Docker-ready for cloud deployment (GCP)
+- Other: Docker-ready for Google cloud deployment (App Engine)
 
 ## Acknowledgements
 
