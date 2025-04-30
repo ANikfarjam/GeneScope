@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.12.2"
+__generated_with = "0.8.22"
 app = marimo.App(width="medium")
 
 
@@ -14,11 +14,13 @@ def _():
     import plotly.graph_objects as go
     return auc, go, mo, np, pd, px, roc_curve
 
+
 @app.cell
 def _():
     import plotly.io as pio
     pio.renderers.default = "iframe_connected"
     return (pio,)
+
 
 @app.cell(hide_code=True)
 def _(mo):
@@ -343,7 +345,7 @@ def _(mo):
     return
 
 
-@app.cell(hide_code=True)
+@app.cell
 def _(mo):
     mo.md(
         r"""
@@ -816,6 +818,166 @@ def _(go, mo, pd, px):
 @app.cell
 def _(mo):
     mo.md(r"""Our data is unbllenced and we""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(r"""##<span style="color:brown">Foundations""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(r"""###<span style="color:brown">Vanilla Neural Network (MLP)""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        ## Vanilla Neural Network (VNN): Laying the Groundwork
+
+        For our **GeneScope** project, we started with a **Vanilla Neural Network** because we wanted to build a solid foundation before diving into a more complex Deep Neural Network. It was kind of like testing the waters — VNNs are simple, fast to train, and great for giving us an early look at how our data behaves.
+
+        Since our dataset includes well-processed gene expression and clinical features, a VNN was actually perfect for spotting meaningful patterns without all the added complexity. We also used PCA beforehand, which made the data even more streamlined and ready for a basic neural network to pick up on key signals.
+
+        Of course, our final model is a deeper network because it can capture much more intricate relationships — but starting with a VNN gave us a clean, reliable baseline to compare against. It helped us understand our data better, debug more effectively, and really appreciate the performance boost that depth brings. So even though the VNN isn’t the final star of the show, it played a huge role in shaping how we approached and improved our final model — and we’re glad we included it!
+
+        ![Vanilla vs Deep Network](Vanilla_Deep.png)
+
+        ---
+
+        ### How a Vanilla Neural Network Works
+
+        At its core, a VNN is made up of layers of neurons that compute:
+
+        $$
+        \mathbf{a}^{(l)} = f\left( \mathbf{W}^{(l)} \cdot \mathbf{a}^{(l-1)} + \mathbf{b}^{(l)} \right)
+        $$
+
+        Where:
+
+        - \( \mathbf{a}^{(l)} \): activation output of the \( l^\text{th} \) layer  
+        - \( \mathbf{W}^{(l)} \): weight matrix connecting layer \( l-1 \) to layer \( l \)  
+        - \( \mathbf{b}^{(l)} \): bias vector at layer \( l \)  
+        - \( f \): activation function (e.g., ReLU, sigmoid, tanh)  
+        - \( \mathbf{a}^{(0)} \): input layer (PCA-reduced gene expression + clinical features)
+
+        ---
+
+        ### ReLU Activation Function
+
+        If you're using ReLU (Rectified Linear Unit):
+
+        $$
+        f(x) = \max(0, x)
+        $$
+
+        This means the neuron outputs the value if it’s positive — otherwise, it gives zero. ReLU is efficient, introduces non-linearity without complications, and helps avoid the vanishing gradient problem. It's fast, clean, and gets the job done — perfect for training.
+
+        ---
+
+        ### Training the Network with Backpropagation
+
+        During training, the model minimizes a loss function (e.g., cross-entropy for classification) using backpropagation:
+
+        $$
+        \theta = \theta - \eta \cdot \nabla_\theta \mathcal{L}
+        $$
+
+        Where:
+
+        - \( \theta \): model parameters (weights and biases)  
+        - \( \eta \): learning rate  
+        - \( \nabla_\theta \mathcal{L} \): gradient of the loss function with respect to the parameters
+
+        ---
+
+        These equations form the backbone of how a VNN learns and makes predictions. While simple in form, they enable the model to learn complex relationships between features — in our case, between clinical and gene expression data and the stages of breast cancer.
+
+        This simplicity is exactly why we chose a VNN as our starting point: it helps build intuition, provides a performance benchmark, and guides the development of more complex models. By mastering this foundation, we can better appreciate the performance gains from our final deep architecture in GeneScope.
+        """
+    )
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        ###model perfomance pic insert here
+
+
+        Looking at the confusion matrix, we can see that the model performs exceptionally well on the early stages of breast cancer, like Stage I, IA, IB, and II, with a very high number of correct predictions. For instance, Stage IB and Stage II have nearly perfect classification, with 66 and 62 samples correctly predicted, respectively. This aligns with what we’d expect: early-stage cases often have clearer gene expression patterns, making them easier for the model to learn and classify. Despite this, it’s impressive how well the model handles advanced stages like IIIC, IV, and X — predicting them correctly with minimal confusion. Stage IV, which is clinically very significant, was perfectly predicted in 53 out of 53 cases, which is a huge win for our early baseline model.
+        """
+    )
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(r"""###<span style="color:brown">KNN""")
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        Now to better understand the performance of our Deep Neural Network, we also included **K-Nearest Neighbors (KNN)** as a comparison model — and honestly, it was a super insightful choice. KNN is a classic, straightforward algorithm that doesn’t do any “learning” during the training phase. Instead, it stores all the training data and makes predictions based on the most similar neighbors when given a new sample.
+
+        Under the hood, it all comes down to **distance** — usually **Euclidean distance** — between data points in the feature space. When a new sample comes in, KNN looks for the \( k \) closest points (neighbors) in the training set and uses them to make a prediction.
+
+        To measure how “close” a point is, we use:
+
+        $$
+        d(\mathbf{x}, \mathbf{x}_i) = \sqrt{ \sum_{j=1}^{n} \left( x_j - x_{ij} \right)^2 }
+        $$
+
+        Where:
+
+        - \( \mathbf{x} \) is the new input vector (the sample to predict)  
+        - \( \mathbf{x}_i \) is a point in the training set  
+        - \( x_j \) and \( x_{ij} \) are the \( j^\text{th} \) features of those vectors  
+        - \( d(\mathbf{x}, \mathbf{x}_i) \) is the distance between the two vectors
+
+        After calculating the distances to all training samples, KNN:
+
+        1. Sorts the training samples by their distance to the new point  
+        2. Selects the \( k \) closest ones  
+        3. Assigns a label based on majority vote (for classification) or takes the average (for regression)
+
+        ---
+
+        ### Why Use KNN?
+
+        We used KNN because it gives us a **very different baseline**. While Deep Neural Networks aim to learn complex, abstract representations of the data, KNN is all about **local similarity**. It relies entirely on the distances between points in feature space, which makes it extremely useful for understanding how well our **PCA-reduced features** cluster and whether cancer stages are naturally separable.
+
+        However, KNN comes with tradeoffs:
+
+        - It doesn’t scale well with large datasets  
+        - It performs poorly in high-dimensional spaces (like gene expression data)  
+        - It is sensitive to irrelevant features and noise  
+
+        This is why preprocessing — especially **dimensionality reduction with PCA** — is crucial when using KNN for tasks like ours.
+
+        Despite its simplicity, KNN gave us useful insights into how our data behaves in lower-dimensional space and served as a solid baseline to compare against more advanced models in the GeneScope project.
+        """
+    )
+    return
+
+
+@app.cell
+def __(mo):
+    mo.md(
+        r"""
+        ###model perfomance pic insert here
+
+        Looking at all four visualizations side by side — the confusion matrix, and the precision, recall, and F1-score bar charts it’s clear that our KNN model does a pretty solid job overall, but it also exposes some interesting patterns. The model performs exceptionally well on stages like IB, II, IIIC, IV, and X, consistently showing high precision, recall, and F1-scores. These are the stages where KNN absolutely shines, likely because the features for those classes are well-separated in PCA space, making them easy for the model to identify. But when we turn our attention to Stages IIA, IIB, and IIIA, we start seeing some trouble. These classes have lower scores across the board and show up scattered in the confusion matrix a clear sign that KNN is struggling to tell them apart. That makes sense, too: since KNN relies on distances, overlapping or similar feature distributions in these mid-stage classes can easily throw it off. Still, that’s exactly why this visualization is so valuable it helps us pinpoint where the model is confident and where it gets confused, giving us a roadmap for improvement as we move toward more complex architectures. It's exciting to see how much we can learn just from the shapes and colors of these plots!
+        """
+    )
     return
 
 
