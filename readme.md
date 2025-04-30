@@ -24,25 +24,18 @@ GENESCOPE
 ├── data/               # Gene expression and clinical datasets
 ├── front/              # Next.js frontend dashboard and chatbot UI
 └── project_insites/    # Research notes and project documentation
-
 ```
 
 ## Features
 
-- Breast Cancer Stage Prediction  
-  Predicts cancer stages based on combined gene expression and clinical features.
+| Feature                   | Description                                                                                       |
+|---------------------------|---------------------------------------------------------------------------------------------------|
+| **Breast Cancer Stage Prediction** | Predicts cancer stages based on combined gene expression and clinical features.               |
+| **Gene Importance Analysis**      | Identifies critical genes using a modified Analytic Hierarchy Process (AHP) and statistical methods. |
+| **Interactive Chatbot**           | Conversational assistant connected to the staging model for real-time, data-backed answers.   |
+| **Data Visualization**            | Dynamic charts and graphs to explore trends and findings.                                    |
+| **Full-stack System**             | Backend APIs with Flask and machine learning, and a modern dashboard built in Next.js.        |
 
-- Gene Importance Analysis  
-  Identifies critical genes using a modified Analytic Hierarchy Process (AHP) and statistical methods.
-
-- Interactive Chatbot  
-  Conversational assistant connected to the staging model for real-time, data-backed answers.
-
-- Data Visualization  
-  Dynamic charts and graphs to explore trends and findings.
-
-- Full-stack System  
-  Backend APIs with Flask and machine learning, and a modern dashboard built in Next.js.
 
 ## Getting Started
 
