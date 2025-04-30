@@ -26,7 +26,8 @@ GENESCOPE
 └── project_insites/    # Research notes and project documentation
 ```
 
-## Features
+## Feature Table
+
 
 | Feature                   | Description                                                                                       |
 |---------------------------|---------------------------------------------------------------------------------------------------|
