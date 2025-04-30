@@ -121,7 +121,7 @@ export default function Home() {
           className="text-lg mb-8 min-h-[190px] w-full overflow-hidden relative text-left pt-2 "
           data-aos="fade-right"
         >
-          <Typer text="We’re on a mission to make breast cancer analysis smarter, more personal, and easier to understand. GeneScope combines powerful deep learning with real clinical and genetic data to predict cancer stages, spotlight key biomarkers, and uncover hidden patterns in the fight against breast cancer. But here’s the best part you can actually talk to it! Our chatbot isn’t just conversational it performs staging predictions too, giving you fast, data-backed answers. Dive into our major findings to see what we’ve uncovered, and learn about our project objectives to understand the bigger picture." />
+          <Typer text="GeneScope is a research platform that combines biology, data science, and artificial intelligence to help better understand breast cancer. It analyzes patterns in gene activity and clinical information, like tumor size and patient age, to find important genes that may be linked to cancer development. Using a special method called the Analytic Hierarchy Process, GeneScope ranks thousands of genes to spotlight the ones that matter most. It also uses machine learning models to predict how likely a patient is to be diagnosed at different stages of breast cancer. By connecting genetics with clinical factors, GeneScope aims to make cancer detection earlier, smarter, and more personalized, offering new insights that could improve future treatments and patient outcomes." />
         </div>
         <div className="mt-9 p-4 ">
           <h2
