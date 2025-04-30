@@ -898,7 +898,6 @@ def __(mo):
         These equations form the backbone of how a VNN learns and makes predictions. While simple in form, they enable the model to learn complex relationships between features — in our case, between clinical and gene expression data and the stages of breast cancer.
 
         This simplicity is exactly why we chose a VNN as our starting point: it helps build intuition, provides a performance benchmark, and guides the development of more complex models. By mastering this foundation, we can better appreciate the performance gains from our final deep architecture in GeneScope.
-
         """
     )
     return
@@ -965,7 +964,6 @@ def __(mo):
         This is why preprocessing — especially **dimensionality reduction with PCA** — is crucial when using KNN for tasks like ours.
 
         Despite its simplicity, KNN gave us useful insights into how our data behaves in lower-dimensional space and served as a solid baseline to compare against more advanced models in the GeneScope project.
-
         """
     )
     return
@@ -978,7 +976,6 @@ def __(mo):
         ###model perfomance pic insert here
 
         Looking at all four visualizations side by side — the confusion matrix, and the precision, recall, and F1-score bar charts it’s clear that our KNN model does a pretty solid job overall, but it also exposes some interesting patterns. The model performs exceptionally well on stages like IB, II, IIIC, IV, and X, consistently showing high precision, recall, and F1-scores. These are the stages where KNN absolutely shines, likely because the features for those classes are well-separated in PCA space, making them easy for the model to identify. But when we turn our attention to Stages IIA, IIB, and IIIA, we start seeing some trouble. These classes have lower scores across the board and show up scattered in the confusion matrix a clear sign that KNN is struggling to tell them apart. That makes sense, too: since KNN relies on distances, overlapping or similar feature distributions in these mid-stage classes can easily throw it off. Still, that’s exactly why this visualization is so valuable it helps us pinpoint where the model is confident and where it gets confused, giving us a roadmap for improvement as we move toward more complex architectures. It's exciting to see how much we can learn just from the shapes and colors of these plots!
-
         """
     )
     return
