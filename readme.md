@@ -1,7 +1,15 @@
-# GeneScope
+<p align="center">
+  <img src="project_insites/readme_intro.png" alt="Gene Intro" width="800" />
+</p>
 
-<img src="project_insites/readme_intro.png" alt="Gene Into" width="800" />
-
+<p align="center">
+  <img src="https://img.shields.io/badge/Built%20With-Python-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Frontend-TypeScript-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Framework-Next.js-black?logo=next.js&style=for-the-badge" />
+  <img src="https://img.shields.io/badge/UI-Marimo-blueviolet?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Maintained-Yes-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Website-Up-blue?style=for-the-badge" />
+</p>
 GeneScope is a research platform that combines biology, data science, and artificial intelligence to help better understand breast cancer. It analyzes patterns in gene activity and clinical information, like tumor size and patient age, to find important genes that may be linked to cancer development. Using a special method called the Analytic Hierarchy Process, GeneScope ranks thousands of genes to spotlight the ones that matter most. It also uses machine learning models to predict how likely a patient is to be diagnosed at different stages of breast cancer. By connecting genetics with clinical factors, GeneScope aims to make cancer detection earlier, smarter, and more personalized, offering new insights that could improve future treatments and patient outcomes.
 
 ## Project Structure
@@ -16,25 +24,19 @@ GENESCOPE
 ├── data/               # Gene expression and clinical datasets
 ├── front/              # Next.js frontend dashboard and chatbot UI
 └── project_insites/    # Research notes and project documentation
-
 ```
 
-## Features
+## Feature Table
 
-- Breast Cancer Stage Prediction  
-  Predicts cancer stages based on combined gene expression and clinical features.
 
-- Gene Importance Analysis  
-  Identifies critical genes using a modified Analytic Hierarchy Process (AHP) and statistical methods.
+| Feature                   | Description                                                                                       |
+|---------------------------|---------------------------------------------------------------------------------------------------|
+| **Breast Cancer Stage Prediction** | Predicts cancer stages based on combined gene expression and clinical features.               |
+| **Gene Importance Analysis**      | Identifies critical genes using a modified Analytic Hierarchy Process (AHP) and statistical methods. |
+| **Interactive Chatbot**           | Conversational assistant connected to the staging model for real-time, data-backed answers.   |
+| **Data Visualization**            | Dynamic charts and graphs to explore trends and findings.                                    |
+| **Full-stack System**             | Backend APIs with Flask and machine learning, and a modern dashboard built in Next.js.        |
 
-- Interactive Chatbot  
-  Conversational assistant connected to the staging model for real-time, data-backed answers.
-
-- Data Visualization  
-  Dynamic charts and graphs to explore trends and findings.
-
-- Full-stack System  
-  Backend APIs with Flask and machine learning, and a modern dashboard built in Next.js.
 
 ## Getting Started
 
@@ -78,9 +80,9 @@ The frontend will be available at [http://localhost:3000](http://localhost:3000)
 
 ## Technologies Used
 
-- Frontend: Next.js, React, TailwindCSS, Chart.js
+- Frontend: Next.js, React, TailwindCSS, Chart.js, OpenAI API, langchain
 - Backend: Flask, Marimo, TensorFlow/Keras, Pandas, Scikit-learn
-- Other: Docker-ready for cloud deployment (GCP)
+- Other: Docker-ready for Google cloud deployment (App Engine)
 
 ## Acknowledgements
 
