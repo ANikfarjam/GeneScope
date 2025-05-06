@@ -16,9 +16,9 @@ export default function About() {
   const team = [
     {
       name: "Yar Moradpour",
-      role: "AI Engineer & Frontend Developer",
+      role: "AI Engineer & Full Stack Developer",
       bio: "Yar blends machine learning expertise with clean, user-friendly design. He's passionate about bridging science and people through beautiful interfaces and smart tools.",
-      image: "/assets/about/Yar.webp", // Add Yar's image to public/assets if available
+      image: "/assets/about/Yar.webp",
     },
     {
       name: "Ashkan",
