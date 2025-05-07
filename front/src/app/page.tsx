@@ -115,13 +115,24 @@ export default function Home() {
       <ParticleBackground />
       <div className="max-w-4xl text-center">
         <h1 className="text-4xl font-bold mb-4" data-aos="fade-right">
-          GeneScope at a Glance
+          <Typer text="GeneScope at a Glance" />
         </h1>
         <div
           className="text-lg mb-8 min-h-[190px] w-full overflow-hidden relative text-left pt-2 "
           data-aos="fade-right"
         >
-          <Typer text="GeneScope is a research platform that combines biology, data science, and artificial intelligence to help better understand breast cancer. It analyzes patterns in gene activity and clinical information, like tumor size and patient age, to find important genes that may be linked to cancer development. Using a special method called the Analytic Hierarchy Process, GeneScope ranks thousands of genes to spotlight the ones that matter most. It also uses machine learning models to predict how likely a patient is to be diagnosed at different stages of breast cancer. By connecting genetics with clinical factors, GeneScope aims to make cancer detection earlier, smarter, and more personalized, offering new insights that could improve future treatments and patient outcomes." />
+          GeneScope is a research platform that combines biology, data science,
+          and artificial intelligence to help better understand breast cancer.
+          It analyzes patterns in gene activity and clinical information, like
+          tumor size and patient age, to find important genes that may be linked
+          to cancer development. Using a special method called the Analytic
+          Hierarchy Process, GeneScope ranks thousands of genes to spotlight the
+          ones that matter most. It also uses machine learning models to predict
+          how likely a patient is to be diagnosed at different stages of breast
+          cancer. By connecting genetics with clinical factors, GeneScope aims
+          to make cancer detection earlier, smarter, and more personalized,
+          offering new insights that could improve future treatments and patient
+          outcomes.
         </div>
         <div className="mt-9 p-4 ">
           <h2
