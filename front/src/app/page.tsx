@@ -37,23 +37,12 @@ export default function Home() {
         "Discover how small RNA molecules (miRNAs) can act as powerful biomarkers for breast cancer progression.",
       link: "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4267179/", // Reliable NCBI article
     },
-    {
-      title: "Health Disparity Insights",
-      description:
-        "Dive into how breast cancer progression differs across race and age groups, highlighting disparities in outcomes.",
-      link: "https://www.cdc.gov/cancer/breast/statistics/race.htm",
-    },
+
     {
       title: "Our Modified AHP Method",
       description:
         "Learn about our custom version of the Analytic Hierarchy Process for ranking important genes in breast cancer research.",
-      link: "https://en.wikipedia.org/wiki/Analytic_hierarchy_process", // About original AHP, modified version is your innovation
-    },
-    {
-      title: "Science You Can Talk To",
-      description:
-        "See how our LangChain and OpenAI-powered chatbot makes complex science easy to understand and explore.",
-      link: "https://www.langchain.dev/", // Reliable source for LangChain
+      link: "https://en.wikipedia.org/wiki/Analytic_hierarchy_process",
     },
   ];
 
