@@ -1,13 +1,16 @@
 import marimo
 
-__generated_with = "0.11.12"
+__generated_with = "0.12.2"
 app = marimo.App(width="medium")
 
 
 @app.cell(hide_code=True)
 def _():
     import marimo as mo
-    return (mo,)
+    import pandas as pd
+    import plotly.express as px
+    import pickle as pkl
+    return mo, pd, pkl, px
 
 
 @app.cell(hide_code=True)
@@ -327,32 +330,11 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _():
-    import pandas as pd
-    # Load datasets
-    ahp_df = pd.read_csv('./AHPresults/final_Mod_ahp_scores.csv')
-    stage_df = pd.read_csv('./AHPresults/fina_Stage_unaugmented.csv')
-    stage_df = stage_df.iloc[:,:-1700]
-    return ahp_df, pd, stage_df
-
-
-@app.cell(hide_code=True)
-def _(stage_df):
-    valid_stages = stage_df['Stage'].value_counts()
-    valid_stages = valid_stages[valid_stages >= 14].index
-
-    # Sample 14 rows from each of those stages
-    sampled_df = (
-        stage_df[stage_df['Stage'].isin(valid_stages)]
-        .groupby("Stage", group_keys=False)
-        .apply(lambda x: x.sample(n=14, random_state=42))
-        .reset_index(drop=True)
-    )
-    return sampled_df, valid_stages
-
-
-@app.cell(hide_code=True)
-def _(ahp_df, mo, sampled_df):
+def _(mo, pkl):
+    with open('./scripts/pkl_files/ahp_df.pkl', 'rb') as f:
+        ahp_df = pkl.load(f)
+    with open('./scripts/pkl_files/stage_df.pkl', 'rb') as f:
+        sampled_df = pkl.load(f)
     # Dictionary of datasets
     datasets = {
         "AHP Analysis": ahp_df,
@@ -364,7 +346,7 @@ def _(ahp_df, mo, sampled_df):
         options=list(datasets.keys()),
         value="AHP Analysis" # default
     )
-    return datasets, dropdown
+    return ahp_df, datasets, dropdown, f, sampled_df
 
 
 @app.cell
