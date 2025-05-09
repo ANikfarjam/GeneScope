@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.8.22"
+__generated_with = "0.12.2"
 app = marimo.App(width="medium")
 
 
@@ -13,7 +13,8 @@ def _():
     from sklearn.metrics import roc_curve, auc
     import plotly.graph_objects as go
     from plotly.subplots import make_subplots
-    return auc, go, make_subplots, mo, np, pd, px, roc_curve
+    import pickle as pkl
+    return auc, go, make_subplots, mo, np, pd, pkl, px, roc_curve
 
 
 @app.cell(hide_code=True)
@@ -29,12 +30,13 @@ def _(mo):
         r"""
         #<span style="color:brown">Breast Cancer Classification usibg Deep Learning Neural Network</span>
 
-        GeneScop utilizes a deep learnign apprach to create a predictive model for breast cancer stages classification given gene expression and clinical variables. We had a huge data set of data consist of 2100 samples. Each sample is consist of clinical data such as Age, tumore related data(TNM), vital status and Gene expressions.
+         **GeneScope** leverages a deep learning framework to classify breast cancer stages by integrating both clinical and gene expression data. Our dataset comprises over **2,100 patient samples**, each containing structured clinical information—such as age, tumor characteristics (TNM staging), vital status—as well as high-dimensional gene expression profiles.
 
 
         ### <span style="color:brown">Intro to he Multimodal Deep Neural Network for Multi-dimensional Data </span>
 
-        The Multimodal Deep Neural Network for Multi-dimensional Data (MDNNMD) is a neural architecture designed to integrate and learn from multiple heterogeneous data sources simultaneously. Instead of feeding all features into a single model, MDNNMD builds independent deep neural networks for each data modality—such as gene expression, clinical records, and genomic alterations—allowing each to learn specialized feature representations. These subnetworks are then combined using fusion, where the outputs of each modality-specific DNN are weighted and aggregated to produce a final prediction. 
+        The Multimodal Deep Neural Network for Multi-dimensional Data (MDNNMD) is a neural architecture designed to integrate and learn from multiple heterogeneous data sources simultaneously. Instead of feeding all features into a single model, MDNNMD builds independent deep neural networks for each data modality—such as gene expression, clinical recordsEach subnetwork independently learns optimal feature representations, which are then merged using a fusion mechanism to produce the final prediction.
+
          [Dongdong Sun etal](https://ieeexplore.ieee.org/abstract/document/8292801?casa_token=J6Bt__TE05sAAAAA:P7rbhfoJDDM9DSFFDfsc5kUYGSFO-9c0UPnTINRVZkvUjYe9EUufViBbfkZ23pJ_XL2SQMHG1dfN
         ) pulished an article utilizing this modol on cancer prognosis study. They emphasize the modular and flexible architecture enables MDNNMD to capture complementary information across different data types, allows enrichment of features. Minority class samples may have weak signals in one modality (e.g., clinical), but strong signals in another (e.g., gene expressions). This helps the model see them better.
 
@@ -149,75 +151,30 @@ def _(mo):
         # <span style="color: brown">Feature Selection for our ML Models</span>
         ##<span style="color: brown">Clinical Data</span>
         ### <span style="color: brown">Utilizing Random Forest</span>
-        Before diving into model training, we started by preparing the clinical dataset. The target variable we wanted to predict was Stage, which refers to the stage of breast cancer for each patient. To get the data into a usable format, we encoded all categorical variables using LabelEncoder, since machine learning models generally require numerical inputs. We also filled in any missing values with the mean of each column — not perfect, but a reasonable starting point for handling gaps in the data. When everything was cleaned up, we then split the dataset into training and test sets using an 80/20 split. This gave us a good balance between having enough data to train the model and enough to evaluate it afterward. With that done, we trained a baseline RandomForestClassifier using the default settings (100 trees, no max depth, etc.). This gave us a first look at how well the model could predict cancer stages using all the features and set the foundation for deeper analysis.
+        Our clinical dataset contained over **200 variables** spanning patient demographics, tumor characteristics, and treatment metadata. To streamline the model and reduce noise, we applied a **Random Forest Classifier** to assess feature importance and isolate the most predictive attributes.
 
-        The initial classification report looked promising. For example, classes like Stage IIA and Stage IIB were predicted quite well, while classes like Stage II and Stage IIIC showed lower performance, probably due to class imbalance or overlap in clinical features. This gave us a sense of which labels were harder for the model to get right and where there might be room to improve
+        Using feature importance scores generated by the model, we narrowed the input space down to a focused set of approximately **40–50 high-impact clinical features**. These included fields such as tumor staging (AJCC), age at diagnosis, race and other patient demographic data.
+
+        ### <span style="color: brown">Summary of the Selection Process</span>
+
+        **Data Preparation**: Encoded categorical features and filled missing values using column means.
+
+        **Train-Test Split**: Divided the dataset into training and test sets (80/20 split).
+
+        **Random Forest Training**: Trained a baseline model using default parameters to evaluate feature significance.
+
+        **Feature Ranking**: Sorted features based on their importance scores.
+
+        **Selection**: Retained the top ~50 features for downstream modeling and hyperparameter tuning.
+
+        This process not only improved model interpretability but also helped combat overfitting by removing redundant or low-impact variables. It laid a strong foundation for our later multimodal fusion models.
         """
     )
     return
 
 
 @app.cell(hide_code=True)
-def _(pd):
-    from sklearn.model_selection import train_test_split, GridSearchCV
-    from sklearn.ensemble import RandomForestClassifier
-    from sklearn.preprocessing import LabelEncoder
-    from sklearn.metrics import classification_report, confusion_matrix
-
-    # Load dataset
-    stagedata = pd.read_csv('./AHPresults/fina_Stage_unaugmented.csv')
-
-    # Preprocessing
-    clinical_df = stagedata.copy().iloc[:, :-2000]
-    clinical_df.dropna(inplace=True)
-    target = 'Stage'
-    features = clinical_df.columns[1:]
-
-    # Label encode categorical features
-    le = LabelEncoder()
-    for col in features:
-        if clinical_df[col].dtype == 'object':
-            clinical_df[col] = le.fit_transform(clinical_df[col].astype(str))
-
-    X = clinical_df[features].copy()
-    y = clinical_df[target]
-    X.fillna(X.mean(), inplace=True)
-
-    # Split data
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-    # Train Random Forest
-    rf = RandomForestClassifier(n_estimators=100, random_state=42)
-    rf.fit(X_train, y_train)
-
-    # Predict
-    y_pred = rf.predict(X_test)
-    return (
-        GridSearchCV,
-        LabelEncoder,
-        RandomForestClassifier,
-        X,
-        X_test,
-        X_train,
-        classification_report,
-        clinical_df,
-        col,
-        confusion_matrix,
-        features,
-        le,
-        rf,
-        stagedata,
-        target,
-        train_test_split,
-        y,
-        y_pred,
-        y_test,
-        y_train,
-    )
-
-
-@app.cell(hide_code=True)
-def _(features, mo, np, pd, rf):
+def _(mo, pd):
     model_summery = mo.md(f"""
     | Class        |     Precision     |     Recall     |     F1-Score     |     Support     |
     |--------------|-------------------|----------------|------------------|-----------------|
@@ -239,19 +196,8 @@ def _(features, mo, np, pd, rf):
     ### <span style="color: brown">Feature Analysis of Clinical Data</span>
     With the model trained, we wanted to see which features actually mattered. Random Forests make this easy since they provide feature importance scores out of the box. These scores show how much each variable contributed to reducing uncertainty in the model’s predictions. We sorted the features by importance and created a bar chart of the top 15.
     """)
-    feature_importances = rf.feature_importances_
-    indices = np.argsort(feature_importances)[::-1]
-    non_zero_indices = [i for i in indices if feature_importances[i] != 0]
-
-    feature_ranking_df = pd.DataFrame({
-        'Feature': [features[i] for i in non_zero_indices],
-        'Importance': [feature_importances[i] for i in non_zero_indices]
-    })
-
-    feature_ranking_df = feature_ranking_df.sort_values(by='Importance', ascending=False)
-    feature_ranking_df.reset_index(drop=True, inplace=True)
-    feature_ranking = mo.ui.table(feature_ranking_df)
-    mo.tabs({
+    feature_ranking = pd.read_csv('./scripts/rd.csv')
+    mo.ui.tabs({
         'Model Summery':mo.hstack([model_summery, mo.vstack([feature_analysis,feature_ranking])]),
         'Code':mo.ui.code_editor(f"""
     import pandas as pd
@@ -294,15 +240,7 @@ def _(features, mo, np, pd, rf):
     print(report)
     """)
     })
-    return (
-        feature_analysis,
-        feature_importances,
-        feature_ranking,
-        feature_ranking_df,
-        indices,
-        model_summery,
-        non_zero_indices,
-    )
+    return feature_analysis, feature_ranking, model_summery
 
 
 @app.cell
@@ -443,7 +381,7 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
@@ -526,9 +464,11 @@ def _(mo):
         A **CR value ≤ 0.1** indicates an acceptable consistency level.
 
         ## **Summary**
-        - The pairwise comparison matrix is built using **quantitative ranking** instead of expert judgment.
-        - The eigenvector of the matrix determines the relative ranking of genes.
-        - The eigenvalue and consistency ratio ensure that the matrix is valid for decision-making.
+        The pairwise comparison matrix is built using **quantitative ranking** instead of expert judgment
+        .
+        The eigenvector of the matrix determines the relative ranking of genes.
+
+        The eigenvalue and consistency ratio ensure that the matrix is valid for decision-making.
 
         This method ensures an **objective** and **stable** way to rank genes, which improves classification accuracy in cancer detection using **Hidden Markov Models (HMMs)**.
         """
@@ -994,173 +934,169 @@ def _(mo):
     return
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
         # <span style="color:brown">Model Performance Comparison</span>
 
+         To evaluate the effectiveness of our **CatBoost + MLP + Intermediate Fusion** architecture, we benchmarked it against several baseline models—including a **Vanilla Neural Network (VNN)**, **K-Nearest Neighbors (KNN)**, and a **dual-MLP model with Late Fusion**. Each of these alternatives was optimized using **SMOTE** to address class imbalance and ensure a fair comparison.
+        """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    vnn_md = mo.md("""
+    ### Baseline Model: Vanilla Neural Network (VNN)
+
+    Since our dataset includes well-processed gene expression and clinical features, a Vanilla Neural Network (VNN) served as an excellent starting point. It helped identify meaningful patterns without the overhead of complex architectures. We also applied PCA beforehand, which reduced dimensionality and made the data more suitable for a simple neural network to extract key signals.
+
+    While our final model leverages deeper architectures for improved performance, the VNN played a critical role in shaping our modeling strategy. It provided a clean and interpretable baseline, helped us debug more effectively, and made the performance gains of deeper networks more measurable and meaningful.
+
+    ---
+
+    ### How a VNN Works
+
+    At its core, a VNN consists of fully connected layers where each neuron applies a transformation:
+
+    $$
+    \mathbf{a}^{(l)} = f\\left( \mathbf{W}^{(l)} \\cdot \mathbf{a}^{(l-1)} + \mathbf{b}^{(l)} \\right)
+    $$
+
+    Where:
+
+     \( \mathbf{a}^{(l)} \): activation output of the \( l^\text{th} \) layer  
+     \( \mathbf{W}^{(l)} \): weight matrix between layers  
+     \( \mathbf{b}^{(l)} \): bias vector  
+     \( f \): activation function (e.g., ReLU)  
+     \( \mathbf{a}^{(0)} \): input layer (PCA-reduced gene expression + clinical features)
+
+    ---
+
+    ### Activation: ReLU Function
+
+    In our implementation, we used the ReLU (Rectified Linear Unit) activation function:
+
+    $$
+    f(x) = \max(0, x)
+    $$
+
+    ReLU outputs the input if it's positive, otherwise it returns zero. It's computationally efficient and helps prevent the vanishing gradient problem — a common issue in deep learning.
+
+    ---
+
+    ### Learning: Backpropagation
+
+    Training the network involves minimizing a loss function (e.g., cross-entropy for classification) via gradient descent:
+
+    $$
+    \\theta = \\theta - \\eta \\cdot \\nabla_{\\theta} \\mathcal{L}
+    $$
+
+    Where:
+     \( \\theta \): model parameters (weights and biases)  
+     \( \\eta \): learning rate  
+     \( \\nabla_{\\theta} \\mathcal{L} \): gradient of the loss function
+
+    ---
+
+    Despite its simplicity, the VNN enabled our model to learn complex relationships between clinical variables and gene expression data. It laid the groundwork for deeper explorations, forming a vital part of our modeling pipeline in **GeneScope**.
+    """)
+
+    return (vnn_md,)
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    KNN_md = mo.md(f"""
+    ### Baseline Model: K-Nearest Neighbors (KNN)
+
+    To better understand the performance of our Deep Neural Network, we also included **K-Nearest Neighbors (KNN)** as a baseline comparison — and it proved to be highly insightful. KNN is a classic, non-parametric algorithm that doesn’t involve any “learning” during training. Instead, it memorizes the training data and makes predictions at inference time based on the closest samples in feature space.
+
+    ---
+
+    ### How KNN Works
+
+    At its core, KNN makes predictions by calculating **distance** — typically **Euclidean distance** — between the new input and all training points:
+
+    $$
+    d(\\mathbf{{x}}, \\mathbf{{x}}_i) = \\sqrt{{ \\sum_{{j=1}}^n \\left( x_j - x_{{ij}} \\right)^2 }}
+    $$
+
+    Where:
+
+     \( \\mathbf{{x}} \) is the new input vector (the sample to predict)  
+     \( \\mathbf{{x}}_i \) is a point in the training set  
+     \( x_j \) and \( x_{{ij}} \) are the \( j^\\text{{th}} \) features of those vectors  
+     \( d(\\mathbf{{x}}, \\mathbf{{x}}_i) \) is the distance between the two vectors
+
+    After computing distances to all training samples, KNN:
+
+    1.Sorts the training samples by their distance to the new point  
+    2.Selects the \( k \) closest neighbors  
+    3.Assigns a label based on majority vote (classification) or averages their values (regression)
+
+    ---
+
+    ### Why Use KNN?
+
+    KNN provides a **fundamentally different baseline**. Unlike Deep Neural Networks that learn abstract features during training, KNN operates purely on **local similarity**. This makes it a valuable tool for evaluating how well our **PCA-reduced features** capture meaningful structure in the data — especially in terms of how well cancer stages naturally cluster.
+
+    However, KNN has limitations:
+
+    It scales poorly with large datasets
+
+    It performs poorly in high-dimensional spaces  
+
+    It is sensitive to noise and irrelevant features  
+
+    Because of these challenges, **dimensionality reduction via PCA** was a necessary step before applying KNN to our gene expression data.
+
+    Despite its simplicity, KNN offered valuable insights into the geometry of our data and helped validate the separability of cancer stages — ultimately reinforcing the strengths of the more advanced architectures used in **GeneScope**.
+    """)
+
+    return (KNN_md,)
+
+
+@app.cell(hide_code=True)
+def _(KNN_md, mo, vnn_md):
+    mo.accordion({
+        "VNN Vanila Artifitial Nural Netwrok": mo.vstack([vnn_md, mo.image('./Mls_yar_DELETE/model_performance_vanila_NN.png')]),
+        "KNN":mo.vstack([KNN_md,mo.image('./Mls_yar_DELETE/model_performance_KNN.png')])
+    
+    })
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+        ### <span style="color:brown"> Final Comparison results</span>
 
         """
     )
     return
 
 
-@app.cell
-def __(mo):
-    mo.md(r"""##<span style="color:brown">Foundations""")
-    return
+@app.cell(hide_code=True)
+def _(mo, pkl):
+    with open('./comparisonMLMTX/perfomancP.pkl', "rb") as f:
+        model_plot = pkl.load(f)
+    mo.ui.plotly(model_plot)
+    return f, model_plot
 
 
-@app.cell
-def __(mo):
-    mo.md(r"""###<span style="color:brown">Vanilla Neural Network (MLP)""")
-    return
-
-
-@app.cell
-def __(mo):
+@app.cell(hide_code=True)
+def _(mo):
     mo.md(
         r"""
-        ## Vanilla Neural Network (VNN): Laying the Groundwork
+        ### <span style="color:brown">"Superior Robustness of the Main Model</span>
+        While the Vanilla Neural Network (VNN) achieved slightly higher scores in some metrics, this advantage is largely attributed to SMOTE-based data augmentation. In biological contexts—especially with high-dimensional gene expression data—such augmentation can introduce synthetic noise and distort the natural distribution of patient samples, potentially leading to inflated metrics without meaningful biological validity.
 
-        For our **GeneScope** project, we started with a **Vanilla Neural Network** because we wanted to build a solid foundation before diving into a more complex Deep Neural Network. It was kind of like testing the waters — VNNs are simple, fast to train, and great for giving us an early look at how our data behaves.
-
-        Since our dataset includes well-processed gene expression and clinical features, a VNN was actually perfect for spotting meaningful patterns without all the added complexity. We also used PCA beforehand, which made the data even more streamlined and ready for a basic neural network to pick up on key signals.
-
-        Of course, our final model is a deeper network because it can capture much more intricate relationships — but starting with a VNN gave us a clean, reliable baseline to compare against. It helped us understand our data better, debug more effectively, and really appreciate the performance boost that depth brings. So even though the VNN isn’t the final star of the show, it played a huge role in shaping how we approached and improved our final model — and we’re glad we included it!
-
-        ![Vanilla vs Deep Network](Vanilla_Deep.png)
-
-        ---
-
-        ### How a Vanilla Neural Network Works
-
-        At its core, a VNN is made up of layers of neurons that compute:
-
-        $$
-        \mathbf{a}^{(l)} = f\left( \mathbf{W}^{(l)} \cdot \mathbf{a}^{(l-1)} + \mathbf{b}^{(l)} \right)
-        $$
-
-        Where:
-
-        - \( \mathbf{a}^{(l)} \): activation output of the \( l^\text{th} \) layer  
-        - \( \mathbf{W}^{(l)} \): weight matrix connecting layer \( l-1 \) to layer \( l \)  
-        - \( \mathbf{b}^{(l)} \): bias vector at layer \( l \)  
-        - \( f \): activation function (e.g., ReLU, sigmoid, tanh)  
-        - \( \mathbf{a}^{(0)} \): input layer (PCA-reduced gene expression + clinical features)
-
-        ---
-
-        ### ReLU Activation Function
-
-        If you're using ReLU (Rectified Linear Unit):
-
-        $$
-        f(x) = \max(0, x)
-        $$
-
-        This means the neuron outputs the value if it’s positive — otherwise, it gives zero. ReLU is efficient, introduces non-linearity without complications, and helps avoid the vanishing gradient problem. It's fast, clean, and gets the job done — perfect for training.
-
-        ---
-
-        ### Training the Network with Backpropagation
-
-        During training, the model minimizes a loss function (e.g., cross-entropy for classification) using backpropagation:
-
-        $$
-        \theta = \theta - \eta \cdot \nabla_\theta \mathcal{L}
-        $$
-
-        Where:
-
-        - \( \theta \): model parameters (weights and biases)  
-        - \( \eta \): learning rate  
-        - \( \nabla_\theta \mathcal{L} \): gradient of the loss function with respect to the parameters
-
-        ---
-
-        These equations form the backbone of how a VNN learns and makes predictions. While simple in form, they enable the model to learn complex relationships between features — in our case, between clinical and gene expression data and the stages of breast cancer.
-
-        This simplicity is exactly why we chose a VNN as our starting point: it helps build intuition, provides a performance benchmark, and guides the development of more complex models. By mastering this foundation, we can better appreciate the performance gains from our final deep architecture in GeneScope.
-        """
-    )
-    return
-
-
-@app.cell
-def __(mo):
-    mo.md(
-        r"""
-        ###model perfomance pic insert here
-
-
-        Looking at the confusion matrix, we can see that the model performs exceptionally well on the early stages of breast cancer, like Stage I, IA, IB, and II, with a very high number of correct predictions. For instance, Stage IB and Stage II have nearly perfect classification, with 66 and 62 samples correctly predicted, respectively. This aligns with what we’d expect: early-stage cases often have clearer gene expression patterns, making them easier for the model to learn and classify. Despite this, it’s impressive how well the model handles advanced stages like IIIC, IV, and X — predicting them correctly with minimal confusion. Stage IV, which is clinically very significant, was perfectly predicted in 53 out of 53 cases, which is a huge win for our early baseline model.
-        """
-    )
-    return
-
-
-@app.cell
-def __(mo):
-    mo.md(r"""###<span style="color:brown">KNN""")
-    return
-
-
-@app.cell
-def __(mo):
-    mo.md(
-        r"""
-        Now to better understand the performance of our Deep Neural Network, we also included **K-Nearest Neighbors (KNN)** as a comparison model — and honestly, it was a super insightful choice. KNN is a classic, straightforward algorithm that doesn’t do any “learning” during the training phase. Instead, it stores all the training data and makes predictions based on the most similar neighbors when given a new sample.
-
-        Under the hood, it all comes down to **distance** — usually **Euclidean distance** — between data points in the feature space. When a new sample comes in, KNN looks for the \( k \) closest points (neighbors) in the training set and uses them to make a prediction.
-
-        To measure how “close” a point is, we use:
-
-        $$
-        d(\mathbf{x}, \mathbf{x}_i) = \sqrt{ \sum_{j=1}^{n} \left( x_j - x_{ij} \right)^2 }
-        $$
-
-        Where:
-
-        - \( \mathbf{x} \) is the new input vector (the sample to predict)  
-        - \( \mathbf{x}_i \) is a point in the training set  
-        - \( x_j \) and \( x_{ij} \) are the \( j^\text{th} \) features of those vectors  
-        - \( d(\mathbf{x}, \mathbf{x}_i) \) is the distance between the two vectors
-
-        After calculating the distances to all training samples, KNN:
-
-        1. Sorts the training samples by their distance to the new point  
-        2. Selects the \( k \) closest ones  
-        3. Assigns a label based on majority vote (for classification) or takes the average (for regression)
-
-        ---
-
-        ### Why Use KNN?
-
-        We used KNN because it gives us a **very different baseline**. While Deep Neural Networks aim to learn complex, abstract representations of the data, KNN is all about **local similarity**. It relies entirely on the distances between points in feature space, which makes it extremely useful for understanding how well our **PCA-reduced features** cluster and whether cancer stages are naturally separable.
-
-        However, KNN comes with tradeoffs:
-
-        - It doesn’t scale well with large datasets  
-        - It performs poorly in high-dimensional spaces (like gene expression data)  
-        - It is sensitive to irrelevant features and noise  
-
-        This is why preprocessing — especially **dimensionality reduction with PCA** — is crucial when using KNN for tasks like ours.
-
-        Despite its simplicity, KNN gave us useful insights into how our data behaves in lower-dimensional space and served as a solid baseline to compare against more advanced models in the GeneScope project.
-        """
-    )
-    return
-
-
-@app.cell
-def __(mo):
-    mo.md(
-        r"""
-        ###model perfomance pic insert here
-
-        Looking at all four visualizations side by side — the confusion matrix, and the precision, recall, and F1-score bar charts it’s clear that our KNN model does a pretty solid job overall, but it also exposes some interesting patterns. The model performs exceptionally well on stages like IB, II, IIIC, IV, and X, consistently showing high precision, recall, and F1-scores. These are the stages where KNN absolutely shines, likely because the features for those classes are well-separated in PCA space, making them easy for the model to identify. But when we turn our attention to Stages IIA, IIB, and IIIA, we start seeing some trouble. These classes have lower scores across the board and show up scattered in the confusion matrix a clear sign that KNN is struggling to tell them apart. That makes sense, too: since KNN relies on distances, overlapping or similar feature distributions in these mid-stage classes can easily throw it off. Still, that’s exactly why this visualization is so valuable it helps us pinpoint where the model is confident and where it gets confused, giving us a roadmap for improvement as we move toward more complex architectures. It's exciting to see how much we can learn just from the shapes and colors of these plots!
+        In contrast, the Main Model—which integrates CatBoost for clinical data and an MLP for gene expression using intermediate fusion—achieved consistently strong performance across Accuracy, MCC, and Sensitivity, without relying on synthetic oversampling. The model's ability to learn from true patterns across both modalities, while naturally handling imbalance via CatBoost's built-in class weighting, proves its strength.
         """
     )
     return

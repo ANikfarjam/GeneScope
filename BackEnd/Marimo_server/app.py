@@ -275,6 +275,7 @@ def _(mo):
         title="Objective and Data Exploration",
         desc="Explore extracted data, perform feature selection, and prepare data from supplementary files.",
         button_label="Read More",
+        #path="/eda"
         path="/eda"
     )
     # Define the icon HTML (e.g., an image tag)
