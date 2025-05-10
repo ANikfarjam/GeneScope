@@ -15,3 +15,5 @@ __pycache__
 /BackEnd/Models/DMM/LateFusion/best_models1/
 /BackEnd/Models/DMM/LateFusion/nas_clinical_model/
 /BackEnd/Models/DMM/LateFusion/nas_gene_model/
+/BackEnd/Models/DMM/catboost_mlp_fussion/GAN_forTesting/kt_disc_tuner/
+/BackEnd/Models/DMM/catboost_mlp_fussion/GAN_forTesting/kt_gen_tuner/

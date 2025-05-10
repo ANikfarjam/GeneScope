@@ -1,0 +1,15 @@
+digraph G {
+rankdir=TB;
+concentrate=true;
+dpi=100;
+splines=ortho;
+node [shape=record];
+126480937294240 [label=<<table border="0" cellborder="1" bgcolor="black" cellpadding="10"><tr><td colspan="2" bgcolor="black"><font point-size="16" color="white"><b>stage_input</b> (InputLayer)</font></td></tr><tr><td bgcolor="white"><font point-size="14">Output shape: <b>(None, 10)</b></font></td></tr></table>>, fontname=Helvetica, border=0, margin=0];
+126481305920208 [label=<<table border="0" cellborder="1" bgcolor="black" cellpadding="10"><tr><td colspan="2" bgcolor="black"><font point-size="16" color="white"><b>noise_input</b> (InputLayer)</font></td></tr><tr><td bgcolor="white"><font point-size="14">Output shape: <b>(None, 100)</b></font></td></tr></table>>, fontname=Helvetica, border=0, margin=0];
+126481308056800 [label=<<table border="0" cellborder="1" bgcolor="black" cellpadding="10"><tr><td colspan="2" bgcolor="black"><font point-size="16" color="white"><b>Generator</b> (Functional)</font></td></tr><tr><td bgcolor="white"><font point-size="14">Input shape: <b>[(None, 10), (None, 100)]</b></font></td><td bgcolor="white"><font point-size="14">Output shape: <b>(None, 2042)</b></font></td></tr></table>>, fontname=Helvetica, border=0, margin=0];
+126481306219392 [label=<<table border="0" cellborder="1" bgcolor="black" cellpadding="10"><tr><td colspan="2" bgcolor="black"><font point-size="16" color="white"><b>Discriminator</b> (Functional)</font></td></tr><tr><td bgcolor="white"><font point-size="14">Input shape: <b>[(None, 10), (None, 2042)]</b></font></td><td bgcolor="white"><font point-size="14">Output shape: <b>(None, 1)</b></font></td></tr></table>>, fontname=Helvetica, border=0, margin=0];
+126480937294240 -> 126481308056800 [penwidth=2];
+126481305920208 -> 126481308056800 [penwidth=2];
+126480937294240 -> 126481306219392 [penwidth=2];
+126481308056800 -> 126481306219392 [penwidth=2];
+}
