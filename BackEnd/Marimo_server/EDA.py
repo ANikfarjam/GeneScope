@@ -4,20 +4,23 @@ __generated_with = "0.12.2"
 app = marimo.App(width="medium")
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     import marimo as mo
     import io
     import numpy as np
     import scipy.stats as stats
     import plotly.graph_objects as go
-    return go, io, mo, np, stats
+    import pickle as pkl
+    return go, io, mo, np, pkl, stats
 
-@app.cell
+
+@app.cell(hide_code=True)
 def _():
     import plotly.io as pio
     pio.renderers.default = "iframe_connected"
     return (pio,)
+
 
 @app.cell(hide_code=True)
 def _(mo):
@@ -210,7 +213,7 @@ def _(create_supl_df):
 
 @app.cell(hide_code=True)
 def _(cType_count, mo):
-    mo.tabs(
+    mo.ui.tabs(
         tabs={
             'Cancers Count': mo.ui.table(cType_count),
             'Extraction Method': mo.vstack([
@@ -303,7 +306,7 @@ def _(create_supl_df, mo):
     Normal_Sample_gene,_,_ = create_supl_df('./data/SuplementoryFiles/TCGA_Normal_CancerType_Samples .txt','BRCA')
     melignent_df, _, _=create_supl_df('./data/SuplementoryFiles/TCGA_20_CancerType_Samples.txt', 'BRCA')
 
-    mo.tabs({'Benine Samples': mo.ui.table(Normal_Sample_gene), 'Melignanr Samples':mo.ui.table(melignent_df)})
+    mo.ui.tabs({'Benine Samples': mo.ui.table(Normal_Sample_gene), 'Melignant Samples':mo.ui.table(melignent_df)})
     return Normal_Sample_gene, melignent_df
 
 
@@ -391,8 +394,12 @@ def _(mo, pd):
     healthy_dataSet=healthy_dataSet.astype(float)
     cancer_dataSet=cancer_dataSet.astype(float)
     """
-    healthy_dataSet = pd.read_csv('./data/helthyExpressions.csv')
-    cancer_dataSet = pd.read_csv('./data/cancerExpressions.csv')
+    # Load just the header
+    full_header = pd.read_csv('./data/helthyExpressions.csv', nrows=0).columns.tolist()
+
+    # Load partial data with proper headers
+    healthy_dataSet = pd.read_csv('./data/helthyExpressions.csv', skiprows=1, nrows=100, names=full_header)
+    cancer_dataSet = pd.read_csv('./data/cancerExpressions.csv', skiprows=1, nrows=100, names=full_header)
     cancer_dataSet.rename(columns={'Unnamed: 0':'Samples'}, inplace=True)
 
     extraction_tab = mo.vstack([
@@ -402,7 +409,7 @@ def _(mo, pd):
     ])
 
     # --- Assemble the tabs ---
-    mo.tabs({
+    mo.ui.tabs({
         "Healthy Gene Expression": mo.ui.table(healthy_dataSet),
         "Malignant Gene Expression": mo.ui.table(cancer_dataSet),
         "Extraction Method": extraction_tab
@@ -412,6 +419,7 @@ def _(mo, pd):
         cancer_dataSet,
         extraction_function,
         extraction_tab,
+        full_header,
         healthy_dataSet,
         helthy_code,
     )
@@ -432,81 +440,22 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(io, mo, pd):
-    extraction_code = f"""with open('GSE62944_01_27_15_TCGA_20_420_Clinical_Variables_7706_Samples.txt', 'r') as file:
-        exractedData1 = [line.split('\\t') for line in file.readlines()]
-    with open('GSE62944_06_01_15_TCGA_24_548_Clinical_Variables_9264_Samples.txt', 'r') as file:
-        exractedData2 = [line.split('\\t') for line in file.readlines()]
-
-    # Convert to DataFrames
-    df1 = pd.DataFrame(exractedData1)
-    df2 = pd.DataFrame(exractedData2)
-
-    # Transpose the DataFrames
-    df1 = df1.T
-    df2 = df2.T
-
-    # Concatenate
-    concat_df = pd.concat([df1, df2])
-
-    # Rename columns using the first row
-    concat_df.columns = concat_df.iloc[0]
-    concat_df = concat_df.drop(0)  # Remove the first row
-
-    # Remove NaN columns
-    concat_df = concat_df.loc[:, ~concat_df.columns.isna()]
-
-    # Rename index column
-    if '' in concat_df.columns:
-        concat_df.rename(columns={{'': 'Samples'}}, inplace=True)
-
-    # Capture df.info() output
-    info_buf = io.StringIO()
-    concat_df.info(verbose=True, show_counts=True, buf=info_buf)
-    """
-
-    # Load pre-processed DataFrame for display
-    concat_df = pd.read_csv('./AHPresults/initial_clinical_df.csv')
-
-    # Capture df.info() output separately (you missed this)
-    info_buf = io.StringIO()
-    concat_df.info(verbose=True, show_counts=True, buf=info_buf)
-    info_str = info_buf.getvalue()
-
-    # Build Marimo UI
-    cl_tabs = mo.tabs({
-        'Data': mo.ui.table(concat_df),
-        'Info': mo.md(f"```\n{info_str}\n```"),
-        'Extraction': mo.ui.code_editor(extraction_code, language="python")
-    })
-
-    cl_tabs
-    return cl_tabs, concat_df, extraction_code, info_buf, info_str
+def _(pkl):
+    with open('./scripts/pkl_files/clinical1.plk', 'rb') as f:
+        clinical_tabs = pkl.load(f)
+    clinical_tabs
+    return clinical_tabs, f
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(mo):
-    mo.md("""After Creating a data fram from the two <span style="color: brown">two clinical suplimentary files</span>, now we have to extract all the BRCA data from it and the following table displays all the brca related logistics. Now we can delve in furthure to create a dataset for stage prognosis and furthermore analyze patients demografic and see how they are corolated.""")
+    mo.md("""After Creating a data fram from the two <span style="color: brown">two clinical suplimentary files</span>, extracted all the breast cancer related samples and started the cleaning up proccess. Jy by a glance at the headers of data it seamd very promissing but during our data cleanning process we chose a different route. """)
     return
 
 
 @app.cell(hide_code=True)
-def _(cancer_dataSet, concat_df, info_str, mo):
-    # healthyBRCAList = healthy_dataSet.index
-    cancerBRCAList = cancer_dataSet['Samples']
-
-    BRCA_CV = concat_df[concat_df['Samples'].isin(cancerBRCAList)].copy()
-    # BRCA_CV.drop(columns='index', inplace=True)
-    mo.tabs({
-        'Data': mo.ui.table(BRCA_CV),
-        'Info': mo.md(f"`\n{info_str}\n`")
-    })
-    return BRCA_CV, cancerBRCAList
-
-
-@app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""By over looking of the columns of this dataset columns we initially thout the data can be used for the following analysis.""")
+    mo.md(r"""The following table shows the headers of the columns categories for type of study could be done utilizing them. """)
     return
 
 
@@ -617,7 +566,7 @@ def _(mo, pd):
     ])
 
     # Create tabs using a dictionary
-    tabs = mo.tabs({
+    tabs = mo.ui.tabs({
         "Patient Demographics & History": patient_demographics_table,
         "Tumor Characteristics & Diagnosis": tumor_characteristics_table,
         "Cancer Staging":cancer_staging_table,
@@ -662,196 +611,35 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(BRCA_CV, melignent_df, np, pd):
-    from io import StringIO
-
-    # --- Initial Dataset ---
-    new_brca_df = BRCA_CV.copy()
-
-    # --- Utility functions ---
-    def get_value_counts_table(df):
-        """Return a long table of (column, value, count) for value_counts across all columns."""
-        records = []
-        for col in df.columns:
-            counts = df[col].value_counts(dropna=False)
-            for val, count in counts.items():
-                records.append({
-                    "Column": col,
-                    "Value": val,
-                    "Count": count
-                })
-        return pd.DataFrame(records)
-
-    def get_info_str(df):
-        """Capture df.info() output as a string."""
-        buffer = StringIO()
-        df.info(buf=buffer, verbose=True, show_counts=True)
-        return buffer.getvalue()
-
-    def convert_numeric_columns(df):
-        """Convert columns that look numeric into actual numeric types."""
-        for col in df.columns:
-            try:
-                df[col] = pd.to_numeric(df[col], errors='ignore')
-            except Exception:
-                pass
-        return df
-    # --- Step 1: Original Dataset ---
-    original_info = get_info_str(new_brca_df)
-    original_value_counts = get_value_counts_table(new_brca_df)
-
-    # --- Step 2: Replace "NA" with np.nan ---
-    new_brca_df.replace("NA", np.nan, inplace=True)
-    after_replace_info = get_info_str(new_brca_df)
-    after_replace_value_counts = get_value_counts_table(new_brca_df)
-
-    # --- Step 3: Convert numeric-looking columns ---
-    new_brca_df = convert_numeric_columns(new_brca_df)
-    after_convert_info = get_info_str(new_brca_df)
-    after_convert_value_counts = get_value_counts_table(new_brca_df)
-
-    # --- Step 4: Drop columns after 189th and filter Samples ---
-    droped_Df = new_brca_df.copy()
-    droped_Df = droped_Df.iloc[:, :189]
-    droped_Df = droped_Df[droped_Df['Samples'].isin(melignent_df['Samples'])]
-
-    after_drop_info = get_info_str(droped_Df)
-    after_drop_value_counts = get_value_counts_table(droped_Df)
-
-    # --- Step 5: Create Column Layout Table ---
-    col_list = droped_Df.columns.tolist()
-    total_cells = 21 * 9
-    col_list += [""] * (total_cells - len(col_list))
-    col_array = np.array(col_list).reshape(21, 9)
-    col_table_df = pd.DataFrame(col_array, columns=[f"Col {i+1}" for i in range(9)])
-
-    # --- Step 6: Final Fill NAs ---
-    droped_Df.fillna("Not Available", inplace=True)
-    final_info = get_info_str(droped_Df)
-    final_value_counts = get_value_counts_table(droped_Df)
-    final_value_counts
-    return (
-        StringIO,
-        after_convert_info,
-        after_convert_value_counts,
-        after_drop_info,
-        after_drop_value_counts,
-        after_replace_info,
-        after_replace_value_counts,
-        col_array,
-        col_list,
-        col_table_df,
-        convert_numeric_columns,
-        droped_Df,
-        final_info,
-        final_value_counts,
-        get_info_str,
-        get_value_counts_table,
-        new_brca_df,
-        original_info,
-        original_value_counts,
-        total_cells,
-    )
-
-
-@app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
         | Step | Cleaning Action | Purpose |
         |:----|:-----------------|:--------|
-        | **1** | Replace "NA" with np.nannp.nan | Standardize missing values so pandas can detect and handle them correctly. |
-        | **2** | Convert numeric-looking columns to numbers | Fix columns where numbers are stored as text, enabling proper analysis and modeling. |
+        | **1** | Converting the dtypes to the correct ones | All the columns were transfered as string even the integers and NAN values. This allowed me to see the true nan value counts and dtypes |
+        | **2** | Dropped columns that had more than 80% Nan Values | After analzing the true data types and numnbe of nan values it was vert numeric-looking columns to numbers | Fix columns where numbers are stored as text, enabling proper analysis and modeling. |
         | **3** | Drop columns after the 189th column | Retain only clinically meaningful columns and remove irrelevant features. |
         | **4** | Keep only malignant samples (melig≠ntdfmelignent_df) | Focus the study specifically on malignant (cancerous) patient cases. |
-        | **5** | Display cleaned column names in a 21×9 grid | Organize and inspect the final set of column names easily for verification. |
 
-        The following Tabke show why this clinical variable was not usefull. The are many Not Available data Abailable.
+        The following Tabke show why this clinical variable was not usefull. The are many **Not Available** string data in the data frame so we started to look for a secondary data source. 
         """
     )
     return
 
 
 @app.cell(hide_code=True)
-def _(droped_Df, final_info, mo):
-    ext_code = f"""
-    # --- Utility functions ---
-    def get_value_counts_table(df):
-        \"\"\"Return a long table of (column, value, count) for value_counts across all columns.\"\"\"
-        records = []
-        for col in df.columns:
-            counts = df[col].value_counts(dropna=False)
-            for val, count in counts.items():
-                records.append({{
-                    "Column": col,
-                    "Value": val,
-                    "Count": count
-                }})
-        return pd.DataFrame(records)
-
-    def get_info_str(df):
-        \"\"\"Capture df.info() output as a string.\"\"\"
-        buffer = StringIO()
-        df.info(buf=buffer, verbose=True, show_counts=True)
-        return buffer.getvalue()
-
-    def convert_numeric_columns(df):
-        \"\"\"Convert columns that look numeric into actual numeric types.\"\"\"
-        for col in df.columns:
-            try:
-                df[col] = pd.to_numeric(df[col], errors='ignore')
-            except Exception:
-                pass
-        return df
-
-    # --- Step 1: Original Dataset ---
-    original_info = get_info_str(new_brca_df)
-    original_value_counts = get_value_counts_table(new_brca_df)
-
-    # --- Step 2: Replace "NA" with np.nan ---
-    new_brca_df.replace("NA", np.nan, inplace=True)
-    after_replace_info = get_info_str(new_brca_df)
-    after_replace_value_counts = get_value_counts_table(new_brca_df)
-
-    # --- Step 3: Convert numeric-looking columns ---
-    new_brca_df = convert_numeric_columns(new_brca_df)
-    after_convert_info = get_info_str(new_brca_df)
-    after_convert_value_counts = get_value_counts_table(new_brca_df)
-
-    # --- Step 4: Drop columns after 189th and filter Samples ---
-    dropped_Df = new_brca_df.copy()
-    dropped_Df = dropped_Df.iloc[:, :189]
-    dropped_Df = dropped_Df[dropped_Df['Samples'].isin(melignent_df['Samples'])]
-
-    after_drop_info = get_info_str(dropped_Df)
-    after_drop_value_counts = get_value_counts_table(dropped_Df)
-
-    # --- Step 5: Create Column Layout Table ---
-    col_list = dropped_Df.columns.tolist()
-    total_cells = 21 * 9
-    col_list += [""] * (total_cells - len(col_list))
-    col_array = np.array(col_list).reshape(21, 9)
-    col_table_df = pd.DataFrame(col_array, columns=[f"Col {{i+1}}" for i in range(9)])
-
-    # --- Step 6: Final Fill NAs ---
-    dropped_Df.fillna("Not Available", inplace=True)
-    final_info = get_info_str(dropped_Df)
-    final_value_counts = get_value_counts_table(dropped_Df)
-    """
-
-    mo.tabs({
-        'Data': droped_Df,
-        'Info': mo.md(f"```\n{final_info}\n```"),
-        'Extraction': mo.ui.code_editor(ext_code)
-    })
-    return (ext_code,)
+def _(pkl):
+    with open('./scripts/pkl_files/kl1.pkl', 'rb') as _f:
+        cleaned_up = pkl.load(_f)
+    cleaned_up
+    return (cleaned_up,)
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
-        ###<span style="color: brown">Using a secondary Clinical Variable dataset Directy extracted from TCGA</span>
+        #<span style="color: brown">Using a secondary Clinical Variable dataset Directy extracted from TCGA</span>
         It seams like the suplementary files for clinical variables is not structed verywell. How ever using R pakage we extracted a better clinical values from TCGA dataset that could be used the same gene expression the NCBI GEO dataset so instead we are going to use this instead.
         """
     )
@@ -922,7 +710,7 @@ def _(io, mo, pd):
     info_text = info_buffer.getvalue()
 
     # Create Marimo UI tabs
-    mo.tabs({
+    mo.ui.tabs({
         "DataSet": mo.ui.table(other_sup_files),
         "Info": mo.ui.code_editor(f"`\n{info_text}\n`")  # Display info in a nicely formatted code block
     })
@@ -935,7 +723,10 @@ def _(mo):
         """
         ### <span style="color: brown">DataSet Clean up Proccess</span>
 
-        There are many columns that contains zero non_Null values. To prevent pandas dropping other columns or rows mistakenly I drop the columns that had more than threshold of %80 Nan values. and drop the rows of staging related columns respectively. The following data set is the cleaned up version of our dataset.
+        Many columns in the dataset contain zero non-null values. To avoid unintended data loss during cleaning, we dropped all columns with more than 80% missing values. We also removed rows with missing values in key staging-related columns. Since we are working with biological data, applying imputation methods, such as filling missing values with the mean, can introduce bias and compromise the integrity of downstream analyses. Therefore, we opted for conservative filtering rather than data aggregation.
+
+        ---
+        <span style="color: brown">Result after clean up:</span>
         """
     )
     return
@@ -956,8 +747,8 @@ def _(io, mo, other_sup_files):
     moded_info = buffer.getvalue()  # Store the captured output as a string
 
     # Display tabs correctly
-    mo.tabs({
-        "Cleaned Table": mo.ui.table(other_sup_files),
+    mo.ui.tabs({
+        "Cleaned Table": mo.ui.table(other_sup_files.head(100)),
         "Info": mo.ui.code_editor(f"`\n{moded_info}\n`")  # Properly formatted info
     })
     return buffer, moded_info
@@ -965,15 +756,22 @@ def _(io, mo, other_sup_files):
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""##<span style="color:brown">Number of stages</span>""")
+    mo.md(
+        r"""
+        ##<span style="color:brown">Number of stages</span>
+
+        Since our classifier models are labling stage for classification, we wanted to check the number of samples for each data, so we can plan accordingly in advance.
+        """
+    )
     return
 
 
 @app.cell(hide_code=True)
-def _(pd):
-    stagedata = pd.read_csv('./AHPresults/fina_Stage_unaugmented.csv')
-    stagedata['Stage'].value_counts()
-    return (stagedata,)
+def _(pkl):
+    with open('./scripts/pkl_files/stg_count.pkl', 'rb') as _f:
+        stg_count = pkl.load(_f)
+    stg_count
+    return (stg_count,)
 
 
 @app.cell(hide_code=True)
@@ -1000,16 +798,18 @@ def _(mo):
 
         <span style='color:brown'>Since our data is not time seried, we cant use HMM model.</span>
 
-        Prepared dataset for analysis:
+        Finally we mixed the clinical data and gene expressions. The following is the final data set ready to be splited for train, test, val dataset and be used for furthur analysis.
         """
     )
     return
 
 
-@app.cell
-def _(mo, stagedata):
-    mo.ui.table(stagedata)
-    return
+@app.cell(hide_code=True)
+def _(mo, pkl):
+    with open('./scripts/pkl_files/stage_data.pkl', 'rb') as _f:
+        stage = pkl.load(_f)
+    mo.ui.table(stage)
+    return (stage,)
 
 
 @app.cell(hide_code=True)
@@ -1056,90 +856,11 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(go, mo, np, pd, stagedata, stats):
-    def cramers_v(x, y):
-        confusion_matrix = pd.crosstab(x, y)
-        chi2 = stats.chi2_contingency(confusion_matrix, correction=False)[0]
-        n = confusion_matrix.sum().sum()
-        phi2 = chi2 / n
-        r, k = confusion_matrix.shape
-        return np.sqrt(phi2 / min(k-1, r-1))
-
-    # --------------- Your Data Preparation ---------------
-    corr_df = stagedata[['Stage', 'year_of_diagnosis', 'ajcc_pathologic_t', 'ajcc_pathologic_n',
-                         'ajcc_pathologic_m', 'paper_miRNA.Clusters', 'ethnicity', 'race',
-                         'age_at_diagnosis', 'vital_status']].copy()
-
-    # Encode categorical columns
-    for cols in ['Stage', 'vital_status', 'ethnicity', 'race', 'paper_miRNA.Clusters']:
-        corr_df[cols] = corr_df[cols].astype('category')
-
-    # Drop rows with missing values
-    corr_df = corr_df.dropna()
-
-    # Now calculate association
-    stage_corr = []
-    vital_corr = []
-
-    featuress = [col for col in corr_df.columns if col not in ['Stage', 'vital_status']]
-
-    for _col in featuress:
-        if corr_df[_col].dtype.name == 'category' or corr_df[_col].dtype == object:
-            # Use Cramer's V for categorical
-            corr_stage = cramers_v(corr_df['Stage'], corr_df[_col])
-            corr_vital = cramers_v(corr_df['vital_status'], corr_df[_col])
-        else:
-            # Use Pearson correlation for numeric (like age)
-            corr_stage = np.corrcoef(corr_df['Stage'].cat.codes, corr_df[_col])[0, 1]
-            corr_vital = np.corrcoef(corr_df['vital_status'].cat.codes, corr_df[_col])[0, 1]
-
-        stage_corr.append(corr_stage)
-        vital_corr.append(corr_vital)
-
-    # Results DataFrame
-    correlation_results = pd.DataFrame({
-        'Feature': featuress,
-        'Association_with_Stage': stage_corr,
-        'Association_with_Vital_Status': vital_corr
-    }).dropna()
-
-    # --------------- Plot ---------------
-    fig = go.Figure()
-
-    fig.add_trace(go.Bar(
-        x=correlation_results['Feature'],
-        y=correlation_results['Association_with_Stage'],
-        name='Association with Stage'
-    ))
-
-    fig.add_trace(go.Bar(
-        x=correlation_results['Feature'],
-        y=correlation_results['Association_with_Vital_Status'],
-        name='Association with Vital Status'
-    ))
-
-    fig.update_layout(
-        barmode='group',
-        title='Feature Associations with Stage and Vital Status (Cramér\'s V and Pearson)',
-        xaxis_title='Features',
-        yaxis_title='Association Strength',
-        width=1000,
-        height=600
-    )
-
-    mo.ui.plotly(fig)
-    return (
-        cols,
-        corr_df,
-        corr_stage,
-        corr_vital,
-        correlation_results,
-        cramers_v,
-        featuress,
-        fig,
-        stage_corr,
-        vital_corr,
-    )
+def _(pkl):
+    with open('./scripts/pkl_files/corr_plot.pkl', 'rb') as _f:
+        corr_fig = pkl.load(_f)
+    corr_fig
+    return (corr_fig,)
 
 
 @app.cell(hide_code=True)
@@ -1159,9 +880,11 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(corr_df, mo):
+def _(mo, pkl):
+    with open('./scripts/pkl_files/corr_df.pkl', 'rb') as _f:
+        corr_df = pkl.load(_f)
     mo.ui.table(corr_df)
-    return
+    return (corr_df,)
 
 
 if __name__ == "__main__":
