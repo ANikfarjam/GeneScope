@@ -7,9 +7,12 @@
   <img src="https://img.shields.io/badge/Frontend-TypeScript-blue?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Framework-Next.js-black?logo=next.js&style=for-the-badge" />
   <img src="https://img.shields.io/badge/UI-Marimo-blueviolet?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/LangChain-Enabled-success?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Pinecone-Integrated-lightgrey?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Maintained-Yes-blue?style=for-the-badge" />
   <img src="https://img.shields.io/badge/Website-Up-blue?style=for-the-badge" />
 </p>
+
 GeneScope is a research platform that combines biology, data science, and artificial intelligence to help better understand breast cancer. It analyzes patterns in gene activity and clinical information, like tumor size and patient age, to find important genes that may be linked to cancer development. Using a special method called the Analytic Hierarchy Process, GeneScope ranks thousands of genes to spotlight the ones that matter most. It also uses machine learning models to predict how likely a patient is to be diagnosed at different stages of breast cancer. By connecting genetics with clinical factors, GeneScope aims to make cancer detection earlier, smarter, and more personalized, offering new insights that could improve future treatments and patient outcomes.
 
 ## Project Structure
