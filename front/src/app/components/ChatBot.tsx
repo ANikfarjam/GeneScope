@@ -190,7 +190,9 @@ export default function Chatbot() {
       const res = await fetch("/api/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: input }),
+        body: JSON.stringify({
+          prompt: `Respond to this as simply and concisely as possible: ${input}`,
+        }),
       });
 
       const data = await res.json();

@@ -51,10 +51,10 @@ const Navbar = () => {
           {/* Center: Navigation Links */}
           <div className="absolute left-1/2 transform -translate-x-1/2 hidden md:flex space-x-6 items-center">
             <Link
-              href="/analyticalmethod"
+              href="/projectobjective"
               className="relative text-gray-700 hover:text-pink-500 after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 hover:after:w-full after:bg-pink-500 after:transition-all after:duration-300"
             >
-              Analytical Methods
+              Project Objective
             </Link>
             <Link
               href="/majorfindings"
@@ -63,10 +63,16 @@ const Navbar = () => {
               Major Finding
             </Link>
             <Link
-              href="/projectobjective"
+              href="/analyticalmethod"
               className="relative text-gray-700 hover:text-pink-500 after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 hover:after:w-full after:bg-pink-500 after:transition-all after:duration-300"
             >
-              Project Objective
+              Analytical Methods
+            </Link>
+            <Link
+              href="/about"
+              className="relative text-gray-700 hover:text-pink-500 after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 hover:after:w-full after:bg-pink-500 after:transition-all after:duration-300"
+            >
+              About Us
             </Link>
           </div>
 

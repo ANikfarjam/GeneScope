@@ -5,7 +5,7 @@ import { OpenAIEmbeddings } from "@langchain/openai";
 import { PineconeStore } from "@langchain/community/vectorstores/pinecone";
 import { getPineconeClient } from "./pinecone.js";
 //key sotred
-//TODO -> make it more efficient
+//node --loader ts-node/esm scripts/embedRunner.ts
 const pineconeIndexName = process.env.PINECONE_INDEX || "default-index-name";
 
 export async function storePdfsInPinecone() {
