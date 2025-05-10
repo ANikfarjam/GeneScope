@@ -190,32 +190,14 @@ def _(mo):
     return
 
 
-@app.cell
-def _(pd):
-    ahp_df = pd.read_csv('./AHPresults/final_Mod_ahp_scores.csv')
-    return (ahp_df,)
-
-
 @app.cell(hide_code=True)
-def _(ahp_df, mo):
+def _(mo, pkl):
     import altair as alt
+    with open('scripts//pkl_files/ahp_top_scaled.pkl', 'rb') as _f:
+        ahp_top_scaled = pkl.load(_f)
 
-
-    # Sort and take top 500 genes
-    ahp_top = ahp_df.sort_values(by="Scores", ascending=False).iloc[:200, :]
-
-    # Ensure "Gene" column is retained and treated as string
-    ahp_top_scaled = ahp_top.copy()
-    # Scale only selected numeric features if needed
-    scale_cols = ["Scores", "t_test", "Wilcoxon"]  # modify as needed
-    for col in scale_cols:
-        if col in ahp_top_scaled.columns:
-            ahp_top_scaled[col] *= 1e6
-    ahp_top_scaled["Gene"] = ahp_top_scaled["Gene"].astype(str)
-    ahp_top_scaled["Scores"] = ahp_top_scaled["Scores"].astype(float)
-    # Selection for interactive brushing
+    # Reconstruct chart as before
     brush = alt.selection_interval(encodings=["x", "y"])
-    # Scatter Plot (Interactive)
     chart = mo.ui.altair_chart(
         alt.Chart(ahp_top_scaled)
         .mark_circle()
@@ -237,14 +219,15 @@ def _(ahp_df, mo):
         )
         .add_params(brush)
     )
-    return ahp_top, ahp_top_scaled, alt, brush, chart, col, scale_cols
+
+    return ahp_top_scaled, alt, brush, chart
 
 
 @app.cell(hide_code=True)
 def _(chart, mo):
-    # Display chart and dynamically updating table
-    mo.vstack([chart, mo.ui.table(chart.value)])
-    return
+    alt_plot = mo.vstack([chart, mo.ui.table(chart.value)])
+    alt_plot
+    return (alt_plot,)
 
 
 @app.cell(hide_code=True)
@@ -318,76 +301,12 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(ahp_top, mo, pd, px):
-    import numpy as np
-    # Read biomarker file
-    biomarker = pd.read_csv('./AHPresults/fina_Stage_unaugmented.csv', low_memory=False)
-
-
-    # Load your top genes list
-    top_20_gene = ahp_top['Gene'].to_list()[:20]
-
-    # Filter to only those genes that exist in the biomarker DataFrame
-    existing_genes = [gene for gene in top_20_gene if gene in biomarker.columns]
-
-    # Optionally warn about missing genes
-    missing_genes = [gene for gene in top_20_gene if gene not in biomarker.columns]
-    if missing_genes:
-        print("Warning: The following genes are missing from the biomarker dataset:", missing_genes)
-
-    # Select only the available columns
-    biomarker = biomarker.loc[:, ['Stage'] + existing_genes]
-    biomarker = biomarker.groupby(by='Stage').mean().reset_index()
-    biomarker = biomarker.set_index('Stage')
-
-    # bio_graph = px.imshow(
-    #     biomarker,
-    #     text_auto=True,  # this is the correct Plotly arg for annotations
-    #     aspect="auto",
-    #     color_continuous_scale="Cividis",
-    #     title="Mean Expression of Top Biomarkers by Cancer Stage"
-    # )
-
-    # bio_graph.update_layout(
-    #     xaxis_title="Genes",
-    #     yaxis_title="Cancer Stage",
-    #     font=dict(size=12)
-    # )
-
-    # bio_graph.show()
-
-    # Log transform for visualization only
-    biomarker_viz = np.log1p(biomarker)
-
-    # Convert real values to strings for annotation
-    text_labels = biomarker.round(2).astype(str)
-
-    # Plot
-    bio_graph = px.imshow(
-        biomarker_viz,
-        text_auto=False,
-        color_continuous_scale="blues",
-        aspect="auto",
-        title="Log-Scaled Mean Expression of Top Biomarkers by Cancer Stage"
-    )
-
-    bio_graph.update_layout(
-        xaxis_title="Genes",
-        yaxis_title="Cancer Stage",
-        font=dict(size=12)
-    )
+def _(mo, pkl):
+    with open('scripts/pkl_files/ahp_hitmap.pkl', 'rb') as _f:
+        bio_graph = pkl.load(_f)
 
     mo.ui.plotly(bio_graph)
-    return (
-        bio_graph,
-        biomarker,
-        biomarker_viz,
-        existing_genes,
-        missing_genes,
-        np,
-        text_labels,
-        top_20_gene,
-    )
+    return (bio_graph,)
 
 
 @app.cell(hide_code=True)
@@ -579,7 +498,6 @@ def _(mo):
             "Breast Cancer TNM related Information": mo.image('./img/BRCA_StageGrouping.png')
         })
     })
-
     return
 
 
@@ -766,7 +684,7 @@ def _(mo, pd, px):
         mo.ui.tabs({
             'Hazerdus Probabilities': hazard_fig,
             'Model Summery': mo.vstack([summery_fig, mo.ui.table(pd.read_csv('../Models/CoxPHFitter/result/cox_model_summary.csv',index_col=0).T, max_columns=15,
-                                                            
+
                                                                 )])
         }),
         insight, conclussion
