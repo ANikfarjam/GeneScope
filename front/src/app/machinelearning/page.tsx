@@ -4,7 +4,7 @@ export default function Page() {
       src="/ml.html"
       width="100%"
       height="1000vh"
-      style={{ border: "none", marginTop: "70px" }}
+      style={{ border: "none" }}
     />
   );
 }
