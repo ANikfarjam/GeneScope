@@ -23,7 +23,7 @@ export default function About() {
     {
       name: "Ashkan",
       role: "Bioinformatics Lead & Data Scientist",
-      bio: "Ashkan specializes in interpreting complex genetic data to uncover meaningful insights. He leads the development of the main deep learning model at the core of GeneScope, ensuring the scientific foundation is rigorous, innovative, and impactful.",
+      bio: "Ashkan specializes in interpreting complex genetic data to uncover meaningful insights. He leads the development of the main deep learning model at the core of GeneScope, ensuring the scientific foundation is rigorous, innovative, and impactful. He also contributed extensively to the research content presented on the website, using Marimo to help structure and communicate the science clearly.",
       image: "/assets/about/Ashkan.jpg",
     },
   ];
