@@ -246,7 +246,7 @@ export default function Chatbot() {
 
         {showCsvPrompt && (
           <div className="flex justify-start">
-            <div className="px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[800px] bg-white text-gray-900 border border-gray-300 space-y-2">
+            <div className="relative px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[800px] bg-white text-gray-900 border border-gray-300 space-y-2">
               <Typer text="🧬 Would you like to use our model for cancer staging prediction? Please upload your CSV file here and press Continue." />
               <div className="flex items-center space-x-3">
                 <label className="px-3 py-1 bg-gray-200 text-gray-800 rounded cursor-pointer hover:bg-gray-300 transition">
@@ -268,14 +268,25 @@ export default function Chatbot() {
                 <button
                   onClick={() => {
                     handleCsvSubmit();
-                    setCsvFile(null); // <--- Reset the file after submitting
-                    setPredictionDone(false); // <--- Hide the 'Try another' box again
+                    setCsvFile(null);
+                    setPredictionDone(false);
                   }}
                   className="px-4 py-1 bg-pink-600 text-white rounded transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-pink-500 hover:text-black"
                 >
                   Continue
                 </button>
               </div>
+
+              {/* Download link icon */}
+              <a
+                href="https://drive.google.com/uc?export=download&id=1t_YvxBRBLpmhSwC1wUQUwsfrb2qSCPc9"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Download samples for the ML model"
+                className="absolute bottom-2 right-2 text-pink-600 text-xl hover:scale-110 transition transform"
+              >
+                📥
+              </a>
             </div>
           </div>
         )}
@@ -330,7 +341,7 @@ export default function Chatbot() {
             <ScaleLoader color="rgba(217, 35, 124, 0.4)" />
           </div>
         )}
-        {/* 🔥 New Try Another CSV Button */}
+
         {predictionDone && (
           <div className="flex justify-start">
             <div className="px-4 py-2 rounded-xl rounded-tl-none text-sm max-w-[800px] bg-white text-gray-900 border border-gray-300 space-y-2">
