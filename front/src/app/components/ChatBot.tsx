@@ -277,7 +277,6 @@ export default function Chatbot() {
                 </button>
               </div>
 
-              {/* Download link icon */}
               <a
                 href="https://drive.google.com/uc?export=download&id=1t_YvxBRBLpmhSwC1wUQUwsfrb2qSCPc9"
                 target="_blank"
