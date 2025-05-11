@@ -1004,7 +1004,6 @@ def _(mo):
 
     Despite its simplicity, the VNN enabled our model to learn complex relationships between clinical variables and gene expression data. It laid the groundwork for deeper explorations, forming a vital part of our modeling pipeline in **GeneScope**.
     """)
-
     return (vnn_md,)
 
 
@@ -1056,7 +1055,6 @@ def _(mo):
 
     Despite its simplicity, KNN offered valuable insights into the geometry of our data and helped validate the separability of cancer stages — ultimately reinforcing the strengths of the more advanced architectures used in **GeneScope**.
     """)
-
     return (KNN_md,)
 
 
@@ -1065,19 +1063,14 @@ def _(KNN_md, mo, vnn_md):
     mo.accordion({
         "VNN Vanila Artifitial Nural Netwrok": mo.vstack([vnn_md, mo.image('./Mls_yar_DELETE/model_performance_vanila_NN.png')]),
         "KNN":mo.vstack([KNN_md,mo.image('./Mls_yar_DELETE/model_performance_KNN.png')])
-    
+
     })
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(
-        r"""
-        ### <span style="color:brown"> Final Comparison results</span>
-
-        """
-    )
+    mo.md(r"""### <span style="color:brown"> Final Comparison results</span>""")
     return
 
 
