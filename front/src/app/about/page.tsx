@@ -17,13 +17,13 @@ export default function About() {
     {
       name: "Yar Moradpour",
       role: "AI Engineer & Full Stack Developer",
-      bio: "Yar blends machine learning expertise with clean, user-friendly design. He's passionate about bridging science and people through beautiful interfaces and smart tools.",
+      bio: "Yar contributes to multiple aspects of GeneScope, including supporting model experimentation with NLP and KNN techniques. He also played a key role in building the chatbot with LangChain and developing the main website. Yar bridges science and usability through seamless design and intelligent tools.",
       image: "/assets/about/Yar.webp",
     },
     {
       name: "Ashkan",
       role: "Bioinformatics Lead & Data Scientist",
-      bio: "Ashkan specializes in interpreting complex genetic data to uncover meaningful insights. He ensures the science behind GeneScope is rigorous, innovative, and impactful.",
+      bio: "Ashkan specializes in interpreting complex genetic data to uncover meaningful insights. He leads the development of the main deep learning model at the core of GeneScope, ensuring the scientific foundation is rigorous, innovative, and impactful.",
       image: "/assets/about/Ashkan.jpg",
     },
   ];
