@@ -30,8 +30,7 @@ fig = px.bar(
 grouped.to_csv('resul_miRNA.csv', index=False)
 grouped2.to_csv('resul_miRNA_withClusters.csv', index=False)
 
-with open('./miRna_visuals.pkl', 'wb') as f:
-    pkl.dump(fig, f)
+fig.write_image('miRNA.png', format="png", width=1000, height=600)
 
 
 

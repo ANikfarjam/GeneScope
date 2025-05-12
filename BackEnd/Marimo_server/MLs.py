@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.12.2"
+__generated_with = "0.13.6"
 app = marimo.App(width="medium")
 
 
@@ -14,34 +14,34 @@ def _():
     import plotly.graph_objects as go
     from plotly.subplots import make_subplots
     import pickle as pkl
-    return auc, go, make_subplots, mo, np, pd, pkl, px, roc_curve
+    return go, make_subplots, mo, pd, px
 
 
 @app.cell(hide_code=True)
 def _():
     import plotly.io as pio
     pio.renderers.default = "iframe_connected"
-    return (pio,)
+    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
-        #<span style="color:brown">Breast Cancer Classification usibg Deep Learning Neural Network</span>
+    #<span style="color:brown">Breast Cancer Classification usibg Deep Learning Neural Network</span>
 
-         **GeneScope** leverages a deep learning framework to classify breast cancer stages by integrating both clinical and gene expression data. Our dataset comprises over **2,100 patient samples**, each containing structured clinical information—such as age, tumor characteristics (TNM staging), vital status—as well as high-dimensional gene expression profiles.
+     **GeneScope** leverages a deep learning framework to classify breast cancer stages by integrating both clinical and gene expression data. Our dataset comprises over **2,100 patient samples**, each containing structured clinical information—such as age, tumor characteristics (TNM staging), vital status—as well as high-dimensional gene expression profiles.
 
 
-        ### <span style="color:brown">Intro to he Multimodal Deep Neural Network for Multi-dimensional Data </span>
+    ### <span style="color:brown">Intro to he Multimodal Deep Neural Network for Multi-dimensional Data </span>
 
-        The Multimodal Deep Neural Network for Multi-dimensional Data (MDNNMD) is a neural architecture designed to integrate and learn from multiple heterogeneous data sources simultaneously. Instead of feeding all features into a single model, MDNNMD builds independent deep neural networks for each data modality—such as gene expression, clinical recordsEach subnetwork independently learns optimal feature representations, which are then merged using a fusion mechanism to produce the final prediction.
+    The Multimodal Deep Neural Network for Multi-dimensional Data (MDNNMD) is a neural architecture designed to integrate and learn from multiple heterogeneous data sources simultaneously. Instead of feeding all features into a single model, MDNNMD builds independent deep neural networks for each data modality—such as gene expression, clinical recordsEach subnetwork independently learns optimal feature representations, which are then merged using a fusion mechanism to produce the final prediction.
 
-         [Dongdong Sun etal](https://ieeexplore.ieee.org/abstract/document/8292801?casa_token=J6Bt__TE05sAAAAA:P7rbhfoJDDM9DSFFDfsc5kUYGSFO-9c0UPnTINRVZkvUjYe9EUufViBbfkZ23pJ_XL2SQMHG1dfN
-        ) pulished an article utilizing this modol on cancer prognosis study. They emphasize the modular and flexible architecture enables MDNNMD to capture complementary information across different data types, allows enrichment of features. Minority class samples may have weak signals in one modality (e.g., clinical), but strong signals in another (e.g., gene expressions). This helps the model see them better.
+     [Dongdong Sun etal](https://ieeexplore.ieee.org/abstract/document/8292801?casa_token=J6Bt__TE05sAAAAA:P7rbhfoJDDM9DSFFDfsc5kUYGSFO-9c0UPnTINRVZkvUjYe9EUufViBbfkZ23pJ_XL2SQMHG1dfN
+    ) pulished an article utilizing this modol on cancer prognosis study. They emphasize the modular and flexible architecture enables MDNNMD to capture complementary information across different data types, allows enrichment of features. Minority class samples may have weak signals in one modality (e.g., clinical), but strong signals in another (e.g., gene expressions). This helps the model see them better.
 
-        ##<span style="color:brown">Common Techinique used for Optimizing and connecting Multimodel Nerworks</span>
-        """
+    ##<span style="color:brown">Common Techinique used for Optimizing and connecting Multimodel Nerworks</span>
+    """
     )
     return
 
@@ -141,34 +141,34 @@ def _(mo):
         """)
 
     multimodal_learning_columns()
-    return (multimodal_learning_columns,)
+    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
-        # <span style="color: brown">Feature Selection for our ML Models</span>
-        ##<span style="color: brown">Clinical Data</span>
-        ### <span style="color: brown">Utilizing Random Forest</span>
-        Our clinical dataset contained over **200 variables** spanning patient demographics, tumor characteristics, and treatment metadata. To streamline the model and reduce noise, we applied a **Random Forest Classifier** to assess feature importance and isolate the most predictive attributes.
+    # <span style="color: brown">Feature Selection for our ML Models</span>
+    ##<span style="color: brown">Clinical Data</span>
+    ### <span style="color: brown">Utilizing Random Forest</span>
+    Our clinical dataset contained over **200 variables** spanning patient demographics, tumor characteristics, and treatment metadata. To streamline the model and reduce noise, we applied a **Random Forest Classifier** to assess feature importance and isolate the most predictive attributes.
 
-        Using feature importance scores generated by the model, we narrowed the input space down to a focused set of approximately **40–50 high-impact clinical features**. These included fields such as tumor staging (AJCC), age at diagnosis, race and other patient demographic data.
+    Using feature importance scores generated by the model, we narrowed the input space down to a focused set of approximately **40–50 high-impact clinical features**. These included fields such as tumor staging (AJCC), age at diagnosis, race and other patient demographic data.
 
-        ### <span style="color: brown">Summary of the Selection Process</span>
+    ### <span style="color: brown">Summary of the Selection Process</span>
 
-        **Data Preparation**: Encoded categorical features and filled missing values using column means.
+    **Data Preparation**: Encoded categorical features and filled missing values using column means.
 
-        **Train-Test Split**: Divided the dataset into training and test sets (80/20 split).
+    **Train-Test Split**: Divided the dataset into training and test sets (80/20 split).
 
-        **Random Forest Training**: Trained a baseline model using default parameters to evaluate feature significance.
+    **Random Forest Training**: Trained a baseline model using default parameters to evaluate feature significance.
 
-        **Feature Ranking**: Sorted features based on their importance scores.
+    **Feature Ranking**: Sorted features based on their importance scores.
 
-        **Selection**: Retained the top ~50 features for downstream modeling and hyperparameter tuning.
+    **Selection**: Retained the top ~50 features for downstream modeling and hyperparameter tuning.
 
-        This process not only improved model interpretability but also helped combat overfitting by removing redundant or low-impact variables. It laid a strong foundation for our later multimodal fusion models.
-        """
+    This process not only improved model interpretability but also helped combat overfitting by removing redundant or low-impact variables. It laid a strong foundation for our later multimodal fusion models.
+    """
     )
     return
 
@@ -240,7 +240,7 @@ def _(mo, pd):
     print(report)
     """)
     })
-    return feature_analysis, feature_ranking, model_summery
+    return
 
 
 @app.cell
@@ -296,87 +296,87 @@ def _(mo):
     print(classification_report(y_test, y_pred_grid, zero_division=1))
     """)
     })
-    return (conclussion,)
+    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         """
-        ##<span style="color: brown">Gene Expression</span>
-        ### <span style="color: brown">Utilizing AHP</span>
+    ##<span style="color: brown">Gene Expression</span>
+    ### <span style="color: brown">Utilizing AHP</span>
 
-        The Analytic Hierarchy Process (AHP) is a structured decision-making approach that helps prioritize and select the most important criteria in complex problems. It works by breaking a problem into a hierarchy of criteria and sub-criteria, assigning numerical values to their relative importance, and using pairwise comparisons to generate a weighted ranking. Traditional AHP is often qualitative, relying on expert judgment, but in bioinformatics, a modified AHP can integrate statistical methods to enhance objectivity.
+    The Analytic Hierarchy Process (AHP) is a structured decision-making approach that helps prioritize and select the most important criteria in complex problems. It works by breaking a problem into a hierarchy of criteria and sub-criteria, assigning numerical values to their relative importance, and using pairwise comparisons to generate a weighted ranking. Traditional AHP is often qualitative, relying on expert judgment, but in bioinformatics, a modified AHP can integrate statistical methods to enhance objectivity.
 
 
-        In the context of biomarker analysis for BRCA-related research, AHP can significantly improve the selection of key biomarkers by aggregating multiple statistical gene selection methods. Instead of relying on a single metric, such as a t-test or entropy, the modified AHP integrates multiple ranking criteria (e.g., Wilcoxon test, ROC curves, signal-to-noise ratio) to create a more stable and reliable subset of genes. This method ensures that the chosen biomarkers are not only statistically significant but also robust across different datasets and ranking approaches. By identifying the most influential genes systematically, AHP helps refine the list of biomarkers that could be further analyzed for their role in breast cancer progression, prognosis, or response to treatment.
+    In the context of biomarker analysis for BRCA-related research, AHP can significantly improve the selection of key biomarkers by aggregating multiple statistical gene selection methods. Instead of relying on a single metric, such as a t-test or entropy, the modified AHP integrates multiple ranking criteria (e.g., Wilcoxon test, ROC curves, signal-to-noise ratio) to create a more stable and reliable subset of genes. This method ensures that the chosen biomarkers are not only statistically significant but also robust across different datasets and ranking approaches. By identifying the most influential genes systematically, AHP helps refine the list of biomarkers that could be further analyzed for their role in breast cancer progression, prognosis, or response to treatment.
 
-        <span style="color: brown">Modified AHP:</span>
+    <span style="color: brown">Modified AHP:</span>
 
-        * <span style="color: brown">Two-Sample t-Test:</span>
+    * <span style="color: brown">Two-Sample t-Test:</span>
 
-        Purpose: Identifies statistically significant differences in gene expression between two groups (e.g., cancerous vs. healthy cells).
+    Purpose: Identifies statistically significant differences in gene expression between two groups (e.g., cancerous vs. healthy cells).
 
-        Method: Compares the means of two independent samples using the t-statistic.
+    Method: Compares the means of two independent samples using the t-statistic.
 
-        Output: A t-score and p-value. A small p-value indicates significant differences in expression.
+    Output: A t-score and p-value. A small p-value indicates significant differences in expression.
 
-        * <span style="color: brown">Entropy Test:</span>
+    * <span style="color: brown">Entropy Test:</span>
 
-        Purpose: Measures the disorder in gene expression levels.
+    Purpose: Measures the disorder in gene expression levels.
 
-        Method: Computes entropy using histogram-based probability distributions.
+    Method: Computes entropy using histogram-based probability distributions.
 
-        Output: Higher entropy values indicate genes with more variability, which are more useful for classification.
+    Output: Higher entropy values indicate genes with more variability, which are more useful for classification.
 
-        * <span style="color: brown">Wilcoxon Rank-Sum Test:</span>
+    * <span style="color: brown">Wilcoxon Rank-Sum Test:</span>
 
-        Purpose: A non-parametric test used to rank genes based on their median expression differences.
+    Purpose: A non-parametric test used to rank genes based on their median expression differences.
 
-        Method: Compares the ranks of two independent samples instead of their means.
+    Method: Compares the ranks of two independent samples instead of their means.
 
-        Output: A Wilcoxon statistic and a p-value. A low p-value suggests significant differences in gene ranks.
+    Output: A Wilcoxon statistic and a p-value. A low p-value suggests significant differences in gene ranks.
 
-        * <span style="color: brown">Signal-to-Noise Ratio (SNR):</span>
+    * <span style="color: brown">Signal-to-Noise Ratio (SNR):</span>
 
-        Purpose: Compares the difference in mean expression levels relative to the standard deviation.
+    Purpose: Compares the difference in mean expression levels relative to the standard deviation.
 
-        Method: SNR is calculated as the difference between the means of two groups divided by the sum of their standard deviations.
+    Method: SNR is calculated as the difference between the means of two groups divided by the sum of their standard deviations.
 
-        Output: A higher SNR suggests that the gene has a strong discriminatory power between groups.
+    Output: A higher SNR suggests that the gene has a strong discriminatory power between groups.
 
-        * <span style="color: brown">AHP Weighted Ranking:</span>
+    * <span style="color: brown">AHP Weighted Ranking:</span>
 
-        Purpose: Integrates statistical measures into a single weighted ranking system to prioritize significant genes.
+    Purpose: Integrates statistical measures into a single weighted ranking system to prioritize significant genes.
 
-        Method: Normalizes scores across all statistical tests and applies predefined weights.
+    Method: Normalizes scores across all statistical tests and applies predefined weights.
 
-        Output: A final ranking score indicating the importance of each gene in classification.
+    Output: A final ranking score indicating the importance of each gene in classification.
 
-        * <span style="color: brown"> Eigenvalues and Eigenvectors in Gene Selection (Modified AHP): </span>
+    * <span style="color: brown"> Eigenvalues and Eigenvectors in Gene Selection (Modified AHP): </span>
 
-        The modified Analytic Hierarchy Process (AHP) used for gene selection involves constructing a pairwise comparison matrix where genes are ranked based on multiple statistical criteria (e.g., t-test, entropy, ROC, Wilcoxon, and SNR).
+    The modified Analytic Hierarchy Process (AHP) used for gene selection involves constructing a pairwise comparison matrix where genes are ranked based on multiple statistical criteria (e.g., t-test, entropy, ROC, Wilcoxon, and SNR).
 
-        The matrix is required to be consistent, meaning that its elements must satisfy certain transitivity properties.
-        Eigenvectors are computed from this matrix to obtain ranking scores of genes. These eigenvectors correspond to the principal components that define the most discriminative genes.
+    The matrix is required to be consistent, meaning that its elements must satisfy certain transitivity properties.
+    Eigenvectors are computed from this matrix to obtain ranking scores of genes. These eigenvectors correspond to the principal components that define the most discriminative genes.
 
-        The largest eigenvalue (𝜆𝑚𝑎𝑥) is used to compute the Consistency Index (CI) and Consistency Ratio (CR) to ensure that the ranking process is mathematically sound.
-        Eigenvalues and Eigenvectors in HMMs:
+    The largest eigenvalue (𝜆𝑚𝑎𝑥) is used to compute the Consistency Index (CI) and Consistency Ratio (CR) to ensure that the ranking process is mathematically sound.
+    Eigenvalues and Eigenvectors in HMMs:
 
-        HMMs use transition probability matrices to model state changes in gene expression related to cancer progression.
-        The transition probability matrix (A) is a stochastic matrix that describes the likelihood of transitioning from one state to another.
+    HMMs use transition probability matrices to model state changes in gene expression related to cancer progression.
+    The transition probability matrix (A) is a stochastic matrix that describes the likelihood of transitioning from one state to another.
 
-        The stationary distribution of states (long-term probabilities of each state) is found by computing the dominant eigenvector (associated with eigenvalue 1) of this matrix.
+    The stationary distribution of states (long-term probabilities of each state) is found by computing the dominant eigenvector (associated with eigenvalue 1) of this matrix.
 
-        Spectral analysis (using eigenvalues) helps determine the stability and convergence properties of the HMM.
-        Why This Matters for Cancer Classification
+    Spectral analysis (using eigenvalues) helps determine the stability and convergence properties of the HMM.
+    Why This Matters for Cancer Classification
 
-        Gene Selection (AHP with Eigenvectors) ensures that the most informative genes are chosen based on multiple criteria, improving classification accuracy.
+    Gene Selection (AHP with Eigenvectors) ensures that the most informative genes are chosen based on multiple criteria, improving classification accuracy.
 
-        HMMs with Eigenvalues provide a probabilistic framework to model cancer progression and classify gene expression data efficiently.
+    HMMs with Eigenvalues provide a probabilistic framework to model cancer progression and classify gene expression data efficiently.
 
-        Eigenvectors define important features, helping reduce computational complexity and improving stability.
-        """
+    Eigenvectors define important features, helping reduce computational complexity and improving stability.
+    """
     )
     return
 
@@ -385,93 +385,93 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-        ### <span style="color: brown">Pairwise Comparison Matrix and Eigenvalues in Modified AHP</span>
+    ### <span style="color: brown">Pairwise Comparison Matrix and Eigenvalues in Modified AHP</span>
 
-        The article describes the calculation of the **pairwise comparison matrix** and the **eigenvalues and eigenvectors** in the context of the **modified Analytic Hierarchy Process (AHP)** used for gene selection.
+    The article describes the calculation of the **pairwise comparison matrix** and the **eigenvalues and eigenvectors** in the context of the **modified Analytic Hierarchy Process (AHP)** used for gene selection.
 
-        ## **1. Construction of the Pairwise Comparison Matrix**
-        The pairwise comparison matrix $X = (x_{ij})$ is an $n \times n$ matrix, where each element $x_{ij}$ represents the relative importance of gene $i$ compared to gene $j$. The matrix satisfies:
+    ## **1. Construction of the Pairwise Comparison Matrix**
+    The pairwise comparison matrix $X = (x_{ij})$ is an $n \times n$ matrix, where each element $x_{ij}$ represents the relative importance of gene $i$ compared to gene $j$. The matrix satisfies:
 
-        $$
-        x_{ij} = \frac{1}{x_{ji}}, \quad \forall i \neq j
-        $$
+    $$
+    x_{ij} = \frac{1}{x_{ji}}, \quad \forall i \neq j
+    $$
 
-        $$
-        x_{ii} = 1, \quad \forall i
-        $$
+    $$
+    x_{ii} = 1, \quad \forall i
+    $$
 
-        The elements of the matrix are computed based on **quantitative criteria**, which include:
-        - **t-test**
-        - **Entropy**
-        - **Receiver Operating Characteristic (ROC) curve**
-        - **Wilcoxon test**
-        - **Signal-to-Noise Ratio (SNR)**
+    The elements of the matrix are computed based on **quantitative criteria**, which include:
+    - **t-test**
+    - **Entropy**
+    - **Receiver Operating Characteristic (ROC) curve**
+    - **Wilcoxon test**
+    - **Signal-to-Noise Ratio (SNR)**
 
-        The absolute difference between the statistical values of two genes $i$ and $j$ is used to compute the pairwise importance score:
+    The absolute difference between the statistical values of two genes $i$ and $j$ is used to compute the pairwise importance score:
 
-        $$
-        d_{ij} = |c_i - c_j|
-        $$
+    $$
+    d_{ij} = |c_i - c_j|
+    $$
 
-        where $c_i$ and $c_j$ are the scores of genes $i$ and $j$ under the given criterion. The final matrix values are scaled within the range **[1,10]** using:
+    where $c_i$ and $c_j$ are the scores of genes $i$ and $j$ under the given criterion. The final matrix values are scaled within the range **[1,10]** using:
 
-        $$
-        c = \frac{d_{ij} - 9}{c_{\max}} + 1
-        $$
+    $$
+    c = \frac{d_{ij} - 9}{c_{\max}} + 1
+    $$
 
-        $$
-        x_{ij} =
-        \begin{cases} 
-        c, & \text{if } c_i \geq c_j \\
-        \frac{1}{c}, & \text{otherwise}
-        \end{cases}
-        $$
+    $$
+    x_{ij} =
+    \begin{cases} 
+    c, & \text{if } c_i \geq c_j \\
+    \frac{1}{c}, & \text{otherwise}
+    \end{cases}
+    $$
 
-        where $c_{\max}$ is the maximum distance between genes.
+    where $c_{\max}$ is the maximum distance between genes.
 
-        ## **2. Eigenvector Calculation (Ranking Genes)**
-        Once the pairwise comparison matrix is constructed, **eigenvectors** are used to determine the ranking of genes. The eigenvector $\lambda$ is computed using:
+    ## **2. Eigenvector Calculation (Ranking Genes)**
+    Once the pairwise comparison matrix is constructed, **eigenvectors** are used to determine the ranking of genes. The eigenvector $\lambda$ is computed using:
 
-        $$
-        S_j = \sum_{i=1}^{n} x_{ij}
-        $$
+    $$
+    S_j = \sum_{i=1}^{n} x_{ij}
+    $$
 
-        $$
-        \lambda_i = \frac{1}{n} \sum_{j=1}^{n} \frac{x_{ij}}{S_j}
-        $$
+    $$
+    \lambda_i = \frac{1}{n} \sum_{j=1}^{n} \frac{x_{ij}}{S_j}
+    $$
 
-        This **normalized eigenvector** represents the ranking of genes.
+    This **normalized eigenvector** represents the ranking of genes.
 
-        ## **3. Eigenvalue Calculation and Consistency Check**
-        The largest eigenvalue $\lambda_{\max}$ is estimated as:
+    ## **3. Eigenvalue Calculation and Consistency Check**
+    The largest eigenvalue $\lambda_{\max}$ is estimated as:
 
-        $$
-        \lambda_{\max} = \frac{1}{\lambda_i} \sum_{j=1}^{n} x_{ij} \lambda_j
-        $$
+    $$
+    \lambda_{\max} = \frac{1}{\lambda_i} \sum_{j=1}^{n} x_{ij} \lambda_j
+    $$
 
-        The **Consistency Index (CI)** is given by:
+    The **Consistency Index (CI)** is given by:
 
-        $$
-        CI = \frac{\lambda_{\max} - n}{n-1}
-        $$
+    $$
+    CI = \frac{\lambda_{\max} - n}{n-1}
+    $$
 
-        The **Consistency Ratio (CR)** is then computed using a **Random Index (RI)**:
+    The **Consistency Ratio (CR)** is then computed using a **Random Index (RI)**:
 
-        $$
-        CR = \frac{CI}{RI}
-        $$
+    $$
+    CR = \frac{CI}{RI}
+    $$
 
-        A **CR value ≤ 0.1** indicates an acceptable consistency level.
+    A **CR value ≤ 0.1** indicates an acceptable consistency level.
 
-        ## **Summary**
-        The pairwise comparison matrix is built using **quantitative ranking** instead of expert judgment
-        .
-        The eigenvector of the matrix determines the relative ranking of genes.
+    ## **Summary**
+    The pairwise comparison matrix is built using **quantitative ranking** instead of expert judgment
+    .
+    The eigenvector of the matrix determines the relative ranking of genes.
 
-        The eigenvalue and consistency ratio ensure that the matrix is valid for decision-making.
+    The eigenvalue and consistency ratio ensure that the matrix is valid for decision-making.
 
-        This method ensures an **objective** and **stable** way to rank genes, which improves classification accuracy in cancer detection using **Hidden Markov Models (HMMs)**.
-        """
+    This method ensures an **objective** and **stable** way to rank genes, which improves classification accuracy in cancer detection using **Hidden Markov Models (HMMs)**.
+    """
     )
     return
 
@@ -548,17 +548,17 @@ def _(mo, pd):
             )
         }
     )
-    return ahp_data, ahp_performance, result_text
+    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
-        #<span style="color:brown">Model Exploration and Selection</span>
-        ###<span style="color:brown">Experimental Design</span>
-        Inspired by Sun's paper, for exploration, We began by developing a Multilayer Perceptron (MLP) for clinical variables and another MLP for gene expression data. In multimodal deep learning, especially when integrating different types of data such as gene expression (numeric, high-dimensional) and clinical variables (tabular, categorical), five main fusion strategies are commonly used. As part of our exploratory analysis, we experimented with late fusion, where the outputs of individual models are combined at a later stage to make the final prediction. However, based on our findings, we ultimately decided to pursue a different approach for the final model.
-        """
+    #<span style="color:brown">Model Exploration and Selection</span>
+    ###<span style="color:brown">Experimental Design</span>
+    Inspired by Sun's paper, for exploration, We began by developing a Multilayer Perceptron (MLP) for clinical variables and another MLP for gene expression data. In multimodal deep learning, especially when integrating different types of data such as gene expression (numeric, high-dimensional) and clinical variables (tabular, categorical), five main fusion strategies are commonly used. As part of our exploratory analysis, we experimented with late fusion, where the outputs of individual models are combined at a later stage to make the final prediction. However, based on our findings, we ultimately decided to pursue a different approach for the final model.
+    """
     )
     return
 
@@ -581,12 +581,16 @@ def _(mo):
             }
             .container {
                 display: flex;
-                max-width: 1400px;
-                margin: 0 auto;
+                flex-wrap: wrap;
+                gap: 1.5rem;
                 background-color: #2b183c;
-                border-radius: 20px;
-                overflow: hidden;
+                border-radius: 16px;
+                padding: 2rem;
                 color: #ffffff;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                max-width: 100%;
+                margin: auto;
+                overflow: auto;
             }
             .column {
                 flex: 1;
@@ -675,7 +679,7 @@ def _(mo):
     """
 
     performance = mo.Html(html_content)
-    return html_content, performance
+    return (performance,)
 
 
 @app.cell(hide_code=True)
@@ -749,30 +753,21 @@ def _(go, mo, pd, performance, px):
     ).style({"margin": "auto", "max-width": "1200px"})
 
     final_tabs
-    return (
-        eval_df,
-        exp_visuals,
-        fig,
-        filtered_df,
-        final_tabs,
-        metrics_of_interest,
-        val_fig,
-        validation_accuracy_df,
-    )
+    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
-        ###<span style="color:brown">Exploratory Model Evaluation Summary</span>
+    ###<span style="color:brown">Exploratory Model Evaluation Summary</span>
 
-        The performance of our initial exploratory model reveals a significant imbalance in classification capabilities across cancer stages. While metrics like accuracy (0.73) and specificity (0.97) appear strong, the sensitivity (0.63) highlights a crucial limitation — the model struggles to correctly identify positive cancer cases.
+    The performance of our initial exploratory model reveals a significant imbalance in classification capabilities across cancer stages. While metrics like accuracy (0.73) and specificity (0.97) appear strong, the sensitivity (0.63) highlights a crucial limitation — the model struggles to correctly identify positive cancer cases.
 
-        This sensitivity drop is a common symptom of class imbalance, where underrepresented stages skew the model's learning process. Such imbalanced distributions lead the model to favor majority classes, sacrificing its ability to detect minority class patterns.Even this model has been trained and tuned with Keras Tuner Network Architecture Search, but it seams like the unballence data is heacily effecting the performance of the model.
+    This sensitivity drop is a common symptom of class imbalance, where underrepresented stages skew the model's learning process. Such imbalanced distributions lead the model to favor majority classes, sacrificing its ability to detect minority class patterns.Even this model has been trained and tuned with Keras Tuner Network Architecture Search, but it seams like the unballence data is heacily effecting the performance of the model.
 
-        Sun's Paper sujest to add Alignemt sub network layers in middle of each MLPs to handle noise and also in a high dimentional data. How ever they are working a more balenced data. Thus another approach is necessury.
-        """
+    Sun's Paper sujest to add Alignemt sub network layers in middle of each MLPs to handle noise and also in a high dimentional data. How ever they are working a more balenced data. Thus another approach is necessury.
+    """
     )
     return
 
@@ -781,12 +776,12 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-        # <span style="color:brown">Main Model: CatBoost + MLP + Intermediate Fusion MLP</span>
+    # <span style="color:brown">Main Model: CatBoost + MLP + Intermediate Fusion MLP</span>
 
-        To address the performance drop caused by class imbalance—particularly the reduced sensitivity for minority cancer stages—we introduced two architectural innovations in our main model. First, we replaced traditional classifiers for clinical data with CatBoost, a gradient boosting framework optimized for tabular datasets. CatBoost natively handles categorical features and employs built-in class weighting, helping counteract bias toward majority classes and improving detection of underrepresented stages. Second, we adopted an intermediate fusion strategy to combine clinical and gene expression modalities. Clinical data is transformed into embeddings via CatBoost, while gene expression is processed through a dedicated MLP. Their intermediate representations are then merged and passed through a joint MLP for final prediction. This method preserves the strengths of each modality while enabling effective cross-modal learning, outperforming both early and late fusion strategies in flexibility and synergy.
+    To address the performance drop caused by class imbalance—particularly the reduced sensitivity for minority cancer stages—we introduced two architectural innovations in our main model. First, we replaced traditional classifiers for clinical data with CatBoost, a gradient boosting framework optimized for tabular datasets. CatBoost natively handles categorical features and employs built-in class weighting, helping counteract bias toward majority classes and improving detection of underrepresented stages. Second, we adopted an intermediate fusion strategy to combine clinical and gene expression modalities. Clinical data is transformed into embeddings via CatBoost, while gene expression is processed through a dedicated MLP. Their intermediate representations are then merged and passed through a joint MLP for final prediction. This method preserves the strengths of each modality while enabling effective cross-modal learning, outperforming both early and late fusion strategies in flexibility and synergy.
 
-        The MLPs are trained and tuned utilizing Network Architecture search.
-        """
+    The MLPs are trained and tuned utilizing Network Architecture search.
+    """
     )
     return
 
@@ -831,7 +826,7 @@ def _():
     """)
 
     main_model_html
-    return Html, main_model_html
+    return
 
 
 @app.cell(hide_code=True)
@@ -916,16 +911,7 @@ def _(make_subplots, mo, pd, px):
             mo.ui.plotly(figs)
         ]
     )
-    return (
-        bar1,
-        bar2,
-        class_df,
-        class_long,
-        figs,
-        overall_df,
-        overall_long,
-        trace,
-    )
+    return
 
 
 @app.cell(hide_code=True)
@@ -938,10 +924,10 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-        # <span style="color:brown">Model Performance Comparison</span>
+    # <span style="color:brown">Model Performance Comparison</span>
 
-         To evaluate the effectiveness of our **CatBoost + MLP + Intermediate Fusion** architecture, we benchmarked it against several baseline models—including a **Vanilla Neural Network (VNN)**, **K-Nearest Neighbors (KNN)**, and a **dual-MLP model with Late Fusion**. Each of these alternatives was optimized using **SMOTE** to address class imbalance and ensure a fair comparison.
-        """
+     To evaluate the effectiveness of our **CatBoost + MLP + Intermediate Fusion** architecture, we benchmarked it against several baseline models—including a **Vanilla Neural Network (VNN)**, **K-Nearest Neighbors (KNN)**, and a **dual-MLP model with Late Fusion**. Each of these alternatives was optimized using **SMOTE** to address class imbalance and ensure a fair comparison.
+    """
     )
     return
 
@@ -1075,22 +1061,20 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _(mo, pkl):
-    with open('./comparisonMLMTX/perfomancP.pkl', "rb") as f:
-        model_plot = pkl.load(f)
-    mo.ui.plotly(model_plot)
-    return f, model_plot
+def _(mo):
+    mo.image('comparisonMLMTX/performance.png')
+    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
-        ### <span style="color:brown">"Superior Robustness of the Main Model</span>
-        While the Vanilla Neural Network (VNN) achieved slightly higher scores in some metrics, this advantage is largely attributed to SMOTE-based data augmentation. In biological contexts—especially with high-dimensional gene expression data—such augmentation can introduce synthetic noise and distort the natural distribution of patient samples, potentially leading to inflated metrics without meaningful biological validity.
+    ### <span style="color:brown">"Superior Robustness of the Main Model</span>
+    While the Vanilla Neural Network (VNN) achieved slightly higher scores in some metrics, this advantage is largely attributed to SMOTE-based data augmentation. In biological contexts—especially with high-dimensional gene expression data—such augmentation can introduce synthetic noise and distort the natural distribution of patient samples, potentially leading to inflated metrics without meaningful biological validity.
 
-        In contrast, the Main Model—which integrates CatBoost for clinical data and an MLP for gene expression using intermediate fusion—achieved consistently strong performance across Accuracy, MCC, and Sensitivity, without relying on synthetic oversampling. The model's ability to learn from true patterns across both modalities, while naturally handling imbalance via CatBoost's built-in class weighting, proves its strength.
-        """
+    In contrast, the Main Model—which integrates CatBoost for clinical data and an MLP for gene expression using intermediate fusion—achieved consistently strong performance across Accuracy, MCC, and Sensitivity, without relying on synthetic oversampling. The model's ability to learn from true patterns across both modalities, while naturally handling imbalance via CatBoost's built-in class weighting, proves its strength.
+    """
     )
     return
 

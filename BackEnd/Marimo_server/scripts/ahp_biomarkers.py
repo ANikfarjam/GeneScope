@@ -63,6 +63,7 @@ bio_graph.update_layout(
     yaxis_title="Cancer Stage",
     font=dict(size=12)
 )
+bio_graph.layout.template = None 
 
 with open('pkl_files/ahp_hitmap.pkl', 'wb') as f:
     pkl.dump(bio_graph, f)

@@ -21,6 +21,8 @@ GeneScope is a research platform that combines biology, data science, and artifi
 GENESCOPE
 ├── BackEnd/            # Flask server, APIs, models, backend logic
 │   ├── Marimo_server/
+|   ├── computation_anlysis/
+|   ├── Docker Deployement/
 │   ├── Models/
 │   ├── routers/
 │   └── GeneScopeServer.py
@@ -35,7 +37,8 @@ GENESCOPE
 | Feature                   | Description                                                                                       |
 |---------------------------|---------------------------------------------------------------------------------------------------|
 | **Breast Cancer Stage Prediction** | Predicts cancer stages based on combined gene expression and clinical features.               |
-| **Gene Importance Analysis**      | Identifies critical genes using a modified Analytic Hierarchy Process (AHP) and statistical methods. |
+| **Gene Importance Analysis**      | Identifies critical genes using a modified Analytic Hierarchy Process (AHP) and statistical methods. As well as identifying most active miRNA involved in progression of breast cancer. |
+|**Cancer Prognosis Analysis**| Analyze how features such as tumore sieze, number of regional lymph nodes and dinstance that tumor have grown utilizing Cox Hazerdus Model. |
 | **Interactive Chatbot**           | Conversational assistant connected to the staging model for real-time, data-backed answers.   |
 | **Data Visualization**            | Dynamic charts and graphs to explore trends and findings.                                    |
 | **Full-stack System**             | Backend APIs with Flask and machine learning, and a modern dashboard built in Next.js.        |
@@ -84,8 +87,26 @@ The frontend will be available at [http://localhost:3000](http://localhost:3000)
 ## Technologies Used
 
 - Frontend: Next.js, React, TailwindCSS, Chart.js, OpenAI API, langchain
-- Backend: Flask, Marimo, TensorFlow/Keras, Pandas, Scikit-learn
+- Backend: Flask, Marimo, TensorFlow/Keras, Pandas, Scikit-learn, Tensorflow Keras, lifelines.coxPHfitter, carboost.CatBoostClassifier, Docker for deploying marimo server to marimo server, GAN
 - Other: Docker-ready for Google cloud deployment (App Engine)
+## Analytic Files
+BackEnd/computation_analysis
+  
+---/modAhpFunctions.py ----> This file contains all the fuctions for calculating ttest, entrhopy, wilcoxon and..
+  
+---/compahp.py ----> calls the functions to calculate each individual secores
+  
+---/compPWM ----> calculates PWM, Eigen Vectors, Eigen Values
+  
+---/com_fs ---> uses eigen values of each matrix(AHP ect) to compute final score
+
+BackEnd/Models
+
+---/DMM ----> for both experimental and Main MultiDNN
+
+---/gbst ----> CatBoost Model utilized for calculating patients being diagnosed at any stage
+
+BackEnd/Marimo_server/scripts ---> All the in-marimo analysis such as corrolation analysis, heatmap for comparing tope ranke genes through out different stages and even data collection and clean up
 
 ## Acknowledgements
 
@@ -93,7 +114,8 @@ The frontend will be available at [http://localhost:3000](http://localhost:3000)
 - Open-source libraries and research in biomedical machine learning
 
 ## Future Enhancements
-
+- Facinating Multimodel Deep Neural Network optimized to classiffy based on gene-expressions and clinical data
 - Enhanced chatbot capabilities (summarizing research papers)
 - Expanded dataset support for multi-cancer analysis
 - Cloud-based deployment with automated scaling
+

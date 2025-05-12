@@ -69,8 +69,11 @@ fig.update_layout(
     template="plotly_white"
 )
 
-with open('perfomancP.pkl', 'wb') as f:
-    pkl.dump(fig,f)
+# with open('perfomancP.pkl', 'wb') as f:
+#     pkl.dump(fig,f)
+# print("perfomance save")
+
+fig.write_image("performance.png", format="png", width=1000, height=600)
 print("perfomance save")
 
 

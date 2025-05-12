@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.12.2"
+__generated_with = "0.13.6"
 app = marimo.App(width="medium")
 
 
@@ -8,36 +8,79 @@ app = marimo.App(width="medium")
 def _():
     import marimo as mo
     import io
-    import numpy as np
     import scipy.stats as stats
     import plotly.graph_objects as go
     import pickle as pkl
-    return go, io, mo, np, pkl, stats
+    import pandas as pd
+    return io, mo, pd, pkl
 
 
 @app.cell(hide_code=True)
 def _():
     import plotly.io as pio
     pio.renderers.default = "iframe_connected"
-    return (pio,)
+    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
-        # <span style='color:brown'>GeneScope and Breast Cancer</span>
+    # <span style='color:brown'>GeneScope and Breast Cancer</span>
 
-        ### <span style='color:brown'>Objective:</span>
+    ### <span style='color:brown'>Objective:</span>
 
-        By training a deep learning model, optimized through the backpropagation algorithm, we are aimong to further analyze biomarkers and prognoses. Cancer biomarkers are biological indicators, such as genes, proteins, or other substances, that can reveal important details about a person's cancer. We are particularly interested in exploring whether the model can help identify genes that are more susceptible to cancer, causing mutations (<span style='color:brown'>indicating the bio markers</span>). For prognosis, we are intrested to how factors such as tumor size, the number of regional lymph nodes affected, distant metastasis, and patient demographics—such as age, ethnicity and race, play a critical role in cancer progression and patient outcomes(<span style='color:brown'>Prognosis</span>).
+    By training a deep learning model, optimized through the backpropagation algorithm, we are aimong to further analyze biomarkers and prognoses. Cancer biomarkers are biological indicators, such as genes, proteins, or other substances, that can reveal important details about a person's cancer. We are particularly interested in exploring whether the model can help identify genes that are more susceptible to cancer, causing mutations (<span style='color:brown'>indicating the bio markers</span>). For prognosis, we are intrested to how factors such as tumor size, the number of regional lymph nodes affected, distant metastasis, and patient demographics—such as age, ethnicity and race, play a critical role in cancer progression and patient outcomes(<span style='color:brown'>Prognosis</span>).
+
+    ### <span style='color:brown'>Why Gene Expression Matters in Cancer Research</span>
+
+    Genes carry the instructions for making proteins, which are the functional molecules responsible for nearly every biological process in the body—from cell division and repair to immune responses and tissue structure. Each cell selectively expresses certain genes to produce the specific proteins it needs, shaping the behavior and identity of that cell. When gene expression becomes dysregulated—either overactive (overexpression) or underactive (underexpression)—it can lead to abnormal protein levels. This imbalance can disrupt normal cellular function and trigger mutations, uncontrolled growth, or even metastasis, all of which are hallmarks of cancer. Thus studying Gene expression can provide a valuable inoformation that scientists could laverage for treatment strategies. 
+
+    """
+    )
+    return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+    ## <span style="color: brown">Expression Collection Methods: 
 
-        ### <span style="color:brown">Data Source</span>
+    The gene expressoions have been extracted using **Next-Generation Sequencing (NGS)**, a high-throughput method for sequencing DNA by following a series of steps. First, in library preparation, the genome is fragmented into smaller pieces, and short adapter sequences are attached to both ends, forming a DNA library. Next, in bridge amplification, these fragments are hybridized to a solid surface and undergo multiple amplification cycles, creating clusters of identical DNA fragments. In sequencing, fluorescently labeled nucleotides are incorporated into the DNA strands, and a camera captures the emitted signals to determine the sequence of each fragment through multiple sequencing cycles. Finally, in alignment and data analysis, the short DNA reads are aligned to a reference genome, overlapping regions are assembled into contigs, and the final sequence is reconstructed. This efficient and scalable technique is widely used in genomic research and cancer studies.
+    """
+    )
+    return
 
-        The Gene Expression dataset has been extracted from the [NCBI Gene Expression Omnibus GSEGSE62944](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE62944). The dataset consists of 9264 tumor samples and 741 normal samples across 24 cancer types from The Cancer Genome Atlas. This data set is created from all the TCGA samples that have an expression of 23,000 genes!
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.image(src="NGS.png")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
         """
+    # <span style="color:brown">Data Collection and Sources</span>
+    ###<span style="color:brown">Challenges</span>
+
+    Collecting data for our cancer study turned out to be much harder than we expected. Cancer is such a complex and heterogeneous disease that finding enough consistent data was a real challenge. We often ran into two major problems. Sometimes the datasets we found were high quality but only had around 200 samples — not nearly enough for the kind of deep analysis we wanted to do. Other times, even when more data was available, the methods used for gene extraction and normalization were completely different from one study to another. That made it impossible to simply combine multiple datasets without risking serious errors. Overall, getting a large, clean, and consistent dataset proved to be one of the biggest challenges in our project.
+    """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+
+    ### <span style="color:brown">Gene Expression Data Source</span>
+
+    The Gene Expression dataset has been extracted from the [NCBI Gene Expression Omnibus GSEGSE62944](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE62944). The dataset consists of 9264 tumor samples and 741 normal samples across 24 cancer types from The Cancer Genome Atlas. This data set is created from all the TCGA samples that have an expression of 23,000 genes!
+    """
     )
     return
 
@@ -57,12 +100,76 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
-        """
-        <span style="color:brown">Data Collection Challenges</span>
+        r"""
+    The gene expression data is normalized using FPKM and TPM where value of matrix represent the ratio of read per killobase or million. 
 
-        Collecting data for our cancer study turned out to be much harder than we expected. Cancer is such a complex and heterogeneous disease that finding enough consistent data was a real challenge. We often ran into two major problems. Sometimes the datasets we found were high quality but only had around 200 samples — not nearly enough for the kind of deep analysis we wanted to do. Other times, even when more data was available, the methods used for gene extraction and normalization were completely different from one study to another. That made it impossible to simply combine multiple datasets without risking serious errors. Overall, getting a large, clean, and consistent dataset proved to be one of the biggest challenges in our project.
-        """
+    \[
+    FPKM = \frac{\text{Reads per gene}}{\text{Gene length (kb)} \times \text{Total mapped reads (millions)}}
+    \]
+
+    and
+
+    \[
+    \text{RPK} = \frac{\text{Reads per gene}}{\text{Gene length (kb)}}
+    \]
+
+    and finaly 
+
+    \[
+    TPM = \frac{\text{RPK}}{\sum \text{RPK}} \times 10^6
+    \]
+
+    This means we dont need to do any normalization, and make the data preprocessing easier. Our research sujest TPM (Transcripts Per Million) over FPKM (Fragments Per Kilobase per Million reads) because it ensures consistency across samples by normalizing for gene length before sequencing depth. Unlike FPKM, TPM guarantees that the total expression across all genes sums to one million, making values directly comparable across different datasets. This prevents biases from varying sequencing depths and avoids inflation of expression values in smaller samples. Additionally, TPM corrects for discrepancies in lowly expressed genes by proportionally scaling read counts, leading to more accurate cross-sample comparisons. This means this data can be used to classify any gene expression samples as long as they are within the 24 cancer type that this dataset represent including breast cancer.
+    """
     )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        """
+    # <span style="color: brown">Data Extraction and EDA</span>
+    ### <span style="color: brown">Supplementary Data Files in GSE62944</span>
+
+    The publisher of dataset provided the following supplementary files for extracting and labling gene exoressions.
+    """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    sup_table = mo.md("""
+    | Supplementary file | Discription |File type/resource |
+    |--------------------|------|--------------------|
+    | GSE62944_01_27_15_TCGA_20_420_Clinical_Variables_7706_Samples.txt.gz | 548 clinical variables for each sample are provided in the | TXT |
+    | GSE62944_01_27_15_TCGA_20_CancerType_Samples.txt.gz | list of mutated samples | TXT |
+    | GSE62944_06_01_15_TCGA_24_548_Clinical_Variables_9264_Samples.txt.gz | 548 clinical variables for each sample are provided in the | TXT |
+    | GSE62944_06_01_15_TCGA_24_CancerType_Samples.txt.gz | describes 24 cancers types by sample | TXT |
+    | GSE62944_06_01_15_TCGA_24_Normal_CancerType_Samples.txt.gz | list each sample normal samples respectively | TXT |
+    | GSE62944_RAW.tar | 5.9 Gb of raw data | TAR (of TXT) |
+    """)
+    gene_Raw_file = mo.md("""
+    After extracting all the refrencing and maping of all the sample IDs, we can leverage them to create healthy and cancerous data_set.
+
+    | File Name | Sample ID | Date | Platform | Condition | File Type | Use|
+    |-----------|----------|------|----------|-----------|-----------|-----------|
+    | GSM1536837_01_27_15_TCGA_20.Illumina.tumor_Rsubread_FeatureCounts.txt | GSM1536837 | 01_27_15 | Illumina | Tumor | FeatureCounts |  |
+    | GSM1536837_01_27_15_TCGA_20.Illumina.tumor_Rsubread_FPKM.txt | GSM1536837 | 01_27_15 | Illumina | Tumor | FPKM | |
+    | GSM1536837_01_27_15_TCGA_20.Illumina.tumor_Rsubread_TPM.txt | GSM1536837 | 01_27_15 | Illumina | Tumor | TPM | |
+    | GSM1536837_06_01_15_TCGA_24.tumor_Rsubread_FeatureCounts.txt | GSM1536837 | 06_01_15 | TCGA | Tumor | FeatureCounts | |
+    | GSM1536837_06_01_15_TCGA_24.tumor_Rsubread_FPKM.txt | GSM1536837 | 06_01_15 | TCGA | Tumor | FPKM | |
+    | GSM1536837_06_01_15_TCGA_24.tumor_Rsubread_TPM.txt | GSM1536837 | 06_01_15 | TCGA | Tumor | TPM | ✅ |
+    | GSM1697009_06_01_15_TCGA_24.normal_Rsubread_FeatureCounts.txt | GSM1697009 | 06_01_15 | TCGA | Normal | FeatureCounts | |
+    | GSM1697009_06_01_15_TCGA_24.normal_Rsubread_FPKM.txt | GSM1697009 | 06_01_15 | TCGA | Normal | FPKM | |
+    | GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt | GSM1697009 | 06_01_15 | TCGA | Normal | TPM | ✅ |
+    """)
+
+    mo.ui.tabs({
+        "Suplementary Files List": sup_table,
+        "Raw-Gene-Expressiong Datas": gene_Raw_file
+    })
     return
 
 
@@ -70,392 +177,112 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-        ## <span style="color: brown">Expression Collection Methods: 
+    <span style="color:brown">Step-by-Step: Cleaning and Extracting Gene Expression Data</span>
 
-        The gene expressoions have been extracted using **Next-Generation Sequencing (NGS)**, a high-throughput method for sequencing DNA by following a series of steps. First, in library preparation, the genome is fragmented into smaller pieces, and short adapter sequences are attached to both ends, forming a DNA library. Next, in bridge amplification, these fragments are hybridized to a solid surface and undergo multiple amplification cycles, creating clusters of identical DNA fragments. In sequencing, fluorescently labeled nucleotides are incorporated into the DNA strands, and a camera captures the emitted signals to determine the sequence of each fragment through multiple sequencing cycles. Finally, in alignment and data analysis, the short DNA reads are aligned to a reference genome, overlapping regions are assembled into contigs, and the final sequence is reconstructed. This efficient and scalable technique is widely used in genomic research and cancer studies.
-        """
+    To ensure the quality and usability of the gene expression data, we followed a structured process combining supplementary file references and raw TPM expression matrices:
+
+    🧬 Step-by-Step Workflow
+    1. Load Supplementary Files
+
+    Loaded TCGA_24_CancerType_Samples.txt to identify and isolate breast cancer samples (labeled as BRCA).
+
+    Used two additional files: one for normal (Normal_CancerType_Samples.txt) and one for malignant (20_CancerType_Samples.txt) BRCA sample IDs.
+
+    2. Extract Sample IDs by Condition
+
+    Parsed and filtered patient sample IDs based on whether they were healthy or cancerous using the create_supl_df() function.
+
+    Created two distinct ID lists: Normal_Sample_gene and melignent_df.
+
+    3. Reference Raw Gene Expression Files
+
+    Mapped sample IDs to raw TPM gene expression files:
+
+    Normal: GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt
+
+    Tumor: GSM1536837_06_01_15_TCGA_24.tumor_Rsubread_TPM.txt
+
+    4. Extract Gene Expression Data
+
+    Used a custom parser (get_samples_df) to:
+
+    Load entire gene expression tables.
+
+    Select only columns matching the filtered sample IDs.
+
+    Transpose the matrix so that rows represent patients and columns represent genes.
+
+    Convert values to numeric format.
+
+    5. Clean the Expression Matrices
+
+    Handled inconsistent formatting and column shifts (due to raw file headers).
+
+    Ensured consistent float type across all values to prepare for downstream machine learning.
+
+    6. Export Final Datasets
+
+    Saved two curated dataframes:
+
+    helthyExpressions.csv
+
+    cancerExpressions.csv
+
+    These were used to train models for classification, biomarker identification, and stage prediction.
+    """
     )
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.image(src="NGS.png")
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        r"""
-        In this data the gene expression is normalized using FPKM and TPM where value of matrix represent the ratio of read per killobase or million. 
-
-        \[
-        FPKM = \frac{\text{Reads per gene}}{\text{Gene length (kb)} \times \text{Total mapped reads (millions)}}
-        \]
-
-        and
-
-        \[
-        \text{RPK} = \frac{\text{Reads per gene}}{\text{Gene length (kb)}}
-        \]
-
-        and finaly 
-
-        \[
-        TPM = \frac{\text{RPK}}{\sum \text{RPK}} \times 10^6
-        \]
-
-        Our research sujest TPM (Transcripts Per Million) over FPKM (Fragments Per Kilobase per Million reads) because it ensures consistency across samples by normalizing for gene length before sequencing depth. Unlike FPKM, TPM guarantees that the total expression across all genes sums to one million, making values directly comparable across different datasets. This prevents biases from varying sequencing depths and avoids inflation of expression values in smaller samples. Additionally, TPM corrects for discrepancies in lowly expressed genes by proportionally scaling read counts, leading to more accurate cross-sample comparisons. This means this data can be used to classify any gene expression samples as long as they are within the 24 cancer type that this dataset represent including breast cancer.
-        """
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        """
-        # <span style="color: brown">Data Extraction and EDA</span>
-        ### <span style="color: brown">Supplementary Data Files in GSE62944</span>
-
-        The publisher of dataset provided the following supplementary files for extracting and labling gene exoressions.
-
-
-        | Supplementary file | Discription |File type/resource |
-        |--------------------|------|--------------------|
-        | GSE62944_01_27_15_TCGA_20_420_Clinical_Variables_7706_Samples.txt.gz | 548 clinical variables for each sample are provided in the | TXT |
-        | GSE62944_01_27_15_TCGA_20_CancerType_Samples.txt.gz | list of mutated samples | TXT |
-        | GSE62944_06_01_15_TCGA_24_548_Clinical_Variables_9264_Samples.txt.gz | 548 clinical variables for each sample are provided in the | TXT |
-        | GSE62944_06_01_15_TCGA_24_CancerType_Samples.txt.gz | describes 24 cancers types by sample | TXT |
-        | GSE62944_06_01_15_TCGA_24_Normal_CancerType_Samples.txt.gz | list each sample normal samples respectively | TXT |
-        | GSE62944_RAW.tar | 5.9 Gb of raw data | TAR (of TXT) |
-        """
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        r"""
-        <span style="color: brown">1. EDA for 24 cancer type file</span>
-
-        This suplementary files referances each patient sample id to their related diagnosed cancer. and it had 1119 breast cancer samples(Healthy and Melignant). We seporated all the breast cancer's related samples and later used it to label our gene expressions.
-
-        **Note:** this data set labels breast cancer as BRCA and its nor related to the supressor gene BRCA.
-        """
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def _():
-    import pandas as pd
-    def create_supl_df(source, cancerType):
-        """
-            this function creates data frame from a suplementart file
-            inout: suplementery file path, cancerType of interes
-            returns -> a data_frame
-
-        """
-
-        #read suplementory file    
-        with open(source, 'r') as file:
-            data=[line.split('\t') for line in file.readlines()]
-
-        data_dic = {"Samples":[], "CancerType":[]}
-        for line in data:
-            data_dic['Samples'].append(line[0])
-            data_dic['CancerType'].append(line[1])
-        cancer_type_df = pd.DataFrame(data_dic)
-        cancer_type_df['CancerType']=cancer_type_df['CancerType'].str.strip()
-        cType_count = cancer_type_df.CancerType.value_counts()
-        cancer_type_df = cancer_type_df[cancer_type_df['CancerType']==cancerType]
-        return cancer_type_df, data, cType_count
-    return create_supl_df, pd
-
-
-@app.cell(hide_code=True)
-def _(create_supl_df):
-    cancerBRCA_type_df, data, cType_count= create_supl_df('./data/SuplementoryFiles/TCGA_24_CancerType_Samples.txt', 'BRCA')
-
-    cancer_descriptions_list = [
-        "Breast Cancer - A malignant tumor that develops from breast cells.",
-        "Uterine Corpus Endometrial Carcinoma - A cancer originating in the lining of the uterus.",
-        "Kidney Renal Clear Cell Carcinoma - A common kidney cancer originating in renal tubules.",
-        "Lung Adenocarcinoma - A non-small cell lung cancer starting in mucus-secreting glands.",
-        "Lower-Grade Glioma - A slow-growing brain tumor arising from glial cells.",
-        "Thyroid Carcinoma - A cancer that develops in the thyroid gland.",
-        "Head and Neck Squamous Cell Carcinoma - A cancer originating in the mucosal linings of the head and neck.",
-        "Prostate Adenocarcinoma - A cancer that forms in the prostate gland.",
-        "Lung Squamous Cell Carcinoma - A type of lung cancer arising from squamous cells lining the airways.",
-        "Colon Adenocarcinoma - A common type of colorectal cancer originating in glandular cells.",
-        "Skin Cutaneous Melanoma - A dangerous type of skin cancer that develops from melanocytes.",
-        "Ovarian Serous Cystadenocarcinoma - A type of ovarian cancer developing in the epithelial cells of the ovary.",
-        "Stomach Adenocarcinoma - A malignant tumor forming in the stomach lining.",
-        "Bladder Urothelial Carcinoma - A cancer that arises from the bladder lining.",
-        "Liver Hepatocellular Carcinoma - The most common type of liver cancer, often linked to hepatitis or cirrhosis.",
-        "Cervical Squamous Cell Carcinoma and Endocervical Adenocarcinoma - A cancer arising from the cervix.",
-        "Kidney Renal Papillary Cell Carcinoma",
-        "Acute Myeloid Leukemia",
-        "Glioblastoma Multiforme - An aggressive brain tumor arising from glial cells.",
-        "Rectum Adenocarcinoma - A form of colorectal cancer affecting the rectum.",
-        "Adrenocortical Carcinoma - A rare cancer that originates in the adrenal cortex.",
-        "Kidney Chromophobe",
-        "Uterine Carcinosarcoma",
-        "Genomic Variation in Diffuse Large B Cell Lymphomas"
-    ]
-    cType_count=cType_count.to_frame()
-    cType_count['Description'] = cancer_descriptions_list
-    return cType_count, cancerBRCA_type_df, cancer_descriptions_list, data
-
-
-@app.cell(hide_code=True)
-def _(cType_count, mo):
-    mo.ui.tabs(
-        tabs={
-            'Cancers Count': mo.ui.table(cType_count),
-            'Extraction Method': mo.vstack([
-                mo.ui.code_editor(
-                    """
-    def create_supl_df(source, cancerType):
-        \"\"\"
-        This function creates a data frame from a supplementary file.
-        Input: supplementary file path, cancerType of interest
-        Returns: a filtered DataFrame, raw data, and cancer type counts
-        \"\"\"
-
-        # Read supplementary file    
-        with open(source, 'r') as file:
-            data = [line.split('\\t') for line in file.readlines()]
-
-        data_dic = {"Samples": [], "CancerType": []}
-        for line in data:
-            data_dic['Samples'].append(line[0])
-            data_dic['CancerType'].append(line[1])
-
-        cancer_type_df = pd.DataFrame(data_dic)
-        cancer_type_df['CancerType'] = cancer_type_df['CancerType'].str.strip()
-        cType_count = cancer_type_df.CancerType.value_counts()
-        cancer_type_df = cancer_type_df[cancer_type_df['CancerType'] == cancerType]
-        return cancer_type_df, data, cType_count
-                    """,
-                    language="python",
-                    max_height=400  # optional: sets height so it scrolls if big
-                ),
-                mo.ui.code_editor(
-                    """
-    cancerBRCA_type_df, data, cType_count = create_supl_df(
-        'TCGA_24_CancerType_Samples.txt', 'BRCA'
-    )
-
-    cancer_descriptions_list = [
-        "Breast Cancer - A malignant tumor that develops from breast cells.",
-        "Uterine Corpus Endometrial Carcinoma - A cancer originating in the lining of the uterus.",
-        "Kidney Renal Clear Cell Carcinoma - A common kidney cancer originating in renal tubules.",
-        "Lung Adenocarcinoma - A non-small cell lung cancer starting in mucus-secreting glands.",
-        "Lower-Grade Glioma - A slow-growing brain tumor arising from glial cells.",
-        "Thyroid Carcinoma - A cancer that develops in the thyroid gland.",
-        "Head and Neck Squamous Cell Carcinoma - A cancer originating in the mucosal linings of the head and neck.",
-        "Prostate Adenocarcinoma - A cancer that forms in the prostate gland.",
-        "Lung Squamous Cell Carcinoma - A type of lung cancer arising from squamous cells lining the airways.",
-        "Colon Adenocarcinoma - A common type of colorectal cancer originating in glandular cells.",
-        "Skin Cutaneous Melanoma - A dangerous type of skin cancer that develops from melanocytes.",
-        "Ovarian Serous Cystadenocarcinoma - A type of ovarian cancer developing in the epithelial cells of the ovary.",
-        "Stomach Adenocarcinoma - A malignant tumor forming in the stomach lining.",
-        "Bladder Urothelial Carcinoma - A cancer that arises from the bladder lining.",
-        "Liver Hepatocellular Carcinoma - The most common type of liver cancer, often linked to hepatitis or cirrhosis.",
-        "Cervical Squamous Cell Carcinoma and Endocervical Adenocarcinoma - A cancer arising from the cervix.",
-        "Kidney Renal Papillary Cell Carcinoma",
-        "Acute Myeloid Leukemia",
-        "Glioblastoma Multiforme - An aggressive brain tumor arising from glial cells.",
-        "Rectum Adenocarcinoma - A form of colorectal cancer affecting the rectum.",
-        "Adrenocortical Carcinoma - A rare cancer that originates in the adrenal cortex.",
-        "Kidney Chromophobe",
-        "Uterine Carcinosarcoma",
-        "Genomic Variation in Diffuse Large B Cell Lymphomas"
-    ]
-
-    cType_count = cType_count.to_frame()
-    cType_count['Description'] = cancer_descriptions_list
-                    """,
-                    language="python",
-                    max_height=400  
-                )
-            ])
-        }
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        r"""
-        <span style="color: brown"> 2. the Normal_CancerType_Samples and Malignant_CancerType_Samples</spam>
-
-        These text file are used to seporate and lable healtyh and cancerous sample ID. Later they are used to create healthy and cancerus gene expression datasets.
-        """
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def _(create_supl_df, mo):
-    Normal_Sample_gene,_,_ = create_supl_df('./data/SuplementoryFiles/TCGA_Normal_CancerType_Samples .txt','BRCA')
-    melignent_df, _, _=create_supl_df('./data/SuplementoryFiles/TCGA_20_CancerType_Samples.txt', 'BRCA')
-
-    mo.ui.tabs({'Benine Samples': mo.ui.table(Normal_Sample_gene), 'Melignant Samples':mo.ui.table(melignent_df)})
-    return Normal_Sample_gene, melignent_df
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        r"""
-        <span style="color: brown"> 3. the Malignant_CancerType_Samples</spam>
-
-        list of mutated samples!
-        """
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md(
-        r"""
-        # <span style='color: brown'>Raw Gene Expression Data</sapn>
-
-        After extracting all the refrencing and maping of all the sample IDs, we can leverage them to create healthy and cancerous data_set.
-
-        | File Name | Sample ID | Date | Platform | Condition | File Type | Use|
-        |-----------|----------|------|----------|-----------|-----------|-----------|
-        | GSM1536837_01_27_15_TCGA_20.Illumina.tumor_Rsubread_FeatureCounts.txt | GSM1536837 | 01_27_15 | Illumina | Tumor | FeatureCounts |  |
-        | GSM1536837_01_27_15_TCGA_20.Illumina.tumor_Rsubread_FPKM.txt | GSM1536837 | 01_27_15 | Illumina | Tumor | FPKM | |
-        | GSM1536837_01_27_15_TCGA_20.Illumina.tumor_Rsubread_TPM.txt | GSM1536837 | 01_27_15 | Illumina | Tumor | TPM | |
-        | GSM1536837_06_01_15_TCGA_24.tumor_Rsubread_FeatureCounts.txt | GSM1536837 | 06_01_15 | TCGA | Tumor | FeatureCounts | |
-        | GSM1536837_06_01_15_TCGA_24.tumor_Rsubread_FPKM.txt | GSM1536837 | 06_01_15 | TCGA | Tumor | FPKM | |
-        | GSM1536837_06_01_15_TCGA_24.tumor_Rsubread_TPM.txt | GSM1536837 | 06_01_15 | TCGA | Tumor | TPM | ✅ |
-        | GSM1697009_06_01_15_TCGA_24.normal_Rsubread_FeatureCounts.txt | GSM1697009 | 06_01_15 | TCGA | Normal | FeatureCounts | |
-        | GSM1697009_06_01_15_TCGA_24.normal_Rsubread_FPKM.txt | GSM1697009 | 06_01_15 | TCGA | Normal | FPKM | |
-        | GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt | GSM1697009 | 06_01_15 | TCGA | Normal | TPM | ✅ |
-        """
-    )
-    return
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""We extracter the gene expressions from the **Normal Samples from GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt** and **Samples from GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt** for both benine and cancerous datasets.""")
     return
 
 
 @app.cell(hide_code=True)
 def _(mo, pd):
-    extraction_function = f"""
-    def get_samples_df(source, sample_list):
+    healthy_data = pd.read_csv('scripts/healthy_trimed.csv')
+    canncer_data = pd.read_csv('scripts/cancer_trimed.csv')
+    ctype = pd.read_csv('scripts/cType.csv')
 
-            #this function takes in the file source and sample list of BRCA
-            #then return the data frame that contains the all the genes and related benign and melignant samples
-        with open(source, 'r') as file:
-            extracted_data = [line.strip().split("\t") for line in file]
-        df=pd.DataFrame(extracted_data)
-        # Extract first row as column names and shift right
-        new_columns = [""] + df.iloc[0, :-1].tolist()  # Shift column names one position right
-
-        # Drop the first row since it's now the header
-        df = df.iloc[1:].reset_index(drop=True)
-
-        # Assign the new column names
-        df.columns = new_columns
-
-        #we have all the data we need 
-        #lest extract the samples that are relate to normal or melignant dataset
-
-        df=df.set_index(df.columns[0])
-        df=df.loc[:,sample_list]
-        return df
-    """
-    helthy_code = f"""
-    healthy_dataSet = get_samples_df('GSE62944_RAW/GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt',Normal_Sample_gene['Samples'].to_list())
-    healthy_dataSet=healthy_dataSet.T
-    healthy_dataSet=healthy_dataSet.astype(float)
-    """
-    cancer_code = f"""
-    df1 =get_samples_df('/GSE62944_RAW/GSM1536837_06_01_15_TCGA_24.tumor_Rsubread_TPM.txt', cancerBRCA_type_df['Samples'].to_list())
-    df2 =get_samples_df('../../data/GSE62944_RAW/GSM1536837_06_01_15_TCGA_24.tumor_Rsubread_TPM.txt', melignent_df['Samples'].to_list())
-    cancer_dataSet = pd.concat([df1.T,df2.T],ignore_index=False)
-    """
-    helthy_code = f"""
-    healthy_dataSet = get_samples_df('/GSE62944_RAW/GSM1697009_06_01_15_TCGA_24.normal_Rsubread_TPM.txt',Normal_Sample_gene['Samples'].to_list())
-    healthy_dataSet=healthy_dataSet.T
-    healthy_dataSet=healthy_dataSet.astype(float)
-    cancer_dataSet=cancer_dataSet.astype(float)
-    """
-    # Load just the header
-    full_header = pd.read_csv('./data/helthyExpressions.csv', nrows=0).columns.tolist()
-
-    # Load partial data with proper headers
-    healthy_dataSet = pd.read_csv('./data/helthyExpressions.csv', skiprows=1, nrows=100, names=full_header)
-    cancer_dataSet = pd.read_csv('./data/cancerExpressions.csv', skiprows=1, nrows=100, names=full_header)
-    cancer_dataSet.rename(columns={'Unnamed: 0':'Samples'}, inplace=True)
-
-    extraction_tab = mo.vstack([
-        mo.ui.code_editor(extraction_function),
-        mo.ui.code_editor(helthy_code),
-        mo.ui.code_editor(cancer_code)
-    ])
-
-    # --- Assemble the tabs ---
-    mo.ui.tabs({
-        "Healthy Gene Expression": mo.ui.table(healthy_dataSet),
-        "Malignant Gene Expression": mo.ui.table(cancer_dataSet),
-        "Extraction Method": extraction_tab
+    # THEN construct your tab view
+    geneEda = mo.ui.tabs({
+        "Healthy": healthy_data,
+        "Cancer": canncer_data,
+        "Cancer Types": ctype,
     })
-    return (
-        cancer_code,
-        cancer_dataSet,
-        extraction_function,
-        extraction_tab,
-        full_header,
-        healthy_dataSet,
-        helthy_code,
-    )
+
+    geneEda
+
+    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
-        ##<span style="color: brown">Clinical_Variables Suplemantory file:<span>
+    ##<span style="color: brown">Clinical_Variables Suplemantory file:<span>
 
-        This suplementary file gives cancer related senses such as **age, gender, tebaco and alchohol consumption, and family historyy, ...**.
+    This suplementary file gives cancer related senses such as **age, gender, tebaco and alchohol consumption, and family historyy, ...**.
 
-        we need to analyze how does each of these corolates with the cancer status.
-        """
+    we need to analyze how does each of these corolates with the cancer status.
+    """
     )
     return
 
 
 @app.cell(hide_code=True)
 def _(pkl):
-    with open('./scripts/pkl_files/clinical1.plk', 'rb') as f:
+    with open('./scripts/pkl_files/clinical1_html.pkl', 'rb') as f:
         clinical_tabs = pkl.load(f)
     clinical_tabs
-    return clinical_tabs, f
-
-
-@app.cell(hide_code=True)
-def _(mo):
-    mo.md("""After Creating a data fram from the two <span style="color: brown">two clinical suplimentary files</span>, extracted all the breast cancer related samples and started the cleaning up proccess. Jy by a glance at the headers of data it seamd very promissing but during our data cleanning process we chose a different route. """)
     return
 
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""The following table shows the headers of the columns categories for type of study could be done utilizing them. """)
+    mo.md("""After Creating a data fram from the two <span style="color: brown">two clinical suplimentary files</span>, extracted all the breast cancer related samples and started the cleaning up proccess. Jy by a glance at the headers of data it seamd very promissing but during our data cleanning process we chose a different route.""")
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""The following table shows the headers of the columns categories for type of study could be done utilizing them.""")
     return
 
 
@@ -577,16 +404,7 @@ def _(mo, pd):
     })
 
     tabs
-    return (
-        cancer_staging_table,
-        create_table,
-        genetic_mutations_table,
-        metastasis_table,
-        patient_demographics_table,
-        tabs,
-        treatment_data_table,
-        tumor_characteristics_table,
-    )
+    return
 
 
 @app.cell(hide_code=True)
@@ -599,13 +417,13 @@ def _(mo):
 def _(mo):
     mo.md(
         """
-        **Issues with the clinical data provided by the publisher of this dataset.**
+    **Issues with the clinical data provided by the publisher of this dataset.**
 
-        * Lot of columns have more that %80 NaN values.
-        * Even after droping all the NaN collumns and rows we notice there were lot of Not Available values in our data. Proving that the clinical data was not filled up properly
-        * After converting thos Not available rows to NaN we found out the clinical data of this data source is not sufficient enough to help us do any further analysis.
-        * There was not proper labling for cancer stages.
-        """
+    * Lot of columns have more that %80 NaN values.
+    * Even after droping all the NaN collumns and rows we notice there were lot of Not Available values in our data. Proving that the clinical data was not filled up properly
+    * After converting thos Not available rows to NaN we found out the clinical data of this data source is not sufficient enough to help us do any further analysis.
+    * There was not proper labling for cancer stages.
+    """
     )
     return
 
@@ -614,15 +432,15 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-        | Step | Cleaning Action | Purpose |
-        |:----|:-----------------|:--------|
-        | **1** | Converting the dtypes to the correct ones | All the columns were transfered as string even the integers and NAN values. This allowed me to see the true nan value counts and dtypes |
-        | **2** | Dropped columns that had more than 80% Nan Values | After analzing the true data types and numnbe of nan values it was vert numeric-looking columns to numbers | Fix columns where numbers are stored as text, enabling proper analysis and modeling. |
-        | **3** | Drop columns after the 189th column | Retain only clinically meaningful columns and remove irrelevant features. |
-        | **4** | Keep only malignant samples (melig≠ntdfmelignent_df) | Focus the study specifically on malignant (cancerous) patient cases. |
+    | Step | Cleaning Action | Purpose |
+    |:----|:-----------------|:--------|
+    | **1** | Converting the dtypes to the correct ones | All the columns were transfered as string even the integers and NAN values. This allowed me to see the true nan value counts and dtypes |
+    | **2** | Dropped columns that had more than 80% Nan Values | After analzing the true data types and numnbe of nan values it was vert numeric-looking columns to numbers | Fix columns where numbers are stored as text, enabling proper analysis and modeling. |
+    | **3** | Drop columns after the 189th column | Retain only clinically meaningful columns and remove irrelevant features. |
+    | **4** | Keep only malignant samples (melig≠ntdfmelignent_df) | Focus the study specifically on malignant (cancerous) patient cases. |
 
-        The following Tabke show why this clinical variable was not usefull. The are many **Not Available** string data in the data frame so we started to look for a secondary data source. 
-        """
+    The following Tabke show why this clinical variable was not usefull. The are many **Not Available** string data in the data frame so we started to look for a secondary data source.
+    """
     )
     return
 
@@ -632,16 +450,16 @@ def _(pkl):
     with open('./scripts/pkl_files/kl1.pkl', 'rb') as _f:
         cleaned_up = pkl.load(_f)
     cleaned_up
-    return (cleaned_up,)
+    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
-        #<span style="color: brown">Using a secondary Clinical Variable dataset Directy extracted from TCGA</span>
-        It seams like the suplementary files for clinical variables is not structed verywell. How ever using R pakage we extracted a better clinical values from TCGA dataset that could be used the same gene expression the NCBI GEO dataset so instead we are going to use this instead.
-        """
+    #<span style="color: brown">Using a secondary Clinical Variable dataset Directy extracted from TCGA</span>
+    It seams like the suplementary files for clinical variables is not structed verywell. How ever using R pakage we extracted a better clinical values from TCGA dataset that could be used the same gene expression the NCBI GEO dataset so instead we are going to use this instead.
+    """
     )
     return
 
@@ -650,11 +468,11 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-        <span style="color: brown">Collection Mthode:</span>
-        ### Extracting Breast Cancer Data from TCGA Using R
+    <span style="color: brown">Collection Mthode:</span>
+    ### Extracting Breast Cancer Data from TCGA Using R
 
-        In order to find an apropriate dataset for our models We utilized TCGAbiol∈ksTCGAbiolinks, an R package designed to query and download cancer genomics data from Genomic Data Commons (GDC). This package enables researchers to access large-scale RNA sequencing (RNA-seq) gene expression data and clinical metadata for breast cancer patients.The Cancer Genome Atlas (TCGA) exists as a pioneering project developed jointly between National Cancer Institute (NCI) and National Human Genome Research Institute (NHGRI). This extensive cancer genomics database represents one of the biggest collections that many researchers can access publicly with containing in-depth information up to 33 different cancer types.  The main objective of TCGA centers on pushing cancer research forward by revealing extensive details regarding genomic modifications and expression patterns with their role in forming and advancing cancer. The dataset includes multiple types of molecular data such as DNA sequencing, RNA sequencing, epigenetic modifications, and clinical metadata, making it a valuable resource prinding a more accurate prognonsis.
-        """
+    In order to find an apropriate dataset for our models We utilized TCGAbiol∈ksTCGAbiolinks, an R package designed to query and download cancer genomics data from Genomic Data Commons (GDC). This package enables researchers to access large-scale RNA sequencing (RNA-seq) gene expression data and clinical metadata for breast cancer patients.The Cancer Genome Atlas (TCGA) exists as a pioneering project developed jointly between National Cancer Institute (NCI) and National Human Genome Research Institute (NHGRI). This extensive cancer genomics database represents one of the biggest collections that many researchers can access publicly with containing in-depth information up to 33 different cancer types.  The main objective of TCGA centers on pushing cancer research forward by revealing extensive details regarding genomic modifications and expression patterns with their role in forming and advancing cancer. The dataset includes multiple types of molecular data such as DNA sequencing, RNA sequencing, epigenetic modifications, and clinical metadata, making it a valuable resource prinding a more accurate prognonsis.
+    """
     )
     return
 
@@ -690,7 +508,7 @@ def _(mo):
     write.csv(clinical_df, file = "brca_clinical_data.csv", row.names = FALSE)
     """
     mo.ui.code_editor(r_script)
-    return (r_script,)
+    return
 
 
 @app.cell(hide_code=True)
@@ -714,20 +532,20 @@ def _(io, mo, pd):
         "DataSet": mo.ui.table(other_sup_files),
         "Info": mo.ui.code_editor(f"`\n{info_text}\n`")  # Display info in a nicely formatted code block
     })
-    return info_buffer, info_text, other_sup_files
+    return (other_sup_files,)
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         """
-        ### <span style="color: brown">DataSet Clean up Proccess</span>
+    ### <span style="color: brown">DataSet Clean up Proccess</span>
 
-        Many columns in the dataset contain zero non-null values. To avoid unintended data loss during cleaning, we dropped all columns with more than 80% missing values. We also removed rows with missing values in key staging-related columns. Since we are working with biological data, applying imputation methods, such as filling missing values with the mean, can introduce bias and compromise the integrity of downstream analyses. Therefore, we opted for conservative filtering rather than data aggregation.
+    Many columns in the dataset contain zero non-null values. To avoid unintended data loss during cleaning, we dropped all columns with more than 80% missing values. We also removed rows with missing values in key staging-related columns. Since we are working with biological data, applying imputation methods, such as filling missing values with the mean, can introduce bias and compromise the integrity of downstream analyses. Therefore, we opted for conservative filtering rather than data aggregation.
 
-        ---
-        <span style="color: brown">Result after clean up:</span>
-        """
+    ---
+    <span style="color: brown">Result after clean up:</span>
+    """
     )
     return
 
@@ -736,7 +554,7 @@ def _(mo):
 def _(other_sup_files):
     thresholds = 0.8
     other_sup_files.dropna(thresh=int(thresholds * len(other_sup_files)), axis=1, inplace=True)
-    return (thresholds,)
+    return
 
 
 @app.cell(hide_code=True)
@@ -751,55 +569,54 @@ def _(io, mo, other_sup_files):
         "Cleaned Table": mo.ui.table(other_sup_files.head(100)),
         "Info": mo.ui.code_editor(f"`\n{moded_info}\n`")  # Properly formatted info
     })
-    return buffer, moded_info
+    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
-        ##<span style="color:brown">Number of stages</span>
+    ##<span style="color:brown">Number of stages</span>
 
-        Since our classifier models are labling stage for classification, we wanted to check the number of samples for each data, so we can plan accordingly in advance.
-        """
+    Since our classifier models are labling stage for classification, we wanted to check the number of samples for each data, so we can plan accordingly in advance.
+    """
     )
     return
 
 
 @app.cell(hide_code=True)
-def _(pkl):
-    with open('./scripts/pkl_files/stg_count.pkl', 'rb') as _f:
-        stg_count = pkl.load(_f)
-    stg_count
-    return (stg_count,)
+def _(mo, pd):
+    stg_count = pd.read_csv('scripts/pkl_files/stage_count.csv')
+    mo.ui.table(stg_count)
+    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         r"""
-        Our data looks inbalanced. Researches sujest that to either adjust the weight during training or perform Data Augmentation (with Biological Knowledge) using techniques called **SMOTE** or **(VAE) or GANs**:
+    Our data looks inbalanced. Researches sujest that to either adjust the weight during training or perform Data Augmentation (with Biological Knowledge) using techniques called **SMOTE** or **(VAE) or GANs**:
 
-        ###<span style="color: brown"> Augmentation technique</span>
+    ###<span style="color: brown"> Augmentation technique</span>
 
-        * **SMOTE (Synthetic Minority Over-sampling Technique)**: Creates synthetic samples by interpolating between existing samples of the minority class.
+    * **SMOTE (Synthetic Minority Over-sampling Technique)**: Creates synthetic samples by interpolating between existing samples of the minority class.
 
-        * **Variational Autoencoders (VAE) or GANs (Generative Adversarial Networks)**: Generate realistic gene expression profiles for under-represented classes.
+    * **Variational Autoencoders (VAE) or GANs (Generative Adversarial Networks)**: Generate realistic gene expression profiles for under-represented classes.
 
-        * **Resampling**:
+    * **Resampling**:
 
-        Oversampling: Randomly duplicate samples from the minority classes to increase their representation.
+    Oversampling: Randomly duplicate samples from the minority classes to increase their representation.
 
-        Undersampling: Randomly remove samples from the majority classes, but this risks losing valuable information.
+    Undersampling: Randomly remove samples from the majority classes, but this risks losing valuable information.
 
-        * **Data Augmentation Using HMM (Hidden Markov Model)**: 
+    * **Data Augmentation Using HMM (Hidden Markov Model)**: 
 
-        Train an HMM on gene expression profiles of the minority classes to generate similar but distinct sequences.
+    Train an HMM on gene expression profiles of the minority classes to generate similar but distinct sequences.
 
-        <span style='color:brown'>Since our data is not time seried, we cant use HMM model.</span>
+    <span style='color:brown'>Since our data is not time seried, we cant use HMM model.</span>
 
-        Finally we mixed the clinical data and gene expressions. The following is the final data set ready to be splited for train, test, val dataset and be used for furthur analysis.
-        """
+    Finally we mixed the clinical data and gene expressions. The following is the final data set ready to be splited for train, test, val dataset and be used for furthur analysis.
+    """
     )
     return
 
@@ -809,7 +626,7 @@ def _(mo, pkl):
     with open('./scripts/pkl_files/stage_data.pkl', 'rb') as _f:
         stage = pkl.load(_f)
     mo.ui.table(stage)
-    return (stage,)
+    return
 
 
 @app.cell(hide_code=True)
@@ -822,35 +639,35 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
-        The clinical dataset utilized in this study includes patient demographic variables such as **age**, **race**, and **ethnicity**, alongside **prognostic indicators** including tumor **size** and **lymph node** involvement. The objective of this analysis is to quantify the strength of association between these features and two critical clinical outcomes:
+    The clinical dataset utilized in this study includes patient demographic variables such as **age**, **race**, and **ethnicity**, alongside **prognostic indicators** including tumor **size** and **lymph node** involvement. The objective of this analysis is to quantify the strength of association between these features and two critical clinical outcomes:
 
-        **Cancer Stage**
+    **Cancer Stage**
 
-        **Vital Status (Alive or Deceased)**
+    **Vital Status (Alive or Deceased)**
 
-        Given the categorical nature of most variables in the dataset, **<span style="color:brown">Cramér's V</span>**
-        was employed to assess the association strength. For continuous variables, such as age at diagnosis, **<span style="color:brown">the Pearson correlation coefficient</span>** was utilized.
+    Given the categorical nature of most variables in the dataset, **<span style="color:brown">Cramér's V</span>**
+    was employed to assess the association strength. For continuous variables, such as age at diagnosis, **<span style="color:brown">the Pearson correlation coefficient</span>** was utilized.
 
-        Cramér's V is a normalized measure of association based on the Chi-square statistic, suitable for evaluating relationships between two categorical variables. It produces a value between 0 and 1, where:
+    Cramér's V is a normalized measure of association based on the Chi-square statistic, suitable for evaluating relationships between two categorical variables. It produces a value between 0 and 1, where:
 
-        * 0 indicates no association.
+    * 0 indicates no association.
 
-        * 1 indicates a perfect association.
+    * 1 indicates a perfect association.
 
-        ### Cramér's V Formula
+    ### Cramér's V Formula
 
 
-        \[
-        V = \sqrt{ \frac{ \chi^2 }{ n \times (k - 1) } }
-        \]
+    \[
+    V = \sqrt{ \frac{ \chi^2 }{ n \times (k - 1) } }
+    \]
 
-        Where:
+    Where:
 
-        - \( V \) is Cramér's V, the measure of association strength.
-        - \( \chi^2 \) is the Chi-square test statistic computed from the contingency table.
-        - \( n \) is the total number of observations in the dataset.
-        - \( k \) is the smaller number of categories between the two variables compared.
-        """
+    - \( V \) is Cramér's V, the measure of association strength.
+    - \( \chi^2 \) is the Chi-square test statistic computed from the contingency table.
+    - \( n \) is the total number of observations in the dataset.
+    - \( k \) is the smaller number of categories between the two variables compared.
+    """
     )
     return
 
@@ -860,21 +677,21 @@ def _(pkl):
     with open('./scripts/pkl_files/corr_plot.pkl', 'rb') as _f:
         corr_fig = pkl.load(_f)
     corr_fig
-    return (corr_fig,)
+    return
 
 
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
         """
-        ###<span style="color:brown"> Key Observation</span>
+    ###<span style="color:brown"> Key Observation</span>
 
-        The association analysis revealed that tumor characteristics, particularly primary tumor size (ajcc_pathologic_t), regional lymph node involvement (ajcc_pathologic_n), and distant metastasis (ajcc_pathologic_m), exhibit strong associations with both cancer stage and vital status. This result is consistent with clinical expectations, as the extent of tumor spread is a critical determinant of both disease staging and patient survival outcomes.
+    The association analysis revealed that tumor characteristics, particularly primary tumor size (ajcc_pathologic_t), regional lymph node involvement (ajcc_pathologic_n), and distant metastasis (ajcc_pathologic_m), exhibit strong associations with both cancer stage and vital status. This result is consistent with clinical expectations, as the extent of tumor spread is a critical determinant of both disease staging and patient survival outcomes.
 
-        Interestingly, demographic variables such as race and ethnicity also demonstrated measurable associations with clinical outcomes. This suggests potential underlying disparities or biological differences that may influence disease progression and survival, warranting further investigation.
+    Interestingly, demographic variables such as race and ethnicity also demonstrated measurable associations with clinical outcomes. This suggests potential underlying disparities or biological differences that may influence disease progression and survival, warranting further investigation.
 
-        Additionally, age at diagnosis showed both positive and negative associations with the outcomes: while advancing age generally correlated with poorer vital status (increased mortality), it had a weaker or variable relationship with cancer staging. These findings highlight the complex interplay between biological, demographic, and clinical variables in cancer prognosis.
-        """
+    Additionally, age at diagnosis showed both positive and negative associations with the outcomes: while advancing age generally correlated with poorer vital status (increased mortality), it had a weaker or variable relationship with cancer staging. These findings highlight the complex interplay between biological, demographic, and clinical variables in cancer prognosis.
+    """
     )
     return
 
@@ -884,7 +701,7 @@ def _(mo, pkl):
     with open('./scripts/pkl_files/corr_df.pkl', 'rb') as _f:
         corr_df = pkl.load(_f)
     mo.ui.table(corr_df)
-    return (corr_df,)
+    return
 
 
 if __name__ == "__main__":

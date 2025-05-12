@@ -8,3 +8,4 @@ plotly
 scikit-learn
 anywidget
 traitlets
+pyarrow

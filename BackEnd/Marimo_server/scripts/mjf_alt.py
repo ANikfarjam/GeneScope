@@ -1,57 +1,69 @@
 import pandas as pd
 import marimo as mo
-import altair as alt
+import plotly.express as px
 import pickle as pkl
 
-
-#load Data
+# Load AHP data
 ahp_df = pd.read_csv('../AHPresults/final_Mod_ahp_scores.csv')
-
-# Sort and take top 200 genes
 ahp_top = ahp_df.sort_values(by="Scores", ascending=False).iloc[:200, :]
 
-# Ensure "Gene" column is retained and treated as string
+# Scale selected numeric columns
 ahp_top_scaled = ahp_top.copy()
-# Scale only selected numeric features if needed
-scale_cols = ["Scores", "t_test", "Wilcoxon"]  # modify as needed
+scale_cols = ["Scores", "t_test", "Wilcoxon"]
 for col in scale_cols:
     if col in ahp_top_scaled.columns:
         ahp_top_scaled[col] *= 1e6
+
 ahp_top_scaled["Gene"] = ahp_top_scaled["Gene"].astype(str)
 ahp_top_scaled["Scores"] = ahp_top_scaled["Scores"].astype(float)
-# Save the scaled DataFrame only
-with open('./pkl_files/ahp_top_scaled.pkl', 'wb') as f:
-    pkl.dump(ahp_top_scaled, f)
 
-# Selection for interactive brushing
-# brush = alt.selection_interval(encodings=["x", "y"])
-# # Scatter Plot (Interactive)
-# chart = mo.ui.altair_chart(
-#     alt.Chart(ahp_top_scaled)
-#     .mark_circle()
-#     .encode(
-#         x="Scores:Q",
-#         y="t_test:Q",
-#         color="entropy:Q",
-#         size="Wilcoxon",
-#         tooltip=[
-#             "Gene:N",
-#             "Scores:Q",
-#             "t_test:Q",
-#             "entropy:Q",
-#             "roc_auc:Q",
-#             "Wilcoxon",
-#             "Wilcoxon_p",
-#             "snr:Q",
-#         ],
-#     )
-#     .add_params(brush)
-# )
+#  Create Plotly scatter plot
+fig = px.scatter(
+    ahp_top_scaled,
+    x="Scores",
+    y="t_test",
+    color="entropy",
+    size="Wilcoxon",
+    hover_data=["Gene", "roc_auc", "Wilcoxon_p", "snr"],
+    title="Top AHP Genes Scatter Plot"
+)
+fig.update_layout(template="plotly_white", title_x=0.5)
 
-# # Display chart and dynamically updating table
-# alt_plot = mo.vstack([chart, mo.ui.table(chart.value)])
+#  Convert table to styled HTML
+html_table = ahp_top_scaled.to_html(classes='ahp-table', index=False, escape=False)
 
-# with open('./pkl_files/alt_plot.pkl', 'wb') as f:
-#     pkl.dump(alt_plot, f)
+styled_table = f"""
+<style>
+.ahp-table {{
+    font-family: Arial;
+    font-size: 14px;
+    border-collapse: collapse;
+    width: 100%;
+}}
 
-print("done!")
+.ahp-table th, .ahp-table td {{
+    border: 1px solid #ccc;
+    padding: 6px;
+    text-align: left;
+}}
+
+.scroll-container {{
+    max-height: 500px;
+    overflow-y: auto;
+}}
+</style>
+
+<div class="scroll-container">{html_table}</div>
+"""
+
+#  Create tabs layout
+tab_view = mo.ui.tabs({
+    "Scatter Plot": mo.ui.plotly(fig),
+    "Table": mo.Html(styled_table)
+})
+
+#  Save the tab layout
+with open('./pkl_files/ahp_tabs.pkl', 'wb') as f:
+    pkl.dump(tab_view, f)
+
+print("✅ ahp_tabs.pkl saved with Plotly scatter + HTML table.")

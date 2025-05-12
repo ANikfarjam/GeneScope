@@ -70,6 +70,35 @@ droped_Df.fillna("Not Available", inplace=True)
 final_info = get_info_str(droped_Df)
 final_value_counts = get_value_counts_table(droped_Df)
 
+#---- convert the dropped df to html for display----
+# --- Create HTML table from top 100 rows ---
+html_table = droped_Df.head(100).to_html(classes="html-table", index=False)
+html_block = f"""
+<style>
+.html-table {{
+  font-family: Arial;
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 13px;
+}}
+
+.html-table th, .html-table td {{
+  border: 1px solid #ddd;
+  padding: 6px;
+  text-align: left;
+}}
+
+.scroll-box {{
+  max-height: 500px;
+  overflow-y: auto;
+}}
+</style>
+<div class="scroll-box">{html_table}</div>
+"""
+
+
+
+
 ext_code = f"""
 # --- Utility functions ---
 def get_value_counts_table(df):
@@ -136,7 +165,7 @@ final_value_counts = get_value_counts_table(dropped_Df)
 """
 
 final_cl1 = mo.ui.tabs({
-    'Data': droped_Df.head(100),
+    'Data': html_block,
     'Info': mo.md(f"```\n{final_info}\n```"),
     'Extraction': mo.ui.code_editor(ext_code)
 })

@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.12.2"
+__generated_with = "0.13.6"
 app = marimo.App(width="medium")
 
 
@@ -10,7 +10,7 @@ def _():
     import pandas as pd
     import plotly.express as px
     import pickle as pkl
-    return mo, pd, pkl, px
+    return mo, pkl
 
 
 @app.cell(hide_code=True)
@@ -186,7 +186,7 @@ def _(mo):
     # Initialize properly in Marimo
     show_analysis = mo.ui.anywidget(ShowAnalysis())
     show_analysis
-    return ShowAnalysis, anywidget, show_analysis, traitlets
+    return
 
 
 @app.cell(hide_code=True)
@@ -299,23 +299,7 @@ def _(mo):
         {card3}
     </div>
     """)
-    return (
-        base64,
-        card1,
-        card2,
-        card3,
-        create_card,
-        data_uri,
-        data_uri2,
-        data_uri3,
-        encoded_string,
-        encoded_string2,
-        encoded_string3,
-        icon_ml,
-        icon_ml2,
-        icon_ml3,
-        image_file,
-    )
+    return
 
 
 @app.cell(hide_code=True)
@@ -347,10 +331,10 @@ def _(mo, pkl):
         options=list(datasets.keys()),
         value="AHP Analysis" # default
     )
-    return ahp_df, datasets, dropdown, f, sampled_df
+    return datasets, dropdown
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(datasets, dropdown, mo):
     def show_data():
             selected = dropdown.value
@@ -360,7 +344,42 @@ def _(datasets, dropdown, mo):
         dropdown,
         show_data()
     ])
-    return (show_data,)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+    # <span style="color:brown">Models and GAN-Generated Data</span>
+    Both our MultiDNN and MLP (trained with SMOTE) models are available for download and use on GitHub. Additionally, we’ve generated 10 synthetic samples for each cancer stage using a Generative Adversarial Network (GAN) to help users explore and better understand our models' performance. These samples are available for download and can be used for testing, benchmarking, or educational purposes. And it available for download in out chatbot page.
+    """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    gan_text = mo.md("""
+    A **Generative Adversarial Network (GAN)** is composed of two competing neural networks:
+
+    * The Generator creates synthetic data based on random noise and a specified cancer stage.
+
+    * The Discriminator evaluates whether the data is real (from the original dataset) or fake (produced by the generator).
+
+    These models are trained adversarially — the generator improves by trying to fool the discriminator, while the discriminator learns to better distinguish fake from real. This process continues until the discriminator can no longer reliably tell the difference, meaning the synthetic data closely mimics the original.
+
+    To build our cGAN:
+
+    * We encoded clinical and gene expression features along with stage labels.
+
+    *We tuned both networks using Keras Tuner.
+
+    * After training, we generated 10 synthetic samples per stage, then decoded and saved them as downloadable CSV files.
+    """)
+
+    mo.vstack([gan_text, mo.image('img/flattened_cgan.png')])
+    return
 
 
 if __name__ == "__main__":
