@@ -41,7 +41,7 @@ GENESCOPE
 |**Cancer Prognosis Analysis**| Analyze how features such as tumore sieze, number of regional lymph nodes and dinstance that tumor have grown utilizing Cox Hazerdus Model. |
 | **Interactive Chatbot**           | Conversational assistant connected to the staging model for real-time, data-backed answers.   |
 | **Data Visualization**            | Dynamic charts and graphs to explore trends and findings.                                    |
-| **Full-stack System**             | Backend APIs with Flask and machine learning, and a modern dashboard built in Next.js.        |
+| **Full-stack System**             | Backend APIs with Flask and machine learning, and a website built in Next.js.        |
 
 
 ## Getting Started
