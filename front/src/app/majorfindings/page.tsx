@@ -1,10 +1,10 @@
 export default function Page() {
   return (
     <iframe
-      src="/major_finding.html"
+      src="https://genescope-marimo.onrender.com/major_findings/"
       width="100%"
       height="1000vh"
-      style={{ border: "none" }}
+      style={{ border: "none", marginTop: "70px" }}
     />
   );
 }

@@ -1,105 +1,180 @@
-![AltText](/project_insites/cover.png)
+<p align="center">
+  <img src="project_insites/readme_intro.png" alt="Gene Intro" width="800" />
+</p>
 
-# <span style="color: green">Cancer Classification for varius breast cancer mutation using HMM</span>
+<p align="center">
+  <img src="https://img.shields.io/badge/Built%20With-Python-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Frontend-TypeScript-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Framework-Next.js-black?logo=next.js&style=for-the-badge" />
+  <img src="https://img.shields.io/badge/UI-Marimo-blueviolet?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/LangChain-Enabled-success?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Pinecone-Integrated-lightgrey?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Maintained-Yes-blue?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Website-Up-blue?style=for-the-badge" />
+</p>
 
-## Goal:
-Breast cancer ranks as a widespread serious condition and develops primarily from the cells that line both milk ducts and lobules that perform milk production and transportation functions. During 2024, over  300,000 new cases were diagnosed among  women only in the U.S (NCBI). Thus correct diagnosis and treatment in early stages is very crucial for patients’ well being. In this project we are aiming study Breast Cancer related biomarkers and charactristics as well as developing a predictive model to analyze prognosis of breast cancer stages using gene expression data and as well as pacients profile (age, gender, race, health status and history). Gene scope futher more provides a comprehansive platform for research and testing their samples. 
+GeneScope is a research platform that combines biology, data science, and artificial intelligence to help better understand breast cancer. It analyzes patterns in gene activity and clinical information, like tumor size and patient age, to find important genes that may be linked to cancer development. Using a special method called the Analytic Hierarchy Process, GeneScope ranks thousands of genes to spotlight the ones that matter most. It also uses machine learning models to predict how likely a patient is to be diagnosed at different stages of breast cancer. By connecting genetics with clinical factors, GeneScope aims to make cancer detection earlier, smarter, and more personalized, offering new insights that could improve future treatments and patient outcomes.
 
-# Background 
+## Project Structure
 
- This cancer primarily develops from the cells that line both milk ducts and lobules that perform milk production and transportation functions. It mainly have invasive and non invasive stages. When th ecancerous 
+```
+GENESCOPE
+├── BackEnd/            # Flask server, APIs, models, backend logic
+│   ├── Marimo_server/
+|   ├── computation_anlysis/
+|   ├── Docker Deployement/
+│   ├── Models/
+│   ├── routers/
+│   └── GeneScopeServer.py
+├── data/               # Gene expression and clinical datasets
+├── front/              # Next.js frontend dashboard and chatbot UI
+└── project_insites/    # Research notes and project documentation
+```
 
-![breastcancer](/project_insites/BreastCancer.png)
+## Feature Table
 
 
-## <span style="color: green">Broader impact</span>
-
-* HMMs can help differentiate between cancer subtypes by modeling gene expression patterns.
-* We can discover hidden states that correspond to different cancer progression stages or molecular subtypes
-* By analyzing state transitions and performing AHP, we can identify genes that play a crucial role in cancer progression
-* Genes consistently associated with high-expression hidden states can be potential biomarkers for diagnosis or prognosis.
-* HMMs can reveal gene co-expression patterns and identify groups of genes that are regulated together.
-* This insight helps in understanding the underlying biological mechanisms of cancer development.
-* Some genes may transition between normal and cancerous expression states.
-* Tracking these transitions can help identify early warning signs of cancer or predict relapse risk.
+| Feature                   | Description                                                                                       |
+|---------------------------|---------------------------------------------------------------------------------------------------|
+| **Breast Cancer Stage Prediction** | Predicts cancer stages based on combined gene expression and clinical features.               |
+| **Gene Importance Analysis**      | Identifies critical genes using a modified Analytic Hierarchy Process (AHP) and statistical methods. As well as identifying most active miRNA involved in progression of breast cancer. |
+|**Cancer Prognosis Analysis**| Analyze how features such as tumore sieze, number of regional lymph nodes and dinstance that tumor have grown utilizing Cox Hazerdus Model. |
+| **Interactive Chatbot**           | Conversational assistant connected to the staging model for real-time, data-backed answers.   |
+| **Data Visualization**            | Dynamic charts and graphs to explore trends and findings.                                    |
+| **Full-stack System**             | Backend APIs with Flask and machine learning, and a website built in Next.js.        |
 
 
-# <span style="color: green">Breast Cancer and related Genes</span>
+## Getting Started
 
-Breast cancer is the most frequently diagnosed cancer in women and ranked as a worldwide leading fatal illness. Cancer develops primarily from the cells that line both milk ducts and lobules that perform milk production and transportation functions. The majority of breast cancer cases occur in female patients but it does develop in males. 
+### Backend (Flask)
 
-![breastcancer](/project_insites/BreastCancer.png)
+```bash
+cd BackEnd
+python GeneScopeServer.py
+```
 
-Medical statistics indicate that women make up the majority of breast cancer patients in the United States where 310,720 new cases are predicted for 2024. Statistics show that breast cancer will affect 2,790 male patients during this period. Breast cancer affects men in 0.9% of total breast cancer cases while women stand at 99.1% of the total cases. The illness initially stays contained in breast tissue yet advances to penetrate neighboring tissues prior to reaching lymph nodes and distant parts of the body through bloodstream or lymphatic systems. The correct early discovery and group assignment of breast cancer remains essential because different breast cancer subtypes demand particular treatment methodologies which enhance survival outcomes.
+### Frontend (Next.js)
 
-# <span style="color: green">Comon Types of brest cancer</span>
+#### Environment Variables
 
-### situ and invasive cancer(Common Type):
+Before running the project, create a `.env` file inside the `/front` directory with the following variables:
 
-* **Ductal Carcinoma In Situ (DCIS):** DCIS is a non-invasive breast cancer where abnormal cells are confined within the milk ducts and have not spread to surrounding breast tissue. While not life-threatening, DCIS can increase the risk of developing invasive breast cancer if left untreated. 
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=your-firebase-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-firebase-auth-domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-firebase-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-firebase-storage-bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-firebase-messaging-sender-id
+NEXT_PUBLIC_FIREBASE_APP_ID=your-firebase-app-id
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your-firebase-measurement-id
+NEXT_PUBLIC_STUFF=your-openai-or-other-api-key
+OPENAI_API_KEY=your-openai-api-key
+PINECONE_API_KEY=your-pinecone-api-key
+```
 
-Ductal carcinoma in situ (DCIS) is linked to genetic mutations in the BRCA1 and BRCA2 genes, tumor suppressors that help repair damaged DNA. 
+---
 
-* **Invasive Ductal Carcinoma (IDC):** Breast cancers that have spread into surrounding breast tissue are known as invasive breast cancers.It begins in the milk ducts and invades nearby breast tissue, with the potential to spread to other parts of the body.
+Once the `.env` file is set up, install the dependencies and run the development server:
 
-* **Invasive Lobular Carcinoma (ILC)** ILC starts in the milk-producing lobules and can spread to surrounding breast tissue and beyond. It is the second most common type of breast cancer.
+```bash
+cd front
+npm install
+npm run dev
+```
 
-human epidermal growth factor receptor 2 (HER2 also known as ERBB2) is related to both Invasive Ductal Carcinoma (IDC) and Invasive Lobular Carcinoma (ILC), and they are gene
+The frontend will be available at [http://localhost:3000](http://localhost:3000).
 
-In this study we are studying mutation to these 3 genes.
+## Technologies Used
 
-# <span style="color: green">Data Collection</span>
-Data has been Collected from NCBI's(The National Center for Biotechnology Information) GEO(Gene Expression Omnibus) DataSet.
+- Frontend: Next.js, React, TailwindCSS, Chart.js, OpenAI API, langchain
+- Backend: Flask, Marimo, TensorFlow/Keras, Pandas, Scikit-learn, Tensorflow Keras, lifelines.coxPHfitter, carboost.CatBoostClassifier, Docker for deploying marimo server to marimo server, GAN
+- Other: Docker-ready for Google cloud deployment (App Engine)
+## Analytic Files
+BackEnd/computation_analysis
+  
+---/modAhpFunctions.py ----> This file contains all the fuctions for calculating ttest, entrhopy, wilcoxon and..
+  
+---/compahp.py ----> calls the functions to calculate each individual secores
+  
+---/compPWM ----> calculates PWM, Eigen Vectors, Eigen Values
+  
+---/com_fs ---> uses eigen values of each matrix(AHP ect) to compute final score
 
-This data is consist of RNA-Seq data for 9264 tumor samples and 741 normal samples across 24 cancer types from The Cancer Genome Atlas with "Rsubread".
+BackEnd/Models
 
-The gene espressions are using Illumina Sequencing steps:
+---/DMM ----> for both experimental and Main MultiDNN
 
-![Limmunia](/project_insites/Illumina-Sequencing-Steps-1644x2048.webp)
+---/gbst ----> CatBoost Model utilized for calculating patients being diagnosed at any stage
 
-Steps/Process of Illumina Sequencing
-1. Nucleic Acid Extraction
-The first step in Illumina sequencing is isolating the genetic material from samples of interest. The extraction process is important because the quality of the nucleic acids extracted will directly affect the sequencing results. After extraction, a quality control check is usually performed to ensure the nucleic acids are pure and accurately quantified. UV spectrophotometry is typically used to check the purity, while fluorometric methods are preferred for measuring nucleic acid concentration.
+BackEnd/Marimo_server/scripts ---> All the in-marimo analysis such as corrolation analysis, heatmap for comparing tope ranke genes through out different stages and even data collection and clean up
 
-2. Library Preparation
-After nucleic acids are isolated, they are prepared for sequencing by creating a library which is a collection of adapter-ligated DNA fragments that can be read by the sequencer. The process starts with DNA fragmentation, where the sample is broken into smaller fragments using methods like mechanical shearing, enzymatic digestion, or transposon-based fragmentation. These fragments undergo end repair and A-tailing to prepare for the attachment of short specific DNA sequences called adapters to both ends of the fragments. These adapters contain sequences that help bind the DNA to the sequencing flow cell. They also include barcode sequences that allow multiple samples to be sequenced simultaneously and distinguished later in the analysis.
+## Acknowledgements
 
-3. Cluster Generation by Bridge Amplification
-The DNA library is loaded onto a flow cell containing small lanes where amplification and sequencing occurs. The DNA fragments bind to complementary primers attached to the solid surface of the flow cell and undergo bridge amplification. In bridge PCR, each DNA strand bends over to form a bridge on a chip. Forward and reverse primers on the chip help the DNA form these bridges. Each bridge is amplified, creating many clusters at each spot. The process of cluster generation finishes when each DNA spot on the chip has enough copies to produce a strong, clear signal. 
+- TCGA (The Cancer Genome Atlas) for public gene expression and clinical datasets
+- Open-source libraries and research in biomedical machine learning
 
-4. Sequencing by Synthesis (SBS)
-Once clusters are generated, the SBS process begins. Fluorescently labeled nucleotides are added one by one to the growing DNA strand and each nucleotide emits a fluorescence as it attaches. The specific color emitted allows the system to identify the nucleotide. The sequence of each DNA fragment is determined over multiple cycles.
+## Future Enhancements
+- Facinating Multimodel Deep Neural Network optimized to classiffy based on gene-expressions and clinical data
+- Enhanced chatbot capabilities (summarizing research papers)
+- Expanded dataset support for multi-cancer analysis
+- Cloud-based deployment with automated scaling
 
-5. Data Analysis
-Once the sequencing is completed, the sequences obtained are processed and analyzed using bioinformatics tools. Images collected from each cycle are converted into base sequences by analyzing the fluorescent signals. Bioinformatics tools clean up and organize the data, ensuring the sequences are ready for analysis. Then, the data are analyzed, aligning the sequences to a reference genome or assembling them if a reference is unavailable. This process helps identify sequence variants, map gene locations, and allow downstream analyses. Finally, the data is interpreted to analyze pathways, identify potential biomarkers, or predict gene functions. This step helps translate raw sequencing data into meaningful biological insights. Some Illumina instruments have built-in, easy-to-use analysis software that can help researchers without bioinformatics expertise.
+## Sources
 
- 
- # <span style='color: green'>AHP Analysis Gene Selection
- 
- 
+NCBI GEO DataSet Documentation:
 
-## Gene Selection: Choosing the Most Important Genes
-**Problem: Too Many Genes, Not All Relevant**
-* A DNA microarray (gene chip) can measure the expression levels of thousands of genes at once, but not all of them are useful for classification.
-* If we include all genes, the model becomes too complex and inefficient.
-* The goal is to filter out irrelevant genes and identify the most informative ones.
-Solution: Gene Selection Methods
-* The article introduces several ranking techniques to select key genes that differentiate between cancerous and normal tissues. These techniques include:
+https://www.ncbi.nlm.nih.gov/geo/info/
 
-**t-test:** Finds genes that show significant differences in expression levels between cancerous and normal cells.
+Cancer statistics:
 
-**Entropy test:** – Measures disorder in gene expression; genes with high entropy provide better class separation.
+https://pmc.ncbi.nlm.nih.gov/articles/PMC8428369/#:~:text=Breast%20cancer%20is%20the%20most%2
 
-**Receiver Operating Characteristic (ROC) Curve:** Selects genes with strong discriminatory power.
 
-**Wilcoxon test:** A non-parametric test that ranks genes based on their median expression difference.
-**Signal-to-Noise Ratio (SNR):** Compares differences in mean expression levels with the standard deviation.
+NGS:
+https://link.springer.com/article/10.1186/s12864-017-4011-0
 
-## Modified Analytic Hierarchy Process (AHP) for Gene Selection
+Cancer Types:
 
-Traditional AHP is a decision-making method used for prioritizing factors based on expert judgment.
-The authors modified AHP to integrate the rankings from the above five methods automatically.
-Instead of relying on human experts, this method uses statistical rankings to create a robust and stable set of key genes for classification.
+https://www.cancer.org/cancer/types/breast-cancer/about/types-of-breast-cancer.html#:~:text=Invasive%20(or%20infiltrating)%20breast%20cancer%20has%20spread%20into%20surrounding%20breast,8
+0%25%20of%20all%20breast%20cancers
 
-# <span style='color: green'> HMM </span>
-HMMs are designed following a supervised learning approach so that they are capable of realizing knowledge available from cancer training data. Cancer often develops through different stages. These stages resemble the state transition of HMMs. In addition, the modularity characteristic of HMMs allows them to be combined into larger ones where each HMM is individually trained for each cancer data class. Given a new sample, trained HMMs can predict whether it is from a cancer or normal cell.
+Principal of Cancer Staging:
+
+https://www.facs.org/media/xuxfkbpb/principles_cancer_staging.pdf
+
+AHP Analysis was isnpired by:
+https://www.sciencedirect.com/science/article/pii/S0020025515002807?casa_token=GgHMPZ4GQWMAAAAA:kl0woyWwWFWZo5nfQDRqhcvztyB103WUWoYcc733pWUa0jKs_7ypculcinAcZjxHZbA3IzGZL3Q3
+
+
+MultiDeep Learning Model:
+
+https://ieeexplore.ieee.org/abstract/document/8292801?casa_token=J6Bt__TE05sAAAAA:P7rbhfoJDDM9DSFFDfsc5kUYGSFO-9c0UPnTINRVZkvUjYe9EUufViBbfkZ23pJ_XL2SQMHG1dfN&fbclid=IwY2xjawKSZuRleHRuA2FlbQIxMABicmlkETFMcHNONDN2eXhqdEtNOHRKAR4icRQO8hHxUotWrd-Kpv1tiq4KoLX2pqtAijDZn4HCAk4-z862MB0nWyfr1w_aem_bKQlg5gPM8kEHaUzt9UN3w
+
+Catboost:
+
+https://catboost.ai/
+
+Cox Proportional-Hazards Model:
+
+https://www.sthda.com/english/wiki/cox-proportional-hazards-model
+
+Generative Adversarial Network
+
+https://en.wikipedia.org/wiki/Generative_adversarial_network
+
+
+Marimo:
+
+https://docs.marimo.io/
+
+Non coding genes miRNA
+
+https://link.springer.com/article/10.1186/S12935-015-0185-1
+
+
+TNM Staging system:
+
+https://acsjournals.onlinelibrary.wiley.com/doi/full/10.1002/1097-0142%2820010415%2991%3A8%2B%3C1589%3A%3AAID-CNCR1170%3E3.0.CO%3B2-K
+
+
+

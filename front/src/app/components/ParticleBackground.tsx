@@ -34,7 +34,7 @@ export default function ParticleBackground() {
               Math.random() * window.innerWidth * 0.8,
               Math.random() * window.innerWidth,
             ],
-            opacity: [0.2, 0.5, 0.8, 0.3],
+            opacity: [0.1, 0.4, 0.5, 0.2],
           }}
           transition={{
             duration: 5 + Math.random() * 5,

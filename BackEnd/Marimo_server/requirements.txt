@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+marimo
+pandas
+numpy
+scipy
+plotly
+scikit-learn
+anywidget
+traitlets
+pyarrow

@@ -1,146 +1,191 @@
 import marimo
 
-__generated_with = "0.12.2"
+__generated_with = "0.13.6"
 app = marimo.App(width="medium")
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _():
     import marimo as mo
-    return (mo,)
-
-
-@app.cell
-def _(mo):
-    # Define slider without marks
-    slider = mo.ui.slider(
-        start=0,
-        stop=3,
-        step=1,
-        value=0,
-        label="Select Analysis Model"
-    )
-
-    # Manual mapping for label display
-    model_labels = ["AHP", "CatBoost", "Cox Hazard Model", "Random Forest"]
-    return model_labels, slider
-
-
-@app.cell(hide_code=True)
-def _(mo, model_labels, slider):
-    # Markdown blocks per model
-    descriptions = {
-        0: mo.md("""
-    ### 🧠 Analytic Hierarchy Process (AHP)
-    AHP ranks genes using multiple statistical methods (t-test, Entropy, Wilcoxon, ROC, SNR), combining them through pairwise comparison matrices and eigenvector-based scoring to identify key biomarkers in breast cancer progression.
-    """),
-
-        1: mo.md("""
-    ### 🚀 CatBoost Classifier
-    CatBoost is a gradient boosting model that learns the likelihood of a patient being diagnosed at a specific cancer stage using gene expression and clinical features. It handles class imbalance and delivers calibrated stage probabilities.
-    """),
-
-        2: mo.md("""
-    ### 🧬 Cox Proportional Hazards Model
-    The Cox model estimates the impact of clinical and molecular features on patient survival risk. It outputs hazard ratios and identifies statistically significant factors affecting prognosis (like metastasis, age, lymph nodes).
-    """),
-
-        3: mo.md("""
-    ### 🌲 Random Forest
-    This ensemble method ranks the most important clinical features by their influence on cancer classification. It’s robust against overfitting and captures nonlinear patterns in demographic and clinical data.
-    """)
-    }
-
-    # Display current label + markdown
-    mo.vstack([
-        mo.md(f"### 🔬 Breast Cancer Model Analysis: {model_labels[slider.value]}"),
-        descriptions[slider.value]
-    ])
-    return (descriptions,)
+    import pandas as pd
+    import plotly.express as px
+    import pickle as pkl
+    return mo, pkl
 
 
 @app.cell(hide_code=True)
 def _(mo):
+    mo.md(r"""#<span style="color: brown">Summery of Analysis Used in GeneScope's Researches</span>""")
+    return
 
-    mo.md('''
-    <div style="font-family:sans-serif;">
-      <h2>Breast Cancer Analysis Walkthrough</h2>
-  
-      <div id="stepper" style="background: #f7f7f7; padding: 20px; border-left: 4px solid #663399; border-radius: 8px; min-height: 160px; margin-bottom: 15px; transition: opacity 0.3s ease-in-out;">
-        <h3>AHP - Analytic Hierarchy Process</h3>
-        <p>AHP ranks genes using t-test, entropy, Wilcoxon, ROC, and SNR. Scores are computed with eigenvectors from pairwise comparison matrices to identify strong biomarkers.</p>
-      </div>
 
-      <div style="display: flex; justify-content: space-between;">
-        <button id="prev-btn" style="padding: 10px 20px; background-color: #ccc; border: none; border-radius: 6px; font-weight: bold; color: #333;">← Previous</button>
-        <button id="next-btn" style="padding: 10px 20px; background-color: #663399; color: white; border: none; border-radius: 6px; font-weight: bold;">Next →</button>
-      </div>
-    </div>
+@app.cell(hide_code=True)
+def _(mo):
+    import anywidget
+    import traitlets
 
-    <script>
-      const steps = [
-        {
-          title: "AHP - Analytic Hierarchy Process",
-          body: "AHP ranks genes using t-test, entropy, Wilcoxon, ROC, and SNR. Scores are computed with eigenvectors from pairwise comparison matrices to identify strong biomarkers."
-        },
-        {
-          title: "CatBoost Classifier",
-          body: "CatBoost uses gene expression and clinical features to predict stage probabilities. It handles imbalanced data and outputs likelihoods per stage."
-        },
-        {
-          title: "Cox Proportional Hazards Model",
-          body: "The Cox model estimates how variables like tumor size, lymph nodes, and demographics affect survival risk. Outputs hazard ratios and significance levels."
-        },
-        {
-          title: "Random Forest Feature Importance",
-          body: "Random Forest ranks clinical features by how much they improve classification. It captures nonlinear interactions and identifies key predictors in diagnosis."
+    class ShowAnalysis(anywidget.AnyWidget):
+        current_step = traitlets.Int(0).tag(sync=True)
+
+        _esm = """
+        export function render({ model, el }) {
+            const container = document.createElement("div");
+            container.classList.add("walkthrough");
+
+            const stepper = document.createElement("div");
+            stepper.classList.add("stepper");
+            container.appendChild(stepper);
+
+            const indicators = document.createElement("div");
+            indicators.classList.add("step-indicators");
+            container.appendChild(indicators);
+
+            const nav = document.createElement("div");
+            nav.classList.add("navigation");
+
+            const prev = document.createElement("button");
+            prev.classList.add("prev-btn");
+            prev.textContent = "← Previous";
+            nav.appendChild(prev);
+
+            const next = document.createElement("button");
+            next.classList.add("next-btn");
+            next.textContent = "Next →";
+            nav.appendChild(next);
+
+            container.appendChild(nav);
+            el.appendChild(container);
+
+            const steps = [
+                {
+                    title: "AHP - Analytic Hierarchy Process",
+                    body: "AHP ranks genes using t-test, entropy, Wilcoxon, ROC, and SNR. Scores are computed with eigenvectors from pairwise comparison matrices to identify strong biomarkers."
+                },
+                {
+                    title: "CatBoost Classifier",
+                    body: "CatBoost uses gene expression and clinical features to predict stage probabilities. It handles imbalanced data and outputs likelihoods per stage."
+                },
+                {
+                    title: "Cox Proportional Hazards Model",
+                    body: "The Cox model estimates how variables like tumor size, lymph nodes, and demographics affect survival risk. Outputs hazard ratios and significance levels."
+                },
+                {
+                    title: "Random Forest Feature Importance",
+                    body: "Random Forest ranks clinical features by how much they improve classification. It captures nonlinear interactions and identifies key predictors in diagnosis."
+                }
+            ];
+
+            function renderIndicators(current) {
+                indicators.innerHTML = steps.map((_, idx) => `
+                    <span class="dot ${idx === current ? 'active' : ''}"></span>
+                `).join('');
+            }
+
+            function updateStepper(current) {
+                stepper.style.opacity = 0;
+                setTimeout(() => {
+                    stepper.innerHTML = `
+                        <h3>${steps[current].title}</h3>
+                        <p>${steps[current].body}</p>
+                    `;
+                    stepper.style.opacity = 1;
+                }, 200);
+
+                prev.disabled = current === 0;
+                next.disabled = current === steps.length - 1;
+
+                prev.classList.toggle("disabled", prev.disabled);
+                next.classList.toggle("disabled", next.disabled);
+
+                renderIndicators(current);
+            }
+
+            model.on("change:current_step", () => {
+                updateStepper(model.get("current_step"));
+            });
+
+            prev.addEventListener("click", () => {
+                if (model.get("current_step") > 0) {
+                    model.set("current_step", model.get("current_step") - 1);
+                    model.save_changes();
+                }
+            });
+
+            next.addEventListener("click", () => {
+                if (model.get("current_step") < steps.length - 1) {
+                    model.set("current_step", model.get("current_step") + 1);
+                    model.save_changes();
+                }
+            });
+
+            updateStepper(model.get("current_step"));
         }
-      ];
 
-      let current = 0;
-      const stepper = document.getElementById("stepper");
-      const prev = document.getElementById("prev-btn");
-      const next = document.getElementById("next-btn");
+        export default { render };
+        """
 
-      function updateStepper(index) {
-        stepper.style.opacity = 0;
-        setTimeout(() => {
-          stepper.innerHTML = `
-            <h3>${steps[index].title}</h3>
-            <p>${steps[index].body}</p>
-          `;
-          stepper.style.opacity = 1;
-        }, 200);
-
-        prev.disabled = index === 0;
-        next.disabled = index === steps.length - 1;
-
-        prev.style.backgroundColor = prev.disabled ? '#eee' : '#663399';
-        prev.style.color = prev.disabled ? '#aaa' : '#fff';
-
-        next.style.backgroundColor = next.disabled ? '#eee' : '#663399';
-        next.style.color = next.disabled ? '#aaa' : '#fff';
-      }
-
-      prev.addEventListener("click", () => {
-        if (current > 0) {
-          current--;
-          updateStepper(current);
+        _css = """
+        .walkthrough {
+            font-family: sans-serif;
+            max-width: 700px;
+            margin: auto;
         }
-      });
-
-      next.addEventListener("click", () => {
-        if (current < steps.length - 1) {
-          current++;
-          updateStepper(current);
+        .stepper {
+            background: #f7f7f7;
+            padding: 20px;
+            border-left: 4px solid #663399;
+            border-radius: 8px;
+            min-height: 160px;
+            margin-bottom: 15px;
+            transition: opacity 0.3s ease-in-out;
         }
-      });
+        .step-indicators {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .dot {
+            height: 12px;
+            width: 12px;
+            margin: 0 5px;
+            background-color: #ccc;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+        .dot.active {
+            background-color: #663399;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+        }
+        .prev-btn, .next-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        .prev-btn {
+            background-color: #eee;
+            color: #aaa;
+        }
+        .prev-btn:not(.disabled) {
+            background-color: #663399;
+            color: #fff;
+        }
+        .next-btn {
+            background-color: #663399;
+            color: white;
+        }
+        .next-btn.disabled {
+            background-color: #eee;
+            color: #aaa;
+        }
+        """
 
-      // Initialize
-      updateStepper(0);
-    </script>
-    ''')
-
+    # Initialize properly in Marimo
+    show_analysis = mo.ui.anywidget(ShowAnalysis())
+    show_analysis
     return
 
 
@@ -205,7 +250,7 @@ def _(mo):
 
 
     # Define the icon HTML (e.g., an image tag)
-    with open("chip.png", "rb") as image_file:
+    with open("./img/chip.png", "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
 
     data_uri = f"data:image/png;base64,{encoded_string}"
@@ -221,7 +266,7 @@ def _(mo):
         path="/ml"
     )
     # Define the icon HTML (e.g., an image tag)
-    with open("exploratory-analysis.png", "rb") as image_file:
+    with open("./img/exploratory-analysis.png", "rb") as image_file:
         encoded_string2 = base64.b64encode(image_file.read()).decode('utf-8')
     data_uri2 = f"data:image/png;base64,{encoded_string2}"
     icon_ml2 = f'<img src="{data_uri2}" alt="EDA Icon">'
@@ -230,10 +275,11 @@ def _(mo):
         title="Objective and Data Exploration",
         desc="Explore extracted data, perform feature selection, and prepare data from supplementary files.",
         button_label="Read More",
+        #path="/eda"
         path="/eda"
     )
     # Define the icon HTML (e.g., an image tag)
-    with open("monitor.png", "rb") as image_file:
+    with open("./img/monitor.png", "rb") as image_file:
         encoded_string3 = base64.b64encode(image_file.read()).decode('utf-8')
     data_uri3 = f"data:image/png;base64,{encoded_string3}"
     icon_ml3 = f'<img src="{data_uri3}" alt="EDA Icon">'
@@ -253,23 +299,13 @@ def _(mo):
         {card3}
     </div>
     """)
-    return (
-        base64,
-        card1,
-        card2,
-        card3,
-        create_card,
-        data_uri,
-        data_uri2,
-        data_uri3,
-        encoded_string,
-        encoded_string2,
-        encoded_string3,
-        icon_ml,
-        icon_ml2,
-        icon_ml3,
-        image_file,
-    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""##<span style="color:brown">Data Expoler</span>""")
+    return
 
 
 @app.cell(hide_code=True)
@@ -279,32 +315,11 @@ def _(mo):
 
 
 @app.cell(hide_code=True)
-def _():
-    import pandas as pd
-    # Load datasets
-    ahp_df = pd.read_csv('./AHPresults/final_Mod_ahp_scores.csv')
-    stage_df = pd.read_csv('./AHPresults/fina_Stage_unaugmented.csv')
-    stage_df = stage_df.iloc[:,:-1700]
-    return ahp_df, pd, stage_df
-
-
-@app.cell
-def _(stage_df):
-    valid_stages = stage_df['Stage'].value_counts()
-    valid_stages = valid_stages[valid_stages >= 14].index
-
-    # Sample 14 rows from each of those stages
-    sampled_df = (
-        stage_df[stage_df['Stage'].isin(valid_stages)]
-        .groupby("Stage", group_keys=False)
-        .apply(lambda x: x.sample(n=14, random_state=42))
-        .reset_index(drop=True)
-    )
-    return sampled_df, valid_stages
-
-
-@app.cell(hide_code=True)
-def _(ahp_df, mo, sampled_df):
+def _(mo, pkl):
+    with open('./scripts/pkl_files/ahp_df.pkl', 'rb') as f:
+        ahp_df = pkl.load(f)
+    with open('./scripts/pkl_files/stage_df.pkl', 'rb') as f:
+        sampled_df = pkl.load(f)
     # Dictionary of datasets
     datasets = {
         "AHP Analysis": ahp_df,
@@ -319,7 +334,7 @@ def _(ahp_df, mo, sampled_df):
     return datasets, dropdown
 
 
-@app.cell
+@app.cell(hide_code=True)
 def _(datasets, dropdown, mo):
     def show_data():
             selected = dropdown.value
@@ -329,7 +344,42 @@ def _(datasets, dropdown, mo):
         dropdown,
         show_data()
     ])
-    return (show_data,)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
+    # <span style="color:brown">Models and GAN-Generated Data</span>
+    Both our MultiDNN and MLP (trained with SMOTE) models are available for download and use on GitHub. Additionally, we’ve generated 10 synthetic samples for each cancer stage using a Generative Adversarial Network (GAN) to help users explore and better understand our models' performance. These samples are available for download and can be used for testing, benchmarking, or educational purposes. And it available for download in out chatbot page.
+    """
+    )
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    gan_text = mo.md("""
+    A **Generative Adversarial Network (GAN)** is composed of two competing neural networks:
+
+    * The Generator creates synthetic data based on random noise and a specified cancer stage.
+
+    * The Discriminator evaluates whether the data is real (from the original dataset) or fake (produced by the generator).
+
+    These models are trained adversarially — the generator improves by trying to fool the discriminator, while the discriminator learns to better distinguish fake from real. This process continues until the discriminator can no longer reliably tell the difference, meaning the synthetic data closely mimics the original.
+
+    To build our cGAN:
+
+    * We encoded clinical and gene expression features along with stage labels.
+
+    *We tuned both networks using Keras Tuner.
+
+    * After training, we generated 10 synthetic samples per stage, then decoded and saved them as downloadable CSV files.
+    """)
+
+    mo.vstack([gan_text, mo.image('img/flattened_cgan.png')])
+    return
 
 
 if __name__ == "__main__":

@@ -1,12 +1,14 @@
-@import url('https://fonts.googleapis.com/css?family=Raleway:400,700');
+@import url("https://fonts.googleapis.com/css?family=Raleway:400,700");
 
-*, *:before, *:after {
+*,
+*:before,
+*:after {
   box-sizing: border-box;
 }
 
 body {
   min-height: 100vh;
-  font-family: 'Raleway', sans-serif;
+  font-family: "Raleway", sans-serif;
   margin: 0;
   padding: 0;
 }
@@ -22,9 +24,12 @@ body {
   cursor: pointer;
 }
 
-.container:hover, .container:active {
-  .top, .bottom {
-    &:before, &:after {
+.container:hover,
+.container:active {
+  .top,
+  .bottom {
+    &:before,
+    &:after {
       margin-left: 200px;
       transform-origin: -200px 50%;
       transition-delay: 0s;
@@ -37,9 +42,11 @@ body {
   }
 }
 
-.top, .bottom {
-  &:before, &:after {
-    content: '';
+.top,
+.bottom {
+  &:before,
+  &:after {
+    content: "";
     display: block;
     position: fixed;
     width: 400vmax;
@@ -82,7 +89,7 @@ body {
   width: 400px;
   height: 400px;
   top: 50%;
-  left: 60%;
+  left: 56%;
   transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
@@ -96,7 +103,27 @@ body {
   border-radius: 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
+@media (max-width: 1459px) and (min-width: 1143px) {
+  .center {
+    left: 59%;
+  }
+}
+@media (max-width: 1142px) and (min-width: 1120x) {
+  .center {
+    left: 58%;
+  }
+}
 
+@media (max-width: 1119px) and (min-width: 895px) {
+  .center {
+    left: 55%;
+  }
+}
+@media (max-width: 894px) {
+  .center {
+    left: 55%;
+  }
+}
 .center h2 {
   color: #333;
   margin-bottom: 15px;
