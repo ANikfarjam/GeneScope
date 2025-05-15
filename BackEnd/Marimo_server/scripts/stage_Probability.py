@@ -8,7 +8,7 @@ model_data = pd.read_csv('../AHPresults/fina_Stage_unaugmented2.csv', low_memory
 stage_p_df = pd.read_csv('../../Models/gbst/result/stage_result.csv', index_col=0)
 model_matrix = pd.read_csv('../../Models/gbst/result/classification_mtrx.csv', index_col=0)
 gdp_matrix = pd.read_csv('../../Models/gbst/result/gdb_p_result.csv')
-manually_calc_prop = pd.read_csv('../../Models/HMM/probabilitiesResults/weighted_initial_p.csv')
+manually_calc_prop = pd.read_csv('../AHPresults/weighted_initial_p.csv')
 
 # Format 'count' column
 manually_calc_prop['count'] = manually_calc_prop['count'].round(2)

@@ -119,3 +119,62 @@ BackEnd/Marimo_server/scripts ---> All the in-marimo analysis such as corrolatio
 - Expanded dataset support for multi-cancer analysis
 - Cloud-based deployment with automated scaling
 
+## Sources
+
+NCBI GEO DataSet Documentation:
+
+https://www.ncbi.nlm.nih.gov/geo/info/
+
+Cancer statistics:
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC8428369/#:~:text=Breast%20cancer%20is%20the%20most%2
+
+
+NGS:
+https://link.springer.com/article/10.1186/s12864-017-4011-0
+
+Cancer Types:
+
+https://www.cancer.org/cancer/types/breast-cancer/about/types-of-breast-cancer.html#:~:text=Invasive%20(or%20infiltrating)%20breast%20cancer%20has%20spread%20into%20surrounding%20breast,8
+0%25%20of%20all%20breast%20cancers
+
+Principal of Cancer Staging:
+
+https://www.facs.org/media/xuxfkbpb/principles_cancer_staging.pdf
+
+AHP Analysis was isnpired by:
+https://www.sciencedirect.com/science/article/pii/S0020025515002807?casa_token=GgHMPZ4GQWMAAAAA:kl0woyWwWFWZo5nfQDRqhcvztyB103WUWoYcc733pWUa0jKs_7ypculcinAcZjxHZbA3IzGZL3Q3
+
+
+MultiDeep Learning Model:
+
+https://ieeexplore.ieee.org/abstract/document/8292801?casa_token=J6Bt__TE05sAAAAA:P7rbhfoJDDM9DSFFDfsc5kUYGSFO-9c0UPnTINRVZkvUjYe9EUufViBbfkZ23pJ_XL2SQMHG1dfN&fbclid=IwY2xjawKSZuRleHRuA2FlbQIxMABicmlkETFMcHNONDN2eXhqdEtNOHRKAR4icRQO8hHxUotWrd-Kpv1tiq4KoLX2pqtAijDZn4HCAk4-z862MB0nWyfr1w_aem_bKQlg5gPM8kEHaUzt9UN3w
+
+Catboost:
+
+https://catboost.ai/
+
+Cox Proportional-Hazards Model:
+
+https://www.sthda.com/english/wiki/cox-proportional-hazards-model
+
+Generative Adversarial Network
+
+https://en.wikipedia.org/wiki/Generative_adversarial_network
+
+
+Marimo:
+
+https://docs.marimo.io/
+
+Non coding genes miRNA
+
+https://link.springer.com/article/10.1186/S12935-015-0185-1
+
+
+TNM Staging system:
+
+https://acsjournals.onlinelibrary.wiley.com/doi/full/10.1002/1097-0142%2820010415%2991%3A8%2B%3C1589%3A%3AAID-CNCR1170%3E3.0.CO%3B2-K
+
+
+
