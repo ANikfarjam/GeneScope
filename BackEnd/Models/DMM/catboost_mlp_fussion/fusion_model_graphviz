@@ -1,0 +1,36 @@
+// Fusion Model Architecture
+digraph {
+	rankdir=LR
+	node [color=lightgray fontname=Helvetica shape=box style=filled]
+	G0 [label="Gene Input
+(2000-dim)" color=lightblue]
+	G1 [label="Dense(256)" color=lightblue]
+	G2 [label=Dropout color=lightblue]
+	G3 [label="Dense(10)
+Gene Embedding" color=lightblue]
+	C0 [label="Clinical Input" color=lightyellow]
+	C1 [label="CatBoost
+Model" color=orange]
+	C2 [label="Extracted CatBoost
+Features (10-dim)" color=orange]
+	F0 [label="Concat Layer
+[Gene + Clinical]" color=lightgreen]
+	F1 [label="Fusion Dense(512)" color=lightgreen]
+	F2 [label=Dropout color=lightgreen]
+	F3 [label="Fusion Dense(192)" color=lightgreen]
+	F4 [label=Dropout color=lightgreen]
+	F5 [label="Softmax Output
+(10 classes)" color=lightgreen]
+	G0 -> G1
+	G1 -> G2
+	G2 -> G3
+	C0 -> C1
+	C1 -> C2
+	G3 -> F0
+	C2 -> F0
+	F0 -> F1
+	F1 -> F2
+	F2 -> F3
+	F3 -> F4
+	F4 -> F5
+}
